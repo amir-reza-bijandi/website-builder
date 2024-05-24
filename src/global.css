@@ -54,6 +54,10 @@
     @apply border-border;
   }
 
+  *::selection {
+    @apply bg-primary text-primary-foreground;
+  }
+
   html {
     font-family:
       'Geist Sans',
