@@ -8,8 +8,31 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar';
+import useUIStore from '@/store/ui';
+import CONFIG from '@/config';
 
-export default function MainMenubar() {
+export default function GlobalMenubar() {
+  const {
+    isLeftPanelVisible,
+    isRightPanelVisible,
+    toggleLeftPanel,
+    toggleRightPanel,
+    setUiScale,
+    uiScale,
+  } = useUIStore();
+
+  const handleUIScaleUp: React.MouseEventHandler = () => {
+    setUiScale(Number((uiScale + 0.1).toFixed(1)));
+  };
+
+  const handleUIScaleDown: React.MouseEventHandler = () => {
+    setUiScale(Number((uiScale - 0.1).toFixed(1)));
+  };
+
+  const handleRestUIScale: React.MouseEventHandler = () => {
+    setUiScale(CONFIG.UI_SCALE);
+  };
+
   return (
     <Menubar className='rounded-none border-none'>
       <MenubarMenu>
@@ -56,15 +79,47 @@ export default function MainMenubar() {
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>View</MenubarTrigger>
-        <MenubarContent>
-          <MenubarCheckboxItem checked>Show Left Penel</MenubarCheckboxItem>
-          <MenubarCheckboxItem checked>Show Right Panel</MenubarCheckboxItem>
+        <MenubarContent className='w-64'>
+          <MenubarCheckboxItem
+            checked={isLeftPanelVisible}
+            onClick={toggleLeftPanel}
+          >
+            Show Left Penel
+          </MenubarCheckboxItem>
+          <MenubarCheckboxItem
+            checked={isRightPanelVisible}
+            onClick={toggleRightPanel}
+          >
+            Show Right Panel
+          </MenubarCheckboxItem>
           <MenubarSeparator />
           <MenubarItem inset>
-            Zoom In <MenubarShortcut>Ctrl++</MenubarShortcut>
+            Zoom + <MenubarShortcut>Ctrl++</MenubarShortcut>
           </MenubarItem>
           <MenubarItem inset>
-            Zoom Out <MenubarShortcut>Ctrl+-</MenubarShortcut>
+            Zoom - <MenubarShortcut>Ctrl+-</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem inset>
+            Reset Zoom <MenubarShortcut>Ctrl+0</MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem
+            inset
+            disabled={uiScale === CONFIG.MAX_UI_SCALE}
+            onClick={handleUIScaleUp}
+          >
+            UI Scale +<MenubarShortcut>Shift+Ctrl++</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem
+            inset
+            disabled={uiScale === CONFIG.MIN_UI_SCALE}
+            onClick={handleUIScaleDown}
+          >
+            UI Scale -<MenubarShortcut>Shift+Ctrl+-</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem inset onClick={handleRestUIScale}>
+            Reset UI Scale
+            <MenubarShortcut>Shift+Ctrl+0</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
