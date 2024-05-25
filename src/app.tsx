@@ -5,6 +5,9 @@ import RightPanel from './components/right-panel';
 import TopPanel from './components/top-panel';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
 import useAllowPanning from './hook/useAllowPanning';
+import useCanvasStore from './store/canvas';
+
+useCanvasStore.subscribe(console.log);
 
 export default function App() {
   usePreventDefaultBrowserZoom();

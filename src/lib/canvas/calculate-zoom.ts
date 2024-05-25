@@ -1,11 +1,11 @@
-import useCanvasStore, { View } from '@/store/canvas';
+import useCanvasStore, { CanvasView } from '@/store/canvas';
 
 export default function calculateZoom(
   canvas: Element,
   zoomFactor: number,
   focusPointX?: number,
   focusPointY?: number,
-): View {
+): CanvasView {
   const { view } = useCanvasStore.getState();
   const newZoomFactor = zoomFactor;
   const currentZoomFactor = view.zoomFactor;

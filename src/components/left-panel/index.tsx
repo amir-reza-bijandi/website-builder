@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import Toolbox from './toolbox';
 
 type LeftPanelProps = {
   hidden?: boolean;
@@ -13,6 +14,7 @@ export default function LeftPanel({ hidden = false }: LeftPanelProps) {
       )}
     >
       Left Panel
+      <Toolbox />
     </div>
   );
 }
