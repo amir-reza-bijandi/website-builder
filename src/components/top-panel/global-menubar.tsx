@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/menubar';
 import useUIStore from '@/store/ui';
 import CONFIG from '@/config';
+import useCanvasStore from '@/store/canvas';
+import calculateZoom from '@/lib/canvas/calculate-zoom';
 
 export default function GlobalMenubar() {
   const {
@@ -21,6 +23,11 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
+  const { view, setView } = useCanvasStore((store) => ({
+    view: store.view,
+    setView: store.setView,
+  }));
+
   const handleUIScaleUp: React.MouseEventHandler = () => {
     setUiScale(Number((uiScale + 0.1).toFixed(1)));
   };
@@ -29,8 +36,27 @@ export default function GlobalMenubar() {
     setUiScale(Number((uiScale - 0.1).toFixed(1)));
   };
 
-  const handleRestUIScale: React.MouseEventHandler = () => {
+  const handleUIScaleRest: React.MouseEventHandler = () => {
     setUiScale(CONFIG.UI_SCALE);
+  };
+
+  const handleZoomIn: React.MouseEventHandler = () => {
+    const canvas = document.getElementById('canvas')!;
+    setView(
+      calculateZoom(canvas, view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER),
+    );
+  };
+
+  const handleZoomOut: React.MouseEventHandler = () => {
+    const canvas = document.getElementById('canvas')!;
+    setView(
+      calculateZoom(canvas, view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER),
+    );
+  };
+
+  const handleZoomReset: React.MouseEventHandler = () => {
+    const canvas = document.getElementById('canvas')!;
+    setView(calculateZoom(canvas, 1));
   };
 
   return (
@@ -93,13 +119,13 @@ export default function GlobalMenubar() {
             Show Right Panel
           </MenubarCheckboxItem>
           <MenubarSeparator />
-          <MenubarItem inset>
+          <MenubarItem inset onClick={handleZoomIn}>
             Zoom + <MenubarShortcut>Ctrl++</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset>
+          <MenubarItem inset onClick={handleZoomOut}>
             Zoom - <MenubarShortcut>Ctrl+-</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset>
+          <MenubarItem inset onClick={handleZoomReset}>
             Reset Zoom <MenubarShortcut>Ctrl+0</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
@@ -117,7 +143,7 @@ export default function GlobalMenubar() {
           >
             UI Scale -<MenubarShortcut>Shift+Ctrl+-</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset onClick={handleRestUIScale}>
+          <MenubarItem inset onClick={handleUIScaleRest}>
             Reset UI Scale
             <MenubarShortcut>Shift+Ctrl+0</MenubarShortcut>
           </MenubarItem>

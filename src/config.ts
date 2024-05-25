@@ -4,6 +4,7 @@ const CONFIG = {
   MIN_UI_SCALE: 0.5,
   IS_LEFT_PANEL_VISIBLE: true,
   IS_RIGHT_PANEL_VISIBLE: true,
+  ZOOM_FACTOR_MULTIPLIER: 1.1,
 } as const;
 
 export default CONFIG;
