@@ -12,7 +12,7 @@ export default function App() {
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();
 
   return (
-    <div className='flex h-screen flex-col'>
+    <div className='flex h-screen flex-col overflow-hidden'>
       <TopPanel />
       <div className='relative h-full'>
         <LeftPanel hidden={!isLeftPanelVisible} />
