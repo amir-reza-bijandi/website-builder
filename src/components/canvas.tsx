@@ -34,8 +34,9 @@ export default function Canvas() {
   const handlePanningStart: React.MouseEventHandler<HTMLElement> = ({
     clientX,
     clientY,
+    ctrlKey,
   }) => {
-    if (isPanning) {
+    if (isPanning && !ctrlKey) {
       initialMousePositionRef.current = { x: clientX, y: clientY };
       initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
 
