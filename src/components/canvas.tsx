@@ -46,7 +46,6 @@ export default function Canvas() {
       document.body.addEventListener('mousemove', handlePanning);
     }
   };
-  ('relative flex h-full items-center justify-center overflow-hidden');
 
   const handlePanning = ({ clientX, clientY }: MouseEvent) => {
     const { x: initialClientX, y: initialClientY } =
