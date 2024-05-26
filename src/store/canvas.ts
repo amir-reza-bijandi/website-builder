@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type CanvasAction = 'ADD' | 'SELECT';
+export type CanvasAction = 'ADD' | 'SELECT' | 'PAN';
 export type CanvasTool = 'FRAME' | 'TEXT' | 'IMAGE' | null | undefined;
 export type CanvasToolbox = {
   action: CanvasAction;
@@ -16,10 +16,8 @@ export type CanvasView = {
 type CanvasStore = {
   view: CanvasView;
   toolbox: CanvasToolbox;
-  isPanningAllowed: boolean;
   setView: (view: Partial<CanvasView>) => void;
   setToolbox: (toolbox: Partial<CanvasToolbox>) => void;
-  setPanningAllowed: (isPanningAllowed: boolean) => void;
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
@@ -32,7 +30,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     action: 'SELECT',
     tool: null,
   },
-  isPanningAllowed: false,
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -49,9 +46,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         tool: tool ?? null,
       },
     }));
-  },
-  setPanningAllowed(isPanningAllowed) {
-    set({ isPanningAllowed });
   },
 }));
 

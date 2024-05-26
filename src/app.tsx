@@ -4,14 +4,11 @@ import LeftPanel from './components/left-panel';
 import RightPanel from './components/right-panel';
 import TopPanel from './components/top-panel';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
-import useAllowPanning from './hook/use-allow-panning';
-import useCanvasStore from './store/canvas';
-
-useCanvasStore.subscribe(console.log);
+import usePanningWithSpaceKey from './hook/use-panning-with-space-key';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
-  useAllowPanning();
+  usePanningWithSpaceKey();
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();
 
   return (

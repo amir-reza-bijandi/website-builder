@@ -5,9 +5,11 @@ import generateViewConfig from '@/lib/canvas/calculate-zoom';
 import { cn } from '@/lib/utils';
 
 export default function Canvas() {
-  const { view, setView, isPanningAllowed } = useCanvasStore();
+  const { view, setView, toolbox } = useCanvasStore();
   const initialMousePositionRef = useRef({ x: 0, y: 0 });
   const initialViewOffsetRef = useRef({ x: 0, y: 0 });
+
+  const isPanning = toolbox.action === 'PAN';
 
   // Zoom in and out
   const handleZoomFactorChange: React.WheelEventHandler<HTMLElement> = ({
@@ -33,7 +35,7 @@ export default function Canvas() {
     clientX,
     clientY,
   }) => {
-    if (isPanningAllowed) {
+    if (isPanning) {
       initialMousePositionRef.current = { x: clientX, y: clientY };
       initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
 
@@ -68,7 +70,7 @@ export default function Canvas() {
     <main
       className={cn(
         'relative flex h-full items-center justify-center overflow-hidden',
-        isPanningAllowed && 'cursor-grab active:cursor-grabbing',
+        isPanning && 'cursor-grab active:cursor-grabbing',
       )}
       onWheel={handleZoomFactorChange}
       onMouseDown={handlePanningStart}

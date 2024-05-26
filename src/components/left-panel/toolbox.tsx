@@ -1,4 +1,10 @@
-import { FrameIcon, ImageIcon, MousePointerIcon, TypeIcon } from 'lucide-react';
+import {
+  FrameIcon,
+  HandIcon,
+  ImageIcon,
+  MousePointerIcon,
+  TypeIcon,
+} from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import useCanvasStore, { CanvasTool } from '@/store/canvas';
 
@@ -16,14 +22,14 @@ const toolbox: Readonly<Tool[]> = [
 
 export default function Toolbox() {
   const {
-    toolbox: { tool },
+    toolbox: { tool, action },
     setToolbox,
   } = useCanvasStore();
 
   const handleToolChange = (value: string) => {
     if (!value) return;
-    if (value === 'SELECT') {
-      setToolbox({ action: 'SELECT' });
+    if (value === 'SELECT' || value === 'PAN') {
+      setToolbox({ action: value });
     } else {
       setToolbox({ action: 'ADD', tool: value as CanvasTool });
     }
@@ -32,7 +38,7 @@ export default function Toolbox() {
   return (
     <ToggleGroup
       type='single'
-      value={tool ? tool : 'SELECT'}
+      value={tool ? tool : action}
       onValueChange={handleToolChange}
       className='absolute left-full top-0 m-2 flex gap-1 rounded border p-1'
     >
@@ -43,7 +49,13 @@ export default function Toolbox() {
       >
         <MousePointerIcon />
       </ToggleGroupItem>
-
+      <ToggleGroupItem
+        value={'PAN'}
+        className='hover:bg-primary/50 hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+        aria-label={`Switch to select tool`}
+      >
+        <HandIcon />
+      </ToggleGroupItem>
       {toolbox.map((tool) => (
         <ToggleGroupItem
           key={tool.type}
