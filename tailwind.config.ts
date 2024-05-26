@@ -1,5 +1,6 @@
 import { type Config } from 'tailwindcss';
 import tailwindcssAnimated from 'tailwindcss-animate';
+import plugin from 'tailwindcss/plugin';
 
 const config: Config = {
   darkMode: ['class'],
@@ -75,7 +76,21 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindcssAnimated],
+  plugins: [
+    tailwindcssAnimated,
+    plugin(({ addUtilities }) => {
+      addUtilities(
+        cursorList.reduce((result, cursorName) => {
+          result[`.cursor-custom-${cursorName}`] = {
+            cursor: `url('/cursor/${cursorName}.svg'), ${cursorName}`,
+          };
+          return result;
+        }, {}),
+      );
+    }),
+  ],
 };
+
+const cursorList = ['default', 'grab', 'grabbing', 'crosshair', 'pointer'];
 
 export default config;

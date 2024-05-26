@@ -70,7 +70,8 @@ export default function Canvas() {
     <main
       className={cn(
         'relative flex h-full items-center justify-center overflow-hidden',
-        isPanning && 'cursor-grab active:cursor-grabbing',
+        toolbox.action === 'ADD' && 'cursor-custom-crosshair',
+        isPanning && 'cursor-custom-grab active:cursor-custom-grabbing',
       )}
       onWheel={handleZoomFactorChange}
       onMouseDown={handlePanningStart}

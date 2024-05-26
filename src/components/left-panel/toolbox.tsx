@@ -2,7 +2,7 @@ import {
   FrameIcon,
   HandIcon,
   ImageIcon,
-  MousePointerIcon,
+  MousePointer2Icon,
   TypeIcon,
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -47,7 +47,7 @@ export default function Toolbox() {
         className='hover:bg-primary/50 hover:text-primary-foreground data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
         aria-label={`Switch to select tool`}
       >
-        <MousePointerIcon />
+        <MousePointer2Icon />
       </ToggleGroupItem>
       <ToggleGroupItem
         value={'PAN'}
