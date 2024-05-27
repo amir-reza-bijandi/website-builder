@@ -9,8 +9,16 @@ import Render from './render';
 // useCanvasStore.subscribe(console.log);
 
 export default function Canvas() {
-  const { view, setView, toolbox, addElement, updateElement } =
-    useCanvasStore();
+  const {
+    view,
+    setView,
+    toolbox,
+    setToolbox,
+    addElement,
+    updateElement,
+    setSelectedElementIds,
+    selectedElementIds,
+  } = useCanvasStore();
   const initialMousePositionRef = useRef({ x: 0, y: 0 });
   const initialViewOffsetRef = useRef({ x: 0, y: 0 });
   const createdElementIdRef = useRef<string>('');
@@ -41,7 +49,16 @@ export default function Canvas() {
     clientX,
     clientY,
     ctrlKey,
+    currentTarget,
+    target,
   }) => {
+    const canvas = currentTarget.children[0];
+    if (target === canvas) {
+      if (selectedElementIds[0]) {
+        setSelectedElementIds([]);
+      }
+    }
+
     initialMousePositionRef.current = { x: clientX, y: clientY };
     initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
 
@@ -142,8 +159,14 @@ export default function Canvas() {
   };
 
   const handleResizeOnCreateEnd = () => {
+    if (createdElementIdRef.current) {
+      setSelectedElementIds([createdElementIdRef.current]);
+      setToolbox({ action: 'SELECT' });
+      createdElementIdRef.current = '';
+    }
     document.body.removeEventListener('mousemove', handleResizeOnCreate);
-    createdElementIdRef.current = '';
+    document.body.removeEventListener('mouseup', handleResizeOnCreateEnd);
+    document.body.removeEventListener('mouseleave', handleResizeOnCreateEnd);
   };
 
   return (

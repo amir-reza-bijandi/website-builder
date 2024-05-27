@@ -27,10 +27,12 @@ type CanvasStore = {
   view: CanvasView;
   toolbox: CanvasToolbox;
   elementList: CanvasElement[];
+  selectedElementIds: string[];
   setView: (view: Partial<CanvasView>) => void;
   setToolbox: (toolbox: Partial<CanvasToolbox>) => void;
   addElement: (element: CanvasElement) => void;
   updateElement: (updatedElement: CanvasElement) => void;
+  setSelectedElementIds: (id: string[]) => void;
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
@@ -44,6 +46,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     tool: null,
   },
   elementList: [],
+  selectedElementIds: [],
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -82,6 +85,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         }
       }),
     );
+  },
+  setSelectedElementIds(idList) {
+    set({ selectedElementIds: idList });
   },
 }));
 
