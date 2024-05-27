@@ -1,6 +1,6 @@
-import CanvasElementConfig from '@/type/element-config';
-import CanvasBaseElement from './base';
-import { CanvasFrameElementOverflow } from '@/type/element-property';
+import CanvasBaseElement from './base-model';
+import type CanvasElementConfig from '@/type/element-config-type';
+import type { CanvasFrameElementOverflow } from '@/type/element-property-types';
 
 export default class CanvasFrameElement extends CanvasBaseElement<'FRAME'> {
   readonly overflow: CanvasFrameElementOverflow;

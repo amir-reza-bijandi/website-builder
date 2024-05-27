@@ -1,4 +1,4 @@
-import CanvasTextElement from '@/class/text';
+import CanvasTextElement from '@/model/text-model';
 
 type TextProps = {
   element: CanvasTextElement;

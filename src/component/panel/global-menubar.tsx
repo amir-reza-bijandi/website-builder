@@ -1,3 +1,4 @@
+import CONFIG from '@/config';
 import {
   Menubar,
   MenubarCheckboxItem,
@@ -7,11 +8,10 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from '@/components/ui/menubar';
-import useUIStore from '@/store/ui';
-import CONFIG from '@/config';
-import useCanvasStore from '@/store/canvas';
-import calculateZoom from '@/lib/canvas/calculate-zoom';
+} from '@/component/ui/menubar';
+import useUIStore from '@/store/ui-store';
+import useCanvasStore from '@/store/canvas-store';
+import createZoomView from '@/utility/canvas/create-zoom-view';
 
 export default function GlobalMenubar() {
   const {
@@ -43,20 +43,20 @@ export default function GlobalMenubar() {
   const handleZoomIn: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
     setView(
-      calculateZoom(canvas, view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER),
+      createZoomView(canvas, view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER),
     );
   };
 
   const handleZoomOut: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
     setView(
-      calculateZoom(canvas, view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER),
+      createZoomView(canvas, view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER),
     );
   };
 
   const handleZoomReset: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
-    setView(calculateZoom(canvas, 1));
+    setView(createZoomView(canvas, 1));
   };
 
   return (

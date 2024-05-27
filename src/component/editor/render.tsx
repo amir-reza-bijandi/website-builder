@@ -1,5 +1,5 @@
-import useCanvasStore from '@/store/canvas';
-import SelectWrapper from './canvas/select-wrapper';
+import useCanvasStore from '@/store/canvas-store';
+import SelectWrapper from './select-wrapper';
 
 export default function Render() {
   const { elementList } = useCanvasStore();

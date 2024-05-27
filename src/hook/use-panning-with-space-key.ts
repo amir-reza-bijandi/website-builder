@@ -1,5 +1,5 @@
-import useCanvasStore from '@/store/canvas';
 import { useEffect, useRef } from 'react';
+import useCanvasStore from '@/store/canvas-store';
 
 export default function usePanningWithSpaceKey() {
   const { toolbox, setToolbox } = useCanvasStore();

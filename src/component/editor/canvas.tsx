@@ -1,9 +1,9 @@
 import { useRef } from 'react';
-import useCanvasStore from '@/store/canvas';
 import CONFIG from '@/config';
-import generateViewConfig from '@/lib/canvas/calculate-zoom';
-import { cn } from '@/lib/utils';
-import createElement from '@/lib/canvas/create-element';
+import useCanvasStore from '@/store/canvas-store';
+import { cn } from '@/utility/general-utilities';
+import createZoomView from '@/utility/canvas/create-zoom-view';
+import createElement from '@/utility/canvas/create-element';
 import Render from './render';
 
 // useCanvasStore.subscribe(console.log);
@@ -41,7 +41,7 @@ export default function Canvas() {
       else newZoomFactor = view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER;
 
       const canvas = currentTarget.children[0];
-      setView(generateViewConfig(canvas, newZoomFactor, clientX, clientY));
+      setView(createZoomView(canvas, newZoomFactor, clientX, clientY));
     }
   };
 

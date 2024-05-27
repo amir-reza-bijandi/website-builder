@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useUIStore from '@/store/ui';
+import useUIStore from '@/store/ui-store';
 
 export default function useUIScale() {
   const { isLeftPanelVisible, isRightPanelVisible, uiScale } = useUIStore();

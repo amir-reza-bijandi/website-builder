@@ -1,8 +1,9 @@
+import Canvas from './component/editor/canvas';
+import LeftPanel from './component/panel/left-panel';
+import RightPanel from './component/panel/right-panel';
+import TopPanel from './component/panel/top-panel';
+
 import useUIScale from './hook/use-ui-scale';
-import Canvas from './components/canvas';
-import LeftPanel from './components/left-panel';
-import RightPanel from './components/right-panel';
-import TopPanel from './components/top-panel';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
 import usePanningWithSpaceKey from './hook/use-panning-with-space-key';
 

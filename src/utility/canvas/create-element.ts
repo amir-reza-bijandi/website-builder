@@ -1,8 +1,9 @@
-import CanvasFrameElement from '@/class/frame';
-import CanvasImageElement from '@/class/image';
-import CanvasTextElement from '@/class/text';
-import CanvasElementConfig from '@/type/element-config';
-import { CanvasElementType } from '@/type/element-property';
+import CanvasFrameElement from '@/model/frame-model';
+import CanvasImageElement from '@/model/image-model';
+import CanvasTextElement from '@/model/text-model';
+
+import type CanvasElementConfig from '@/type/element-config-type';
+import type { CanvasElementType } from '@/type/element-property-types';
 
 export default function createElement<T extends CanvasElementType>(
   type: T,

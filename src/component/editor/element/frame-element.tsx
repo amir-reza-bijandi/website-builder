@@ -1,4 +1,4 @@
-import CanvasFrameElement from '@/class/frame';
+import CanvasFrameElement from '@/model/frame';
 
 type FrameProps = {
   element: CanvasFrameElement;

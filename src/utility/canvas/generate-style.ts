@@ -1,4 +1,4 @@
-import { CanvasElement } from '@/store/canvas';
+import type { CanvasElement } from '@/type/canvas-store-types';
 
 export default function generateStyle(
   element: CanvasElement,

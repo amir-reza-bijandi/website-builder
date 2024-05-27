@@ -1,27 +1,10 @@
-import CanvasFrameElement from '@/class/frame';
-import CanvasImageElement from '@/class/image';
-import CanvasTextElement from '@/class/text';
-import { CanvasElementType } from '@/type/element-property';
+import type {
+  CanvasView,
+  CanvasToolbox,
+  CanvasElement,
+} from '@/type/canvas-store-types';
 import { produce } from 'immer';
 import { create } from 'zustand';
-
-export type CanvasAction = 'ADD' | 'SELECT' | 'PAN';
-export type CanvasTool = CanvasElementType | null | undefined;
-export type CanvasToolbox = {
-  action: CanvasAction;
-  tool: CanvasTool;
-};
-
-export type CanvasView = {
-  zoomFactor: number;
-  offsetX: number;
-  offsetY: number;
-};
-
-export type CanvasElement =
-  | CanvasFrameElement
-  | CanvasTextElement
-  | CanvasImageElement;
 
 type CanvasStore = {
   view: CanvasView;

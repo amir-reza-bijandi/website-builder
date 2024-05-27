@@ -1,11 +1,11 @@
 import { nanoid } from 'nanoid';
 import CONFIG from '@/config';
-import {
+import type {
   CanvasElementType,
   CanvasElementDisplay,
   CanvasElementPosition,
   CanvasElementConstraint,
-} from '@/type/element-property';
+} from '@/type/element-property-types';
 
 export default abstract class CanvasBaseElement<T extends CanvasElementType> {
   constructor(

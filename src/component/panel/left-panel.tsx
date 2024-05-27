@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utility/general-utilities';
 import Toolbox from './toolbox';
 
 type LeftPanelProps = {

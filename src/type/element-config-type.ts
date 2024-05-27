@@ -1,5 +1,8 @@
-import CanvasBaseElement from '@/class/base';
-import { CanvasElementType, ElementSpecificProperty } from './element-property';
+import CanvasBaseElement from '@/model/base-model';
+import type {
+  CanvasElementType,
+  ElementSpecificProperty,
+} from './element-property-types';
 
 type CanvasElementConfig<T extends CanvasElementType> =
   T extends CanvasElementType

@@ -1,4 +1,4 @@
-import CanvasImageElement from '@/class/image';
+import CanvasImageElement from '@/model/image-model';
 
 type ImageProps = {
   element: CanvasImageElement;

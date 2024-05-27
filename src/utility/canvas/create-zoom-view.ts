@@ -1,6 +1,7 @@
-import useCanvasStore, { CanvasView } from '@/store/canvas';
+import type { CanvasView } from '@/type/canvas-store-types';
+import useCanvasStore from '@/store/canvas-store';
 
-export default function calculateZoom(
+export default function generateZoomView(
   canvas: Element,
   zoomFactor: number,
   focusPointX?: number,

@@ -1,9 +1,10 @@
-import useCanvasStore, { CanvasElement } from '@/store/canvas';
-import Frame from './frame';
-import Text from './text';
-import Image from './image';
-import generateStyle from '@/lib/canvas/generateStyle';
+import useCanvasStore from '@/store/canvas-store';
+import Frame from './element/frame-element';
+import Text from './element/text-element';
+import Image from './element/image-element';
+import generateStyle from '@/utility/canvas/generate-style';
 import { useRef } from 'react';
+import type { CanvasElement } from '@/type/canvas-store-types';
 
 type SelectWrapperProps = ElementRenderProps;
 

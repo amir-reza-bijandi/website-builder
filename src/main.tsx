@@ -13,7 +13,7 @@ import '@fontsource/geist-sans/900.css';
 import './global.css';
 
 import App from './app';
-import { ThemeProvider } from './components/theme-provider';
+import { ThemeProvider } from './component/provider/theme-provider';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

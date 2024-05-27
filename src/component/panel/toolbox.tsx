@@ -5,8 +5,9 @@ import {
   MousePointer2Icon,
   TypeIcon,
 } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import useCanvasStore, { CanvasTool } from '@/store/canvas';
+import { ToggleGroup, ToggleGroupItem } from '@/component/ui/toggle-group';
+import useCanvasStore from '@/store/canvas-store';
+import type { CanvasTool } from '@/type/canvas-store-types';
 
 type Tool = {
   type: Exclude<CanvasTool, null | undefined>;
