@@ -78,17 +78,20 @@ export default function Canvas() {
     }
   };
 
-  const handlePanning = ({ clientX, clientY }: MouseEvent) => {
-    const { x: initialClientX, y: initialClientY } =
-      initialMousePositionRef.current;
-    const { x: intialOffsetX, y: initialOffsetY } =
-      initialViewOffsetRef.current;
+  const handlePanning = ({ clientX, clientY, ctrlKey }: MouseEvent) => {
+    // Prevent panning when ctrl key is pressed
+    if (!ctrlKey) {
+      const { x: initialClientX, y: initialClientY } =
+        initialMousePositionRef.current;
+      const { x: intialOffsetX, y: initialOffsetY } =
+        initialViewOffsetRef.current;
 
-    // Calculate the new offset based on the initial mouse postion and the current mouse position
-    const offsetX = intialOffsetX + clientX - initialClientX;
-    const offsetY = initialOffsetY + clientY - initialClientY;
+      // Calculate the new offset based on the initial mouse postion and the current mouse position
+      const offsetX = intialOffsetX + clientX - initialClientX;
+      const offsetY = initialOffsetY + clientY - initialClientY;
 
-    setView({ offsetX, offsetY });
+      setView({ offsetX, offsetY });
+    }
   };
 
   const handlePanningEnd = () => {
