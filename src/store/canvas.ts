@@ -1,7 +1,12 @@
+import CanvasFrameElement from '@/class/frame';
+import CanvasImageElement from '@/class/image';
+import CanvasTextElement from '@/class/text';
+import { CanvasElementType } from '@/type/element-property';
+import { produce } from 'immer';
 import { create } from 'zustand';
 
 export type CanvasAction = 'ADD' | 'SELECT' | 'PAN';
-export type CanvasTool = 'FRAME' | 'TEXT' | 'IMAGE' | null | undefined;
+export type CanvasTool = CanvasElementType | null | undefined;
 export type CanvasToolbox = {
   action: CanvasAction;
   tool: CanvasTool;
@@ -13,11 +18,19 @@ export type CanvasView = {
   offsetY: number;
 };
 
+export type CanvasElement =
+  | CanvasFrameElement
+  | CanvasTextElement
+  | CanvasImageElement;
+
 type CanvasStore = {
   view: CanvasView;
   toolbox: CanvasToolbox;
+  elementList: CanvasElement[];
   setView: (view: Partial<CanvasView>) => void;
   setToolbox: (toolbox: Partial<CanvasToolbox>) => void;
+  addElement: (element: CanvasElement) => void;
+  updateElement: (updatedElement: CanvasElement) => void;
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
@@ -30,6 +43,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     action: 'SELECT',
     tool: null,
   },
+  elementList: [],
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -46,6 +60,28 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         tool: tool ?? null,
       },
     }));
+  },
+  addElement(element) {
+    set((store) => ({
+      elementList: [...store.elementList, element],
+    }));
+  },
+  updateElement(updatedElement) {
+    set(
+      produce<CanvasStore>((store) => {
+        try {
+          const index = store.elementList.findIndex(
+            (element) => element.id === updatedElement.id,
+          );
+          if (index === -1) throw new Error('Element not found');
+          const oldElement = store.elementList[index];
+          const newElement = { ...oldElement, ...updatedElement };
+          store.elementList[index] = newElement;
+        } catch (error) {
+          console.error(error);
+        }
+      }),
+    );
   },
 }));
 

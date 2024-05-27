@@ -40,7 +40,7 @@ export default function Toolbox() {
       type='single'
       value={tool ? tool : action}
       onValueChange={handleToolChange}
-      className='absolute left-full top-0 m-2 flex gap-1 rounded border p-1'
+      className='absolute left-full top-0 z-50 m-2 flex gap-1 rounded border bg-background p-1'
     >
       <ToggleGroupItem
         value={'SELECT'}

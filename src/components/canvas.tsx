@@ -3,11 +3,17 @@ import useCanvasStore from '@/store/canvas';
 import CONFIG from '@/config';
 import generateViewConfig from '@/lib/canvas/calculate-zoom';
 import { cn } from '@/lib/utils';
+import createElement from '@/lib/canvas/create-element';
+import Render from './render';
+
+// useCanvasStore.subscribe(console.log);
 
 export default function Canvas() {
-  const { view, setView, toolbox } = useCanvasStore();
+  const { view, setView, toolbox, addElement, updateElement } =
+    useCanvasStore();
   const initialMousePositionRef = useRef({ x: 0, y: 0 });
   const initialViewOffsetRef = useRef({ x: 0, y: 0 });
+  const createdElementIdRef = useRef<string>('');
 
   const isPanning = toolbox.action === 'PAN';
 
@@ -31,19 +37,27 @@ export default function Canvas() {
     }
   };
 
-  const handlePanningStart: React.MouseEventHandler<HTMLElement> = ({
+  const handleMouseDown: React.MouseEventHandler<HTMLElement> = ({
     clientX,
     clientY,
     ctrlKey,
   }) => {
-    if (isPanning && !ctrlKey) {
-      initialMousePositionRef.current = { x: clientX, y: clientY };
-      initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
+    initialMousePositionRef.current = { x: clientX, y: clientY };
+    initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
 
-      // Adding the panning event listeners to body to allow panning outside of the canvas
-      document.body.addEventListener('mouseup', handlePanningEnd);
-      document.body.addEventListener('mouseleave', handlePanningEnd);
-      document.body.addEventListener('mousemove', handlePanning);
+    // Panning Logic
+    if (isPanning) {
+      // Prevent panning and zooming at the same time
+      if (!ctrlKey) {
+        // Adding the panning event listeners to body to allow panning outside of the canvas
+        document.body.addEventListener('mouseup', handlePanningEnd);
+        document.body.addEventListener('mouseleave', handlePanningEnd);
+        document.body.addEventListener('mousemove', handlePanning);
+      }
+    } else {
+      document.body.addEventListener('mousemove', handleResizeOnCreate);
+      document.body.addEventListener('mouseup', handleResizeOnCreateEnd);
+      document.body.addEventListener('mouseleave', handleResizeOnCreateEnd);
     }
   };
 
@@ -66,6 +80,72 @@ export default function Canvas() {
     document.body.removeEventListener('mousemove', handlePanning);
   };
 
+  const handleResizeOnCreate = ({ clientX, clientY }: MouseEvent) => {
+    if (toolbox.action === 'ADD' && toolbox.tool) {
+      const { x: initialClientX, y: initialClientY } =
+        initialMousePositionRef.current;
+      const canvas = document.getElementById('canvas')!;
+      const canvasRect = canvas.getBoundingClientRect();
+
+      // Take zoom factor into account
+      const scaledClientX = clientX / view.zoomFactor;
+      const scaledClientY = clientY / view.zoomFactor;
+
+      const scaledInitialClientX = initialClientX / view.zoomFactor;
+      const scaledInitialClientY = initialClientY / view.zoomFactor;
+
+      const scaledCanvasTop = canvasRect.top / view.zoomFactor;
+      const scaledCanvasLeft = canvasRect.left / view.zoomFactor;
+      const scaledCanvasBottom = canvasRect.bottom / view.zoomFactor;
+      const scaledCanvasRight = canvasRect.right / view.zoomFactor;
+
+      const left =
+        scaledClientX - scaledInitialClientX >= 0
+          ? scaledInitialClientX - scaledCanvasLeft
+          : scaledClientX - scaledCanvasLeft;
+      const top =
+        scaledClientY - scaledInitialClientY >= 0
+          ? scaledInitialClientY - scaledCanvasTop
+          : scaledClientY - scaledCanvasTop;
+      const right =
+        scaledClientX - scaledInitialClientX >= 0
+          ? scaledCanvasRight - scaledClientX
+          : scaledCanvasRight - scaledInitialClientX;
+      const bottom =
+        scaledClientY - scaledInitialClientY >= 0
+          ? scaledCanvasBottom - scaledClientY
+          : scaledCanvasBottom - scaledInitialClientY;
+
+      const element = createElement(toolbox.tool, {
+        id: createdElementIdRef.current || undefined,
+        position: {
+          mode: 'ABSOLUTE',
+          left,
+          top,
+          right,
+          bottom,
+        },
+        display: {
+          mode: 'BLOCK',
+          width: 'AUTO',
+          height: 'AUTO',
+        },
+      });
+
+      if (!createdElementIdRef.current) {
+        addElement(element);
+        createdElementIdRef.current = element.id;
+      } else {
+        updateElement(element);
+      }
+    }
+  };
+
+  const handleResizeOnCreateEnd = () => {
+    document.body.removeEventListener('mousemove', handleResizeOnCreate);
+    createdElementIdRef.current = '';
+  };
+
   return (
     <main
       className={cn(
@@ -74,7 +154,7 @@ export default function Canvas() {
         isPanning && 'cursor-custom-grab active:cursor-custom-grabbing',
       )}
       onWheel={handleZoomFactorChange}
-      onMouseDown={handlePanningStart}
+      onMouseDown={handleMouseDown}
     >
       <div
         id='canvas'
@@ -85,7 +165,7 @@ export default function Canvas() {
         }
         className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'
       >
-        This is the center of the canvas
+        <Render />
       </div>
     </main>
   );
