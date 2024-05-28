@@ -15,10 +15,14 @@ const useUIStore = create<UIStore>((set) => ({
     ? Number(localStorage.getItem('uiScale'))
     : CONFIG.UI_SCALE,
   isLeftPanelVisible: localStorage.getItem('isLeftPanelVisible')
-    ? Boolean(localStorage.getItem('isLeftPanelVisible'))
+    ? localStorage.getItem('isLeftPanelVisible') === 'true'
+      ? true
+      : false
     : CONFIG.IS_LEFT_PANEL_VISIBLE,
   isRightPanelVisible: localStorage.getItem('isRightPanelVisible')
-    ? Boolean(localStorage.getItem('isRightPanelVisible'))
+    ? localStorage.getItem('isRightPanelVisible') === 'true'
+      ? true
+      : false
     : CONFIG.IS_RIGHT_PANEL_VISIBLE,
   toggleLeftPanel() {
     set((store) => {
