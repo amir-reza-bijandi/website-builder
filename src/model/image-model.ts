@@ -6,14 +6,25 @@ export default class CanvasImageElement extends CanvasBaseElement<'IMAGE'> {
   constructor({
     id,
     parentId,
-    display,
+    width,
+    height,
     position,
     constraint,
     layer,
     order,
     src = '',
   }: CanvasElementConfig<'IMAGE'>) {
-    super('IMAGE', id, parentId, display, position, constraint, layer, order);
+    super(
+      'IMAGE',
+      id,
+      parentId,
+      width,
+      height,
+      position,
+      constraint,
+      layer,
+      order,
+    );
     this.src = src;
   }
 }

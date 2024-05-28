@@ -1,13 +1,19 @@
 import CanvasBaseElement from './base-model';
 import type CanvasElementConfig from '@/type/element-config-type';
-import type { CanvasFrameElementOverflow } from '@/type/element-property-types';
+import type {
+  CanvasFrameElementOverflow,
+  CanvasFrameElementDisplay,
+} from '@/type/element-property-types';
 
 export default class CanvasFrameElement extends CanvasBaseElement<'FRAME'> {
   readonly overflow: CanvasFrameElementOverflow;
+  readonly display: CanvasFrameElementDisplay;
+
   constructor({
     id,
     parentId,
-    display,
+    width,
+    height,
     position,
     constraint,
     layer,
@@ -16,8 +22,22 @@ export default class CanvasFrameElement extends CanvasBaseElement<'FRAME'> {
       x: 'VISIBLE',
       y: 'VISIBLE',
     },
+    display = {
+      mode: 'BLOCK',
+    },
   }: CanvasElementConfig<'FRAME'>) {
-    super('FRAME', id, parentId, display, position, constraint, layer, order);
+    super(
+      'FRAME',
+      id,
+      parentId,
+      width,
+      height,
+      position,
+      constraint,
+      layer,
+      order,
+    );
     this.overflow = overflow;
+    this.display = display;
   }
 }

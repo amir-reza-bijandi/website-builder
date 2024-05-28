@@ -6,14 +6,25 @@ export default class CanvasTextElement extends CanvasBaseElement<'TEXT'> {
   constructor({
     id,
     parentId,
-    display,
+    width,
+    height,
     position,
     constraint,
     layer,
     order,
     text = 'Enter you text here',
   }: CanvasElementConfig<'TEXT'>) {
-    super('TEXT', id, parentId, display, position, constraint, layer, order);
+    super(
+      'TEXT',
+      id,
+      parentId,
+      width,
+      height,
+      position,
+      constraint,
+      layer,
+      order,
+    );
     this.text = text;
   }
 }

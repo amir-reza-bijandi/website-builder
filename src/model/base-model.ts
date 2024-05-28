@@ -1,8 +1,6 @@
 import { nanoid } from 'nanoid';
-import CONFIG from '@/config';
 import type {
   CanvasElementType,
-  CanvasElementDisplay,
   CanvasElementPosition,
   CanvasElementConstraint,
 } from '@/type/element-property-types';
@@ -12,11 +10,8 @@ export default abstract class CanvasBaseElement<T extends CanvasElementType> {
     readonly type: T,
     readonly id: string = `${type}-${nanoid()}`,
     readonly parentId: string = '',
-    readonly display: CanvasElementDisplay = {
-      mode: 'BLOCK',
-      width: CONFIG.DEFAULT_ELEMENT_WIDTH,
-      height: CONFIG.DEFAULT_ELEMENT_HEIGHT,
-    },
+    readonly width: number | 'AUTO' = 'AUTO',
+    readonly height: number | 'AUTO' = 'AUTO',
     readonly position: CanvasElementPosition = {
       mode: 'ABSOLUTE',
       top: 0,
@@ -34,7 +29,8 @@ export default abstract class CanvasBaseElement<T extends CanvasElementType> {
     this.type = type;
     this.id = id;
     this.parentId = parentId;
-    this.display = display;
+    this.width = width;
+    this.height = height;
     this.position = position;
     this.constraint = constraint;
     this.layer = layer;

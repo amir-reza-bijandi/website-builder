@@ -14,30 +14,6 @@ export type CanvasElementPositioning = {
   bottom: number | 'AUTO';
   left: number | 'AUTO';
 };
-export type CanvasElementDisplayBase = {
-  width: number | 'AUTO';
-  height: number | 'AUTO';
-};
-export type CanvasElementDisplayBlock = { mode: 'BLOCK' };
-export type CanvasElementDisplayFlex = {
-  mode: 'FLEX';
-  direction: 'ROW' | 'COLUMN';
-  justify:
-    | 'START'
-    | 'END'
-    | 'CENTER'
-    | 'SPACE_BETWEEN'
-    | 'SPACE_AROUND'
-    | 'SPACE_EVENLY';
-  align: 'START' | 'END' | 'CENTER' | 'STRETCH';
-  wrap: 'NOWRAP' | 'WRAP' | 'WRAP_REVERSE';
-  gap: number;
-  margin: CanvasElementSpacing;
-  padding: CanvasElementSpacing;
-};
-export type CanvasElementDisplay = CanvasElementDisplayBase &
-  (CanvasElementDisplayFlex | CanvasElementDisplayBlock);
-
 export type CanvasElementPositionRelative = { mode: 'RELATIVE' };
 export type CanvasElementPositionAbsolute = {
   mode: 'ABSOLUTE';
@@ -72,9 +48,31 @@ export type CanvasFrameElementOverflow = {
   y: CanvasFrameElementOverflowMode;
 };
 
+export type CanvasFrameElementDisplayBlock = { mode: 'BLOCK' };
+export type CanvasFrameElementDisplayFlex = {
+  mode: 'FLEX';
+  direction: 'ROW' | 'COLUMN';
+  justify:
+    | 'START'
+    | 'END'
+    | 'CENTER'
+    | 'SPACE_BETWEEN'
+    | 'SPACE_AROUND'
+    | 'SPACE_EVENLY';
+  align: 'START' | 'END' | 'CENTER' | 'STRETCH';
+  wrap: 'NOWRAP' | 'WRAP' | 'WRAP_REVERSE';
+  gap: number;
+  margin: CanvasElementSpacing;
+  padding: CanvasElementSpacing;
+};
+export type CanvasFrameElementDisplay =
+  | CanvasFrameElementDisplayFlex
+  | CanvasFrameElementDisplayBlock;
+
 export type ElementSpecificProperty = {
   FRAME: {
     overflow?: CanvasFrameElementOverflow;
+    display?: CanvasFrameElementDisplay;
   };
   IMAGE: {
     src?: string;

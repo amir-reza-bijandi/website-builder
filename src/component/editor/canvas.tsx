@@ -145,18 +145,15 @@ export default function Canvas() {
           right,
           bottom,
         },
-        display: {
-          mode: 'BLOCK',
-          width: 'AUTO',
-          height: 'AUTO',
-        },
       });
 
-      if (!createdElementIdRef.current) {
-        addElement(element);
-        createdElementIdRef.current = element.id;
-      } else {
-        updateElement(element);
+      if (element) {
+        if (!createdElementIdRef.current) {
+          addElement(element);
+          createdElementIdRef.current = element.id;
+        } else {
+          updateElement(element);
+        }
       }
     }
   };

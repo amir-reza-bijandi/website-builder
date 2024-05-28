@@ -1,14 +1,19 @@
 import type { CanvasElement } from '@/type/canvas-store-types';
+import type { CanvasFrameElementDisplay } from '@/type/element-property-types';
 
 export default function generateStyle(
   element: CanvasElement,
 ): React.CSSProperties {
-  const { display, position } = element;
+  const { position, width, height } = element;
+  let display = {} as CanvasFrameElementDisplay;
+  if ('display' in element) {
+    display = element.display;
+  }
   return {
     display: displayMap[display.mode],
     position: positionMap[position.mode],
-    width: display.width === 'AUTO' ? 'auto' : display.width,
-    height: display.height === 'AUTO' ? 'auto' : display.height,
+    width: width === 'AUTO' ? 'auto' : width,
+    height: height === 'AUTO' ? 'auto' : height,
     ...(position.mode === 'ABSOLUTE'
       ? {
           top: position.top === 'AUTO' ? 'auto' : position.top,
