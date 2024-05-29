@@ -6,13 +6,19 @@ import generateStyle from '@/utility/canvas/generate-style';
 import { useRef } from 'react';
 import type { CanvasElement } from '@/type/canvas-store-types';
 
-type SelectWrapperProps = ElementRenderProps;
+type CanvasElementWrapperProps = {
+  element: CanvasElement;
+};
 
-export default function SelectWrapper({ element }: SelectWrapperProps) {
+export default function CanvasElementWrapper({
+  element,
+}: CanvasElementWrapperProps) {
   const {
-    setSelectedElementIds,
-    selectedElementIds,
+    setSelectedElementIdList,
+    setSelectionVisible,
     updateElement,
+    selectedElementIdList,
+    isSelectionVisible,
     toolbox,
     view,
   } = useCanvasStore();
@@ -26,9 +32,9 @@ export default function SelectWrapper({ element }: SelectWrapperProps) {
       };
     }
     if (toolbox.action === 'SELECT') {
-      if (element.id !== selectedElementIds[0]) {
+      if (element.id !== selectedElementIdList[0]) {
         e.stopPropagation();
-        setSelectedElementIds([element.id]);
+        setSelectedElementIdList([element.id], true);
       }
       document.body.addEventListener('mousemove', handleElementMove);
       document.body.addEventListener('mouseleave', handleElementMoveEnd);
@@ -54,9 +60,18 @@ export default function SelectWrapper({ element }: SelectWrapperProps) {
         ...element,
         position: { ...element.position, left, top, right, bottom },
       });
+
+      // Hide selection when moving element
+      if (isSelectionVisible) {
+        setSelectionVisible(false);
+      }
     }
   };
   const handleElementMoveEnd = () => {
+    // Show selection when stopping moving
+    if (isSelectionVisible) {
+      setSelectionVisible(true);
+    }
     document.body.removeEventListener('mousemove', handleElementMove);
     document.body.removeEventListener('mouseleave', handleElementMoveEnd);
     document.body.removeEventListener('mouseup', handleElementMoveEnd);
@@ -65,8 +80,6 @@ export default function SelectWrapper({ element }: SelectWrapperProps) {
     <div
       id={element.id}
       style={{
-        // Select border
-        boxShadow: `0 0 0 calc(1px / ${view.zoomFactor}) ${element.id === selectedElementIds[0] ? 'hsl(var(--primary))' : 'transparent'}`,
         ...generateStyle(element),
       }}
       onMouseDown={handleMouseDown}
@@ -76,9 +89,7 @@ export default function SelectWrapper({ element }: SelectWrapperProps) {
   );
 }
 
-type ElementRenderProps = {
-  element: CanvasElement;
-};
+type ElementRenderProps = CanvasElementWrapperProps;
 
 function ElementRender({ element }: ElementRenderProps) {
   switch (element.type) {

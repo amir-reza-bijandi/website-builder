@@ -61,6 +61,20 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
+        grow: {
+          from: {
+            transform:
+              'translate(var(--tw-translate-x), var(--tw-translate-y)) scaleX(0) scaleY(0)',
+          },
+          to: {
+            transform:
+              'translate(var(--tw-translate-x), var(--tw-translate-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))',
+          },
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
         'accordion-down': {
           from: { height: '0' },
           to: { height: 'var(--radix-accordion-content-height)' },
@@ -73,6 +87,8 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        grow: 'grow 0.2s ease-out',
+        'fade-in': 'fade-in 0.2s ease-out',
       },
     },
   },
@@ -82,7 +98,7 @@ const config: Config = {
       addUtilities(
         cursorList.reduce((result, cursorName) => {
           result[`.cursor-custom-${cursorName}`] = {
-            cursor: `url('/cursor/${cursorName}.svg'), ${cursorName}`,
+            cursor: `url('/cursor/${cursorName}.svg') 0 0, ${cursorName}`,
           };
           return result;
         }, {}),
@@ -91,6 +107,20 @@ const config: Config = {
   ],
 };
 
-const cursorList = ['default', 'grab', 'grabbing', 'crosshair', 'pointer'];
+const cursorList = [
+  'default',
+  'grab',
+  'grabbing',
+  'crosshair',
+  'pointer',
+  'se-resize',
+  'sw-resize',
+  'ne-resize',
+  'nw-resize',
+  'n-resize',
+  'w-resize',
+  's-resize',
+  'e-resize',
+];
 
 export default config;

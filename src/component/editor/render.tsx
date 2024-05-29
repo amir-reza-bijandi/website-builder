@@ -1,9 +1,9 @@
 import useCanvasStore from '@/store/canvas-store';
-import SelectWrapper from './select-wrapper';
+import CanvasElementWrapper from './element-wrapper';
 
-export default function Render() {
+export default function CanvasRender() {
   const { elementList } = useCanvasStore();
   return elementList.map((element) => (
-    <SelectWrapper key={element.id} element={element} />
+    <CanvasElementWrapper key={element.id} element={element} />
   ));
 }

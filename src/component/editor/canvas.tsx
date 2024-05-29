@@ -4,7 +4,8 @@ import useCanvasStore from '@/store/canvas-store';
 import { cn } from '@/utility/general-utilities';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import createElement from '@/utility/canvas/create-element';
-import Render from './render';
+import CanvasRender from './render';
+import CanvasSelect from './select';
 
 // useCanvasStore.subscribe(console.log);
 
@@ -16,8 +17,8 @@ export default function Canvas() {
     setToolbox,
     addElement,
     updateElement,
-    setSelectedElementIds,
-    selectedElementIds,
+    setSelectedElementIdList,
+    selectedElementIdList,
   } = useCanvasStore();
   const initialMousePositionRef = useRef({ x: 0, y: 0 });
   const initialViewOffsetRef = useRef({ x: 0, y: 0 });
@@ -54,8 +55,8 @@ export default function Canvas() {
   }) => {
     const canvas = currentTarget.children[0];
     if (target === canvas) {
-      if (selectedElementIds[0]) {
-        setSelectedElementIds([]);
+      if (selectedElementIdList[0]) {
+        setSelectedElementIdList([], false);
       }
     }
 
@@ -95,6 +96,7 @@ export default function Canvas() {
   };
 
   const handlePanningEnd = () => {
+    // Show selection when stopping panning
     document.body.removeEventListener('mouseleave', handlePanningEnd);
     document.body.removeEventListener('mouseup', handlePanningEnd);
     document.body.removeEventListener('mousemove', handlePanning);
@@ -160,7 +162,7 @@ export default function Canvas() {
 
   const handleResizeOnCreateEnd = () => {
     if (createdElementIdRef.current) {
-      setSelectedElementIds([createdElementIdRef.current]);
+      setSelectedElementIdList([createdElementIdRef.current], true);
       setToolbox({ action: 'SELECT' });
       createdElementIdRef.current = '';
     }
@@ -188,7 +190,8 @@ export default function Canvas() {
         }
         className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'
       >
-        <Render />
+        <CanvasRender />
+        <CanvasSelect />
       </div>
     </main>
   );

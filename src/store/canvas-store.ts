@@ -10,12 +10,17 @@ type CanvasStore = {
   view: CanvasView;
   toolbox: CanvasToolbox;
   elementList: CanvasElement[];
-  selectedElementIds: string[];
+  selectedElementIdList: string[];
+  isSelectionVisible: boolean;
   setView: (view: Partial<CanvasView>) => void;
   setToolbox: (toolbox: Partial<CanvasToolbox>) => void;
   addElement: (element: CanvasElement) => void;
   updateElement: (updatedElement: CanvasElement) => void;
-  setSelectedElementIds: (id: string[]) => void;
+  setSelectedElementIdList: (
+    idList: string[],
+    isSelectionVisible?: boolean,
+  ) => void;
+  setSelectionVisible: (visible: boolean) => void;
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
@@ -29,7 +34,8 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     tool: null,
   },
   elementList: [],
-  selectedElementIds: [],
+  selectedElementIdList: [],
+  isSelectionVisible: false,
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -69,8 +75,14 @@ const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     );
   },
-  setSelectedElementIds(idList) {
-    set({ selectedElementIds: idList });
+  setSelectedElementIdList(idList, isSelectionVisible) {
+    set((store) => ({
+      selectedElementIdList: idList,
+      isSelectionVisible: isSelectionVisible || store.isSelectionVisible,
+    }));
+  },
+  setSelectionVisible(visible) {
+    set({ isSelectionVisible: visible });
   },
 }));
 
