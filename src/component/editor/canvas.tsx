@@ -17,12 +17,17 @@ export default function Canvas() {
     updateElement,
     setSelectedElementIdList,
     selectedElementIdList,
+    isResizing,
+    isMoving,
+    isPanning,
+    setPanning,
+    setResizing,
   } = useCanvasStore();
   const initialMousePositionRef = useRef({ x: 0, y: 0 });
   const initialViewOffsetRef = useRef({ x: 0, y: 0 });
   const createdElementIdRef = useRef<string>('');
 
-  const isPanning = toolbox.action === 'PAN';
+  const isPanningAllowed = toolbox.action === 'PAN';
 
   // Zoom in and out
   const handleZoomFactorChange: React.WheelEventHandler<HTMLElement> = ({
@@ -33,6 +38,9 @@ export default function Canvas() {
     ctrlKey,
   }) => {
     if (ctrlKey) {
+      // Prevent zoom if the user is moving or resizing an element or panning the canvas
+      if (isMoving || isPanning || isResizing) return;
+
       // Calculate new zoom factor
       let newZoomFactor = view.zoomFactor;
       if (deltaY > 0)
@@ -53,12 +61,11 @@ export default function Canvas() {
   const handleMouseDown: React.MouseEventHandler<HTMLElement> = ({
     clientX,
     clientY,
-    ctrlKey,
     currentTarget,
     target,
   }) => {
     const canvas = currentTarget.children[0];
-    if (target === canvas) {
+    if (target === canvas && toolbox.action !== 'PAN') {
       if (selectedElementIdList[0]) {
         setSelectedElementIdList([], false);
       }
@@ -68,14 +75,11 @@ export default function Canvas() {
     initialViewOffsetRef.current = { x: view.offsetX, y: view.offsetY };
 
     // Panning Logic
-    if (isPanning) {
-      // Prevent panning and zooming at the same time
-      if (!ctrlKey) {
-        // Adding the panning event listeners to body to allow panning outside of the canvas
-        document.body.addEventListener('mouseup', handlePanningEnd);
-        document.body.addEventListener('mouseleave', handlePanningEnd);
-        document.body.addEventListener('mousemove', handlePanning);
-      }
+    if (isPanningAllowed) {
+      // Adding the panning event listeners to body to allow panning outside of the canvas
+      document.body.addEventListener('mouseup', handlePanningEnd);
+      document.body.addEventListener('mouseleave', handlePanningEnd);
+      document.body.addEventListener('mousemove', handlePanning);
     } else {
       document.body.addEventListener('mousemove', handleResizeOnCreate);
       document.body.addEventListener('mouseup', handleResizeOnCreateEnd);
@@ -83,23 +87,25 @@ export default function Canvas() {
     }
   };
 
-  const handlePanning = ({ clientX, clientY, ctrlKey }: MouseEvent) => {
-    // Prevent panning when ctrl key is pressed
-    if (!ctrlKey) {
-      const { x: initialClientX, y: initialClientY } =
-        initialMousePositionRef.current;
-      const { x: intialOffsetX, y: initialOffsetY } =
-        initialViewOffsetRef.current;
-
-      // Calculate the new offset based on the initial mouse postion and the current mouse position
-      const offsetX = intialOffsetX + clientX - initialClientX;
-      const offsetY = initialOffsetY + clientY - initialClientY;
-
-      setView({ offsetX, offsetY });
+  const handlePanning = ({ clientX, clientY }: MouseEvent) => {
+    if (!isPanning) {
+      setPanning(true);
     }
+
+    const { x: initialClientX, y: initialClientY } =
+      initialMousePositionRef.current;
+    const { x: intialOffsetX, y: initialOffsetY } =
+      initialViewOffsetRef.current;
+
+    // Calculate the new offset based on the initial mouse postion and the current mouse position
+    const offsetX = intialOffsetX + clientX - initialClientX;
+    const offsetY = initialOffsetY + clientY - initialClientY;
+
+    setView({ offsetX, offsetY });
   };
 
   const handlePanningEnd = () => {
+    setPanning(false);
     // Show selection when stopping panning
     document.body.removeEventListener('mouseleave', handlePanningEnd);
     document.body.removeEventListener('mouseup', handlePanningEnd);
@@ -153,6 +159,10 @@ export default function Canvas() {
         },
       });
 
+      if (!isResizing) {
+        setResizing(true);
+      }
+
       if (element) {
         if (!createdElementIdRef.current) {
           addElement(element);
@@ -165,6 +175,7 @@ export default function Canvas() {
   };
 
   const handleResizeOnCreateEnd = () => {
+    setResizing(false);
     if (createdElementIdRef.current) {
       setSelectedElementIdList([createdElementIdRef.current], true);
       setToolbox({ action: 'SELECT' });
@@ -180,7 +191,7 @@ export default function Canvas() {
       className={cn(
         'relative flex h-full items-center justify-center overflow-hidden',
         toolbox.action === 'ADD' && 'cursor-custom-crosshair',
-        isPanning && 'cursor-custom-grab active:cursor-custom-grabbing',
+        isPanningAllowed && 'cursor-custom-grab active:cursor-custom-grabbing',
       )}
       onWheel={handleZoomFactorChange}
       onMouseDown={handleMouseDown}

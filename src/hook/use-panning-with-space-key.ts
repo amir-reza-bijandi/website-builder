@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import useCanvasStore from '@/store/canvas-store';
 
 export default function usePanningWithSpaceKey() {
-  const { toolbox, setToolbox } = useCanvasStore();
+  const { toolbox, setToolbox, isMoving, isResizing } = useCanvasStore();
   const isKeyDownRef = useRef(false);
   const lastToolboxSnapshot = useRef(toolbox);
 
@@ -10,8 +10,11 @@ export default function usePanningWithSpaceKey() {
     const handleAllowPanning = (e: KeyboardEvent) => {
       if (e.code === 'Space' && !isKeyDownRef.current) {
         if (toolbox.action !== 'PAN') {
-          lastToolboxSnapshot.current = toolbox;
-          setToolbox({ action: 'PAN' });
+          // Prevent panning when moving or resizing an element
+          if (!isResizing && !isMoving) {
+            lastToolboxSnapshot.current = toolbox;
+            setToolbox({ action: 'PAN' });
+          }
         }
         isKeyDownRef.current = true;
       }
@@ -30,5 +33,5 @@ export default function usePanningWithSpaceKey() {
       document.removeEventListener('keydown', handleAllowPanning);
       document.removeEventListener('keyup', handlePreventPanning);
     };
-  }, [setToolbox, toolbox]);
+  }, [setToolbox, toolbox, isMoving, isResizing]);
 }

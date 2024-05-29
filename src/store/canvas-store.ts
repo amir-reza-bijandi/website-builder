@@ -9,11 +9,17 @@ import { create } from 'zustand';
 type CanvasStore = {
   view: CanvasStoreView;
   toolbox: CanvasStoreToolbox;
+  isPanning: boolean;
+  isMoving: boolean;
+  isResizing: boolean;
   elementList: CanvasStoreElement[];
   selectedElementIdList: string[];
   isSelectionVisible: boolean;
   setView: (view: Partial<CanvasStoreView>) => void;
   setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
+  setPanning: (isPanning: boolean) => void;
+  setMoving: (isMoving: boolean) => void;
+  setResizing: (isResizing: boolean) => void;
   addElement: (element: CanvasStoreElement) => void;
   updateElement: (updatedElement: CanvasStoreElement) => void;
   setSelectedElementIdList: (
@@ -36,6 +42,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   elementList: [],
   selectedElementIdList: [],
   isSelectionVisible: false,
+  isPanning: false,
+  isResizing: false,
+  isMoving: false,
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -52,6 +61,15 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         tool: tool ?? null,
       },
     }));
+  },
+  setPanning(isPanning) {
+    set({ isPanning });
+  },
+  setMoving(isMoving) {
+    set({ isMoving });
+  },
+  setResizing(isResizing) {
+    set({ isResizing });
   },
   addElement(element) {
     set((store) => ({

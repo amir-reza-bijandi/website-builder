@@ -22,6 +22,8 @@ export default function CanvasElementWrapper({
     isSelectionVisible,
     toolbox,
     view,
+    isMoving,
+    setMoving,
   } = useCanvasStore();
   const initialSelectMouseOffset = useRef({ x: 0, y: 0 });
   const isElementSelected = selectedElementIdList.includes(element.id);
@@ -57,6 +59,10 @@ export default function CanvasElementWrapper({
       const right = +element.position.right + +element.position.left - left;
       const bottom = +element.position.bottom + (+element.position.top - top);
 
+      if (!isMoving) {
+        setMoving(true);
+      }
+
       updateElement({
         ...element,
         position: { ...element.position, left, top, right, bottom },
@@ -69,6 +75,8 @@ export default function CanvasElementWrapper({
     }
   };
   const handleElementMoveEnd = () => {
+    setMoving(false);
+
     // Show selection when stopping moving
     if (isSelectionVisible) {
       setSelectionVisible(true);
