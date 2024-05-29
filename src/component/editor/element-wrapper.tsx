@@ -3,7 +3,7 @@ import Frame from './element/frame-element';
 import Text from './element/text-element';
 import Image from './element/image-element';
 import generateStyle from '@/utility/canvas/generate-style';
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 
 type CanvasElementWrapperProps = {
@@ -91,7 +91,7 @@ export default function CanvasElementWrapper({
 
 type ElementRenderProps = CanvasElementWrapperProps;
 
-function ElementRender({ element }: ElementRenderProps) {
+const ElementRender = memo(function ({ element }: ElementRenderProps) {
   switch (element.type) {
     case 'FRAME':
       return <Frame key={element.id} element={element} />;
@@ -100,4 +100,4 @@ function ElementRender({ element }: ElementRenderProps) {
     case 'IMAGE':
       return <Image key={element.id} element={element} />;
   }
-}
+});

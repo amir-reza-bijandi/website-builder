@@ -7,8 +7,6 @@ import createElement from '@/utility/canvas/create-element';
 import CanvasRender from './render';
 import CanvasSelect from './select';
 
-// useCanvasStore.subscribe(console.log);
-
 export default function Canvas() {
   const {
     view,
