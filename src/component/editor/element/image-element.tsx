@@ -1,7 +1,7 @@
-import CanvasImageElement from '@/model/image-model';
+import CanvasImageModel from '@/model/image-model';
 
 type ImageProps = {
-  element: CanvasImageElement;
+  element: CanvasImageModel;
 };
 
 export default function Image({ element }: ImageProps) {

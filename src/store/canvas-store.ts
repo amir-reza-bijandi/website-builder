@@ -1,21 +1,21 @@
 import type {
-  CanvasView,
-  CanvasToolbox,
-  CanvasElement,
+  CanvasStoreView,
+  CanvasStoreToolbox,
+  CanvasStoreElement,
 } from '@/type/canvas-store-types';
 import { produce } from 'immer';
 import { create } from 'zustand';
 
 type CanvasStore = {
-  view: CanvasView;
-  toolbox: CanvasToolbox;
-  elementList: CanvasElement[];
+  view: CanvasStoreView;
+  toolbox: CanvasStoreToolbox;
+  elementList: CanvasStoreElement[];
   selectedElementIdList: string[];
   isSelectionVisible: boolean;
-  setView: (view: Partial<CanvasView>) => void;
-  setToolbox: (toolbox: Partial<CanvasToolbox>) => void;
-  addElement: (element: CanvasElement) => void;
-  updateElement: (updatedElement: CanvasElement) => void;
+  setView: (view: Partial<CanvasStoreView>) => void;
+  setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
+  addElement: (element: CanvasStoreElement) => void;
+  updateElement: (updatedElement: CanvasStoreElement) => void;
   setSelectedElementIdList: (
     idList: string[],
     isSelectionVisible?: boolean,

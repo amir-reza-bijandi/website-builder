@@ -1,7 +1,7 @@
-import CanvasFrameElement from '@/model/frame-model';
+import CanvasFrameModel from '@/model/frame-model';
 
 type FrameProps = {
-  element: CanvasFrameElement;
+  element: CanvasFrameModel;
 };
 
 export default function Frame({ element }: FrameProps) {

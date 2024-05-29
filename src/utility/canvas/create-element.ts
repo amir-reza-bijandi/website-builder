@@ -1,6 +1,6 @@
-import CanvasFrameElement from '@/model/frame-model';
-import CanvasImageElement from '@/model/image-model';
-import CanvasTextElement from '@/model/text-model';
+import CanvasFrameModel from '@/model/frame-model';
+import CanvasImageModel from '@/model/image-model';
+import CanvasTextModel from '@/model/text-model';
 
 import validateElementConfig from './validate-element-config';
 
@@ -15,10 +15,10 @@ export default function createElement<T extends CanvasElementType>(
   if (!isConfigValid) return null;
   switch (type) {
     case 'TEXT':
-      return new CanvasTextElement(config);
+      return new CanvasTextModel(config);
     case 'IMAGE':
-      return new CanvasImageElement(config);
+      return new CanvasImageModel(config);
     default:
-      return new CanvasFrameElement(config);
+      return new CanvasFrameModel(config);
   }
 }

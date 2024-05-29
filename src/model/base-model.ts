@@ -5,7 +5,7 @@ import type {
   CanvasElementConstraint,
 } from '@/type/element-property-types';
 
-export default abstract class CanvasBaseElement<T extends CanvasElementType> {
+export default abstract class CanvasBaseModel<T extends CanvasElementType> {
   constructor(
     readonly type: T,
     readonly id: string = `${type}-${nanoid()}`,

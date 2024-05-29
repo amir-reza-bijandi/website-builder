@@ -1,8 +1,8 @@
-import type { CanvasElement } from '@/type/canvas-store-types';
+import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import type { CanvasFrameElementDisplay } from '@/type/element-property-types';
 
 export default function generateStyle(
-  element: CanvasElement,
+  element: CanvasStoreElement,
 ): React.CSSProperties {
   const { position, width, height } = element;
   let display = {} as CanvasFrameElementDisplay;

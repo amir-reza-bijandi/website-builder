@@ -1,12 +1,12 @@
-import type { CanvasView } from '@/type/canvas-store-types';
+import type { CanvasStoreView } from '@/type/canvas-store-types';
 import useCanvasStore from '@/store/canvas-store';
 
-export default function generateZoomView(
+export default function createZoomView(
   canvas: Element,
   zoomFactor: number,
   focusPointX?: number,
   focusPointY?: number,
-): CanvasView {
+): CanvasStoreView {
   const { view } = useCanvasStore.getState();
   const newZoomFactor = zoomFactor;
   const currentZoomFactor = view.zoomFactor;

@@ -1,7 +1,7 @@
-import CanvasBaseElement from './base-model';
+import CanvasBaseModel from './base-model';
 import type CanvasElementConfig from '@/type/element-config-type';
 
-export default class CanvasTextElement extends CanvasBaseElement<'TEXT'> {
+export default class CanvasTextModel extends CanvasBaseModel<'TEXT'> {
   readonly text: string;
   constructor({
     id,

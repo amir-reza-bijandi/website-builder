@@ -7,10 +7,10 @@ import {
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/component/ui/toggle-group';
 import useCanvasStore from '@/store/canvas-store';
-import type { CanvasTool } from '@/type/canvas-store-types';
+import type { CanvasStoreTool } from '@/type/canvas-store-types';
 
 type Tool = {
-  type: Exclude<CanvasTool, null | undefined>;
+  type: Exclude<CanvasStoreTool, null | undefined>;
   icon: React.ReactNode;
   label: string;
 };
@@ -32,7 +32,7 @@ export default function Toolbox() {
     if (value === 'SELECT' || value === 'PAN') {
       setToolbox({ action: value });
     } else {
-      setToolbox({ action: 'ADD', tool: value as CanvasTool });
+      setToolbox({ action: 'ADD', tool: value as CanvasStoreTool });
     }
   };
 

@@ -4,10 +4,10 @@ import Text from './element/text-element';
 import Image from './element/image-element';
 import generateStyle from '@/utility/canvas/generate-style';
 import { useRef } from 'react';
-import type { CanvasElement } from '@/type/canvas-store-types';
+import type { CanvasStoreElement } from '@/type/canvas-store-types';
 
 type CanvasElementWrapperProps = {
-  element: CanvasElement;
+  element: CanvasStoreElement;
 };
 
 export default function CanvasElementWrapper({

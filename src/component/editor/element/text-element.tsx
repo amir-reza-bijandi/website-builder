@@ -1,7 +1,7 @@
-import CanvasTextElement from '@/model/text-model';
+import CanvasTextModel from '@/model/text-model';
 
 type TextProps = {
-  element: CanvasTextElement;
+  element: CanvasTextModel;
 };
 
 export default function Text({ element }: TextProps) {

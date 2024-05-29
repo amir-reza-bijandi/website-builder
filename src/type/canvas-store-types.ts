@@ -1,23 +1,23 @@
-import CanvasFrameElement from '@/model/frame-model';
-import CanvasImageElement from '@/model/image-model';
-import CanvasTextElement from '@/model/text-model';
+import CanvasFrameModel from '@/model/frame-model';
+import CanvasImageModel from '@/model/image-model';
+import CanvasTextModel from '@/model/text-model';
 
 import type { CanvasElementType } from '@/type/element-property-types';
 
-export type CanvasAction = 'ADD' | 'SELECT' | 'PAN';
-export type CanvasTool = CanvasElementType | null | undefined;
-export type CanvasToolbox = {
-  action: CanvasAction;
-  tool: CanvasTool;
+export type CanvasStoreAction = 'ADD' | 'SELECT' | 'PAN';
+export type CanvasStoreTool = CanvasElementType | null | undefined;
+export type CanvasStoreToolbox = {
+  action: CanvasStoreAction;
+  tool: CanvasStoreTool;
 };
 
-export type CanvasView = {
+export type CanvasStoreView = {
   zoomFactor: number;
   offsetX: number;
   offsetY: number;
 };
 
-export type CanvasElement =
-  | CanvasFrameElement
-  | CanvasTextElement
-  | CanvasImageElement;
+export type CanvasStoreElement =
+  | CanvasFrameModel
+  | CanvasTextModel
+  | CanvasImageModel;

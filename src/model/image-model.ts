@@ -1,7 +1,7 @@
-import CanvasBaseElement from './base-model';
+import CanvasBaseModel from './base-model';
 import type CanvasElementConfig from '@/type/element-config-type';
 
-export default class CanvasImageElement extends CanvasBaseElement<'IMAGE'> {
+export default class CanvasImageModel extends CanvasBaseModel<'IMAGE'> {
   readonly src: string;
   constructor({
     id,
