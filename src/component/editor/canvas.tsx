@@ -39,8 +39,14 @@ export default function Canvas() {
         newZoomFactor = view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER;
       else newZoomFactor = view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER;
 
-      const canvas = currentTarget.children[0];
-      setView(createZoomView(canvas, newZoomFactor, clientX, clientY));
+      // Check if new zoom factor is within the desired range
+      if (
+        newZoomFactor <= CONFIG.ZOOM_FACTOR_MAX &&
+        newZoomFactor >= CONFIG.ZOOM_FACTOR_MIN
+      ) {
+        const canvas = currentTarget.children[0];
+        setView(createZoomView(canvas, newZoomFactor, clientX, clientY));
+      }
     }
   };
 
