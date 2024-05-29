@@ -5,6 +5,7 @@ import Image from './element/image-element';
 import generateStyle from '@/utility/canvas/generate-style';
 import { memo, useRef } from 'react';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
+import { cn } from '@/utility/general-utilities';
 
 type CanvasElementWrapperProps = {
   element: CanvasStoreElement;
@@ -23,6 +24,7 @@ export default function CanvasElementWrapper({
     view,
   } = useCanvasStore();
   const initialSelectMouseOffset = useRef({ x: 0, y: 0 });
+  const isElementSelected = selectedElementIdList.includes(element.id);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (element.position.mode === 'ABSOLUTE') {
@@ -32,8 +34,7 @@ export default function CanvasElementWrapper({
       };
     }
     if (toolbox.action === 'SELECT') {
-      if (element.id !== selectedElementIdList[0]) {
-        e.stopPropagation();
+      if (!isElementSelected) {
         setSelectedElementIdList([element.id], true);
       }
       document.body.addEventListener('mousemove', handleElementMove);
@@ -83,6 +84,7 @@ export default function CanvasElementWrapper({
         ...generateStyle(element),
       }}
       onMouseDown={handleMouseDown}
+      className={cn(isElementSelected && 'z-10')}
     >
       <ElementRender element={element} />
     </div>

@@ -62,7 +62,7 @@ function CanvasSelectContainer({ rect, children }: CanvasSelectContainerProps) {
         height: rect.height,
         boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
       }}
-      className='pointer-events-none absolute left-0 top-0 flex animate-fade-in items-center justify-center'
+      className='pointer-events-none absolute left-0 top-0 z-40 flex animate-fade-in items-center justify-center'
     >
       {children}
     </div>
