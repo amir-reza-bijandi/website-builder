@@ -18,26 +18,31 @@ export default function usePanning() {
   const initialCanvasOffsetRef = useRef<Position>();
 
   const handlePanning = ({ clientX, clientY }: MouseEvent) => {
-    if (!isPanning) {
-      setPanning(true);
+    const isPanningAllowd =
+      useCanvasStore.getState().toolbox.action === 'PAN' ? true : false;
+
+    if (isPanningAllowd) {
+      if (!isPanning) {
+        setPanning(true);
+      }
+
+      let offsetX = 0;
+      let offsetY = 0;
+
+      // Calculate the new offset based on the initial mouse postion and the current mouse position
+      if (initialMousePositionRef.current && initialCanvasOffsetRef.current) {
+        offsetX =
+          initialCanvasOffsetRef.current.x +
+          clientX -
+          initialMousePositionRef.current.x;
+        offsetY =
+          initialCanvasOffsetRef.current.y +
+          clientY -
+          initialMousePositionRef.current.y;
+      }
+
+      setView({ offsetX, offsetY });
     }
-
-    let offsetX = 0;
-    let offsetY = 0;
-
-    // Calculate the new offset based on the initial mouse postion and the current mouse position
-    if (initialMousePositionRef.current && initialCanvasOffsetRef.current) {
-      offsetX =
-        initialCanvasOffsetRef.current.x +
-        clientX -
-        initialMousePositionRef.current.x;
-      offsetY =
-        initialCanvasOffsetRef.current.y +
-        clientY -
-        initialMousePositionRef.current.y;
-    }
-
-    setView({ offsetX, offsetY });
   };
 
   const handlePanEnd = () => {
