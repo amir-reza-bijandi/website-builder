@@ -51,7 +51,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply select-none border-border;
   }
 
   *::selection {
