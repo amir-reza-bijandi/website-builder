@@ -1,5 +1,6 @@
+import useResize from '@/hook/canvas/use-resize';
 import useCanvasStore from '@/store/canvas-store';
-import getElementById from '@/utility/canvas/get-element-by-id';
+import { Direction } from '@/type/general-types';
 import { cn } from '@/utility/general-utilities';
 import { memo, useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
@@ -91,127 +92,21 @@ const CanvasSelectContainer = memo(function ({
 type CanvasSelectResizeProps = {
   elementId: string;
 };
-type ResizeDirection = 'NW' | 'NE' | 'SE' | 'SW' | 'N' | 'E' | 'S' | 'W';
 
 function CanvasSelectResize({ elementId }: CanvasSelectResizeProps) {
-  const { zoomFactor, updateElement, setResizing, isResizing } = useCanvasStore(
+  const { zoomFactor } = useCanvasStore(
     useShallow((store) => ({
       zoomFactor: store.view.zoomFactor,
-      updateElement: store.updateElement,
-      setResizing: store.setResizing,
-      isResizing: store.isResizing,
     })),
   );
-  const initialMousePosition = useRef({ x: 0, y: 0 });
-  const initialElementRectRef = useRef({
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  });
-  const resizeDirectionRef = useRef<ResizeDirection>('N');
-  const element = getElementById(elementId)!;
+
+  const handleResize = useResize(elementId);
 
   const handleMouseDown = (
     { clientX, clientY }: React.MouseEvent,
-    direction: ResizeDirection,
+    direction: Direction,
   ) => {
-    if (element.position.mode === 'ABSOLUTE') {
-      const { left, right, top, bottom } = element.position;
-      initialMousePosition.current = { x: clientX, y: clientY };
-      initialElementRectRef.current = {
-        left: +left,
-        right: +right,
-        top: +top,
-        bottom: +bottom,
-      };
-      resizeDirectionRef.current = direction;
-
-      document.body.addEventListener('mousemove', handleResize);
-      document.body.addEventListener('mouseup', handleResizeEnd);
-      document.body.addEventListener('mouseleave', handleResizeEnd);
-    }
-  };
-
-  const handleResize = ({ clientX, clientY, currentTarget }: MouseEvent) => {
-    if (!isResizing) {
-      setResizing(true);
-    }
-    const { x: initialClientX, y: initialClientY } =
-      initialMousePosition.current;
-    const {
-      left: initialLeft,
-      right: initialRight,
-      top: initialTop,
-      bottom: initialBottom,
-    } = initialElementRectRef.current;
-
-    const deltaX = (clientX - initialClientX) / zoomFactor;
-    const deltaY = (clientY - initialClientY) / zoomFactor;
-
-    let left = initialLeft;
-    let right = initialRight;
-    let top = initialTop;
-    let bottom = initialBottom;
-
-    if (resizeDirectionRef.current === 'NW') {
-      left = initialLeft + deltaX;
-      top = initialTop + deltaY;
-      right = initialRight;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'NE') {
-      left = initialLeft;
-      top = initialTop + deltaY;
-      right = initialRight - deltaX;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'SE') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight - deltaX;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'SW') {
-      left = initialLeft + deltaX;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'N') {
-      left = initialLeft;
-      top = initialTop + deltaY;
-      right = initialRight;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'E') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight - deltaX;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'S') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'W') {
-      left = initialLeft + deltaX;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom;
-    }
-
-    (currentTarget as HTMLBodyElement).style.cursor =
-      `url('/cursor/${resizeDirectionRef.current.toLowerCase()}-resize.svg') 0 0, ${resizeDirectionRef.current.toLowerCase()}-resize`;
-
-    updateElement({
-      ...element,
-      position: { mode: 'ABSOLUTE', left, right, top, bottom },
-    });
-  };
-
-  const handleResizeEnd = (e: MouseEvent) => {
-    (e.currentTarget as HTMLBodyElement).style.cursor =
-      `url('/cursor/default.svg') 0 0, default`;
-    setResizing(false);
-    document.body.removeEventListener('mousemove', handleResize);
-    document.body.removeEventListener('mouseup', handleResizeEnd);
-    document.body.removeEventListener('mouseleave', handleResizeEnd);
+    handleResize({ x: clientX, y: clientY }, direction);
   };
 
   return (

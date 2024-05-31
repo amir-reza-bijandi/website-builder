@@ -3,9 +3,10 @@ import Frame from './element/frame-element';
 import Text from './element/text-element';
 import Image from './element/image-element';
 import generateStyle from '@/utility/canvas/generate-style';
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import { cn } from '@/utility/general-utilities';
+import useMove from '@/hook/canvas/use-move';
 
 type CanvasElementWrapperProps = {
   element: CanvasStoreElement;
@@ -14,77 +15,23 @@ type CanvasElementWrapperProps = {
 export default function CanvasElementWrapper({
   element,
 }: CanvasElementWrapperProps) {
-  const {
-    setSelectedElementIdList,
-    setSelectionVisible,
-    updateElement,
-    selectedElementIdList,
-    isSelectionVisible,
-    toolbox,
-    view,
-    isMoving,
-    setMoving,
-  } = useCanvasStore();
-  const initialSelectMouseOffset = useRef({ x: 0, y: 0 });
+  const { setSelectedElementIdList, selectedElementIdList, toolbox } =
+    useCanvasStore();
+  const handleMove = useMove(element);
   const isElementSelected = selectedElementIdList.includes(element.id);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (element.position.mode === 'ABSOLUTE') {
-      initialSelectMouseOffset.current = {
-        x: e.clientX / view.zoomFactor - +element.position.left,
-        y: e.clientY / view.zoomFactor - +element.position.top,
-      };
-    }
+  const handleMouseDown = ({
+    clientX,
+    clientY,
+  }: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
       if (!isElementSelected) {
         setSelectedElementIdList([element.id], true);
       }
-      document.body.addEventListener('mousemove', handleElementMove);
-      document.body.addEventListener('mouseleave', handleElementMoveEnd);
-      document.body.addEventListener('mouseup', handleElementMoveEnd);
+      handleMove({ x: clientX, y: clientY });
     }
   };
 
-  const handleElementMove = ({ clientX, clientY }: MouseEvent) => {
-    if (element.position.mode === 'ABSOLUTE') {
-      const { x: initialClientOffsetX, y: initialClientOffsetY } =
-        initialSelectMouseOffset.current;
-
-      // Take zoom factor into account
-      const scaledClientX = clientX / view.zoomFactor;
-      const scaledClientY = clientY / view.zoomFactor;
-
-      const left = scaledClientX - initialClientOffsetX;
-      const top = scaledClientY - initialClientOffsetY;
-      const right = +element.position.right + +element.position.left - left;
-      const bottom = +element.position.bottom + (+element.position.top - top);
-
-      if (!isMoving) {
-        setMoving(true);
-      }
-
-      updateElement({
-        ...element,
-        position: { ...element.position, left, top, right, bottom },
-      });
-
-      // Hide selection when moving element
-      if (isSelectionVisible) {
-        setSelectionVisible(false);
-      }
-    }
-  };
-  const handleElementMoveEnd = () => {
-    setMoving(false);
-
-    // Show selection when stopping moving
-    if (isSelectionVisible) {
-      setSelectionVisible(true);
-    }
-    document.body.removeEventListener('mousemove', handleElementMove);
-    document.body.removeEventListener('mouseleave', handleElementMoveEnd);
-    document.body.removeEventListener('mouseup', handleElementMoveEnd);
-  };
   return (
     <div
       id={element.id}
