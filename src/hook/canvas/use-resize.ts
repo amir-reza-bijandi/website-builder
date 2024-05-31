@@ -5,12 +5,21 @@ import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useResize(elementId: string) {
-  const { updateElement, isResizing, setResizing, zoomFactor } = useCanvasStore(
+  const {
+    updateElement,
+    isResizing,
+    setResizing,
+    zoomFactor,
+    isSelectionVisible,
+    setSelectionVisible,
+  } = useCanvasStore(
     useShallow((store) => ({
       zoomFactor: store.view.zoomFactor,
       updateElement: store.updateElement,
       setResizing: store.setResizing,
       isResizing: store.isResizing,
+      isSelectionVisible: store.isSelectionVisible,
+      setSelectionVisible: store.setSelectionVisible,
     })),
   );
 
@@ -91,12 +100,19 @@ export default function useResize(elementId: string) {
       ...element,
       position: { mode: 'ABSOLUTE', left, right, top, bottom },
     });
+
+    if (isSelectionVisible) {
+      setSelectionVisible(false);
+    }
   };
 
   const handleResizeEnd = (e: MouseEvent) => {
     (e.currentTarget as HTMLBodyElement).style.cursor =
       `url('/cursor/default.svg') 0 0, default`;
     setResizing(false);
+    if (isSelectionVisible) {
+      setSelectionVisible(true);
+    }
     document.body.removeEventListener('mousemove', handleResizing);
     document.body.removeEventListener('mouseup', handleResizeEnd);
     document.body.removeEventListener('mouseleave', handleResizeEnd);
