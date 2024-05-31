@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import useCanvasStore from '@/store/canvas-store';
+import { CanvasStoreToolbox } from '@/type/canvas-store-types';
 
 export default function usePanningWithSpaceKey() {
   const { toolbox, setToolbox, isMoving, isResizing } = useCanvasStore();
   const isKeyDownRef = useRef(false);
-  const lastToolboxSnapshot = useRef(toolbox);
+  const lastToolboxSnapshot = useRef<CanvasStoreToolbox>();
 
   useEffect(() => {
     const handleAllowPanning = (e: KeyboardEvent) => {
@@ -21,8 +22,12 @@ export default function usePanningWithSpaceKey() {
     };
     const handlePreventPanning = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
-        if (toolbox.action === 'PAN') {
-          setToolbox(lastToolboxSnapshot.current);
+        // Only stop panning if the user is not using the toolbox to select the pan tool
+        if (lastToolboxSnapshot.current) {
+          if (toolbox.action === 'PAN') {
+            setToolbox(lastToolboxSnapshot.current);
+            lastToolboxSnapshot.current = undefined;
+          }
         }
         isKeyDownRef.current = false;
       }
