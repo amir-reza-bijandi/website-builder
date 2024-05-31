@@ -27,6 +27,7 @@ export default function useResize(elementId: string) {
   const initialElementRectRef = useRef<AbsoluteRect>();
   const resizeDirectionRef = useRef<Direction>();
 
+  const canvas = document.getElementById('canvas')!;
   const element = getElementById(elementId)!;
   const { position: elementPositon } = element;
 
@@ -95,6 +96,30 @@ export default function useResize(elementId: string) {
 
     (currentTarget as HTMLBodyElement).style.cursor =
       `url('/cursor/${resizeDirectionRef.current!.toLowerCase()}-resize.svg') 0 0, ${resizeDirectionRef.current!.toLowerCase()}-resize`;
+
+    const canvasWidth = parseInt(getComputedStyle(canvas).width);
+    const canvasHeight = parseInt(getComputedStyle(canvas).height);
+
+    const width = canvasWidth - (left + right);
+    const height = canvasHeight - (top + bottom);
+
+    const MINIMUM_SIZE = 10;
+    // Prevent element from getting smaller than a certain size
+    if (width <= MINIMUM_SIZE) {
+      if (initialLeft === left) {
+        right = canvasWidth - left - 10;
+      } else {
+        left = canvasWidth - right - 10;
+      }
+    }
+
+    if (height <= MINIMUM_SIZE) {
+      if (initialTop === top) {
+        bottom = canvasWidth - top - 10;
+      } else {
+        top = canvasWidth - bottom - 10;
+      }
+    }
 
     updateElement({
       ...element,
