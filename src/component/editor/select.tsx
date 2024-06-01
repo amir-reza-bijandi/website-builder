@@ -17,22 +17,72 @@ export default memo(function CanvasSelect() {
 
   if (selectedElementIdList.length === 0 || !isSelectionVisible) return null;
 
-  const selectedElementId = selectedElementIdList[0];
-  const selectedElementRect = document
-    .getElementById(selectedElementId)!
-    .getBoundingClientRect();
+  const elementRectList = selectedElementIdList.map((elementId) =>
+    document.getElementById(elementId)!.getBoundingClientRect(),
+  );
   const canvasRect = document.getElementById('canvas')!.getBoundingClientRect();
 
-  const left = (selectedElementRect.left - canvasRect.left) / zoomFactor;
-  const top = (selectedElementRect.top - canvasRect.top) / zoomFactor;
+  const left = elementRectList.reduce((min, rect) => {
+    const left = Math.abs(canvasRect.left - rect.left) / zoomFactor;
+    if (min > left) {
+      return left;
+    } else {
+      return min;
+    }
+  }, Number.MAX_SAFE_INTEGER);
 
-  const width = selectedElementRect.width / zoomFactor;
-  const height = selectedElementRect.height / zoomFactor;
+  const top = elementRectList.reduce((min, rect) => {
+    const result = Math.abs(canvasRect.top - rect.top) / zoomFactor;
+    if (min > result) {
+      return result;
+    } else {
+      return min;
+    }
+  }, Number.MAX_SAFE_INTEGER);
+
+  const width =
+    canvasRect.width / zoomFactor -
+    (elementRectList.reduce((min, rect) => {
+      const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
+      if (min > right) {
+        return right;
+      } else {
+        return min;
+      }
+    }, Number.MAX_SAFE_INTEGER) +
+      left);
+
+  const height =
+    canvasRect.height / zoomFactor -
+    (Math.abs(
+      elementRectList.reduce((min, rect) => {
+        const bottom = Math.abs(rect.bottom - canvasRect.bottom) / zoomFactor;
+        if (min > bottom) {
+          return bottom;
+        } else {
+          return min;
+        }
+      }, Number.MAX_SAFE_INTEGER),
+    ) +
+      top);
+
+  console.log(
+    width,
+    height,
+    elementRectList.reduce((min, rect) => {
+      const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
+      if (min > right) {
+        return right;
+      } else {
+        return min;
+      }
+    }, Number.MAX_SAFE_INTEGER),
+  );
 
   return (
     <CanvasSelectContainer
       rect={{ left, top, width, height }}
-      selectedElementId={selectedElementId}
+      selectedElementId={'selectedElementId'}
     />
   );
 });
@@ -100,13 +150,13 @@ function CanvasSelectResize({ elementId }: CanvasSelectResizeProps) {
     })),
   );
 
-  const handleResize = useResize(elementId);
+  // const handleResize = useResize(elementId);
 
   const handleMouseDown = (
     { clientX, clientY }: React.MouseEvent,
     direction: Direction,
   ) => {
-    handleResize({ x: clientX, y: clientY }, direction);
+    // handleResize({ x: clientX, y: clientY }, direction);
   };
 
   return (

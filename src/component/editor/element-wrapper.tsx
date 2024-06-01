@@ -29,10 +29,18 @@ export default function CanvasElementWrapper({
   const handleMouseDown = ({
     clientX,
     clientY,
+    shiftKey,
   }: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
       if (!isElementSelected) {
-        setSelectedElementIdList([element.id], true);
+        if (shiftKey) {
+          setSelectedElementIdList(
+            [...selectedElementIdList, element.id],
+            true,
+          );
+        } else {
+          setSelectedElementIdList([element.id], true);
+        }
       }
       handleMove({ x: clientX, y: clientY });
     }
