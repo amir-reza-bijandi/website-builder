@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 import useCanvasStore from '@/store/canvas-store';
-import type { CanvasStoreElement } from '@/type/canvas-store-types';
-import type { AbsoluteRect, Position } from '@/type/general-types';
+import type { Position } from '@/type/general-types';
+import getElementById from '@/utility/canvas/get-element-by-id';
+import { useShallow } from 'zustand/react/shallow';
 
-export default function useMove(element: CanvasStoreElement) {
+export default function useMove(elementIdList: string[]) {
   const {
     view,
     toolbox,
@@ -12,26 +13,32 @@ export default function useMove(element: CanvasStoreElement) {
     updateElement,
     isSelectionVisible,
     setSelectionVisible,
-  } = useCanvasStore();
-  const initialElementRect = useRef<AbsoluteRect>();
+  } = useCanvasStore(
+    useShallow((store) => ({
+      view: store.view,
+      toolbox: store.toolbox,
+      isMoving: store.isMoving,
+      setMoving: store.setMoving,
+      updateElement: store.updateElement,
+      isSelectionVisible: store.isSelectionVisible,
+      setSelectionVisible: store.setSelectionVisible,
+    })),
+  );
   const initialMousePositionRef = useRef<Position>();
+
+  const elementList = elementIdList.map(
+    (elementId) => getElementById(elementId)!,
+  );
 
   const handleMoving = ({ clientX, clientY }: MouseEvent) => {
     // Only freely move elements that are positioned absolute
-    if (element.position.mode === 'ABSOLUTE') {
+    if (elementList.every((element) => element.position.mode === 'ABSOLUTE')) {
       if (!isMoving) {
         setMoving(true);
       }
 
       const { x: initialClientX, y: initialClientY } =
         initialMousePositionRef.current!;
-
-      const {
-        left: elementLeft,
-        right: elementRight,
-        top: elementTop,
-        bottom: elementBottom,
-      } = initialElementRect.current!;
 
       const scaledClientX = clientX / view.zoomFactor;
       const scaledClientY = clientY / view.zoomFactor;
@@ -41,15 +48,34 @@ export default function useMove(element: CanvasStoreElement) {
       const deltaY = scaledClientY - initialClientY;
 
       // Use the mouse movement to calculate the new position
-      const left = elementLeft + deltaX;
-      const top = elementTop + deltaY;
-      const right = elementRight - deltaX;
-      const bottom = elementBottom - deltaY;
-
-      updateElement({
-        ...element,
-        position: { ...element.position, left, top, right, bottom },
-      });
+      updateElement(
+        ...elementList.map((element) => {
+          if (element.position.mode === 'ABSOLUTE') {
+            if (
+              typeof element.position.left === 'number' &&
+              typeof element.position.top === 'number' &&
+              typeof element.position.right === 'number' &&
+              typeof element.position.bottom === 'number'
+            ) {
+              const left = element.position.left + deltaX;
+              const top = element.position.top + deltaY;
+              const right = element.position.right - deltaX;
+              const bottom = element.position.bottom - deltaY;
+              return {
+                ...element,
+                position: {
+                  mode: element.position.mode,
+                  left,
+                  right,
+                  top,
+                  bottom,
+                },
+              };
+            }
+          }
+          return element;
+        }),
+      );
 
       // Hide selection when moving the element
       if (isSelectionVisible) {
@@ -70,21 +96,13 @@ export default function useMove(element: CanvasStoreElement) {
 
   const handleMove = (initialMousePosition: Position) => {
     if (toolbox.action === 'SELECT') {
-      if (element.position.mode === 'ABSOLUTE') {
-        const { left, right, top, bottom } = element.position;
-
+      if (
+        elementList.every((element) => element.position.mode === 'ABSOLUTE')
+      ) {
         initialMousePositionRef.current = {
           x: initialMousePosition.x / view.zoomFactor,
           y: initialMousePosition.y / view.zoomFactor,
         };
-
-        initialElementRect.current = {
-          left: +left,
-          right: +right,
-          top: +top,
-          bottom: +bottom,
-        };
-
         document.body.addEventListener('mousemove', handleMoving);
         document.body.addEventListener('mouseleave', handleMoveEnd);
         document.body.addEventListener('mouseup', handleMoveEnd);

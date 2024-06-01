@@ -3,7 +3,6 @@ import type {
   CanvasStoreToolbox,
   CanvasStoreElement,
 } from '@/type/canvas-store-types';
-import { produce } from 'immer';
 import { create } from 'zustand';
 
 type CanvasStore = {
@@ -21,7 +20,7 @@ type CanvasStore = {
   setMoving: (isMoving: boolean) => void;
   setResizing: (isResizing: boolean) => void;
   addElement: (element: CanvasStoreElement) => void;
-  updateElement: (updatedElement: CanvasStoreElement) => void;
+  updateElement: (...updatedElements: CanvasStoreElement[]) => void;
   setSelectedElementIdList: (
     idList: string[],
     isSelectionVisible?: boolean,
@@ -76,22 +75,20 @@ const useCanvasStore = create<CanvasStore>((set) => ({
       elementList: [...store.elementList, element],
     }));
   },
-  updateElement(updatedElement) {
-    set(
-      produce<CanvasStore>((store) => {
-        try {
-          const index = store.elementList.findIndex(
-            (element) => element.id === updatedElement.id,
+  updateElement(...updatedElements) {
+    set((store) => {
+      return {
+        elementList: store.elementList.map((element) => {
+          const updatedElement = updatedElements.find(
+            (updatedElement) => updatedElement.id === element.id,
           );
-          if (index === -1) throw new Error('Element not found');
-          const oldElement = store.elementList[index];
-          const newElement = { ...oldElement, ...updatedElement };
-          store.elementList[index] = newElement;
-        } catch (error) {
-          console.error(error);
-        }
-      }),
-    );
+          if (updatedElement) {
+            return updatedElement;
+          }
+          return element;
+        }),
+      };
+    });
   },
   setSelectedElementIdList(idList, isSelectionVisible) {
     set((store) => ({

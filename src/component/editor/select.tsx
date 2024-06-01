@@ -4,6 +4,7 @@ import { Direction } from '@/type/general-types';
 import { cn } from '@/utility/general-utilities';
 import { memo, useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import useMove from '@/hook/canvas/use-move';
 
 export default memo(function CanvasSelect() {
   const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
@@ -66,19 +67,6 @@ export default memo(function CanvasSelect() {
     ) +
       top);
 
-  console.log(
-    width,
-    height,
-    elementRectList.reduce((min, rect) => {
-      const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
-      if (min > right) {
-        return right;
-      } else {
-        return min;
-      }
-    }, Number.MAX_SAFE_INTEGER),
-  );
-
   return (
     <CanvasSelectContainer
       rect={{ left, top, width, height }}
@@ -120,6 +108,15 @@ const CanvasSelectContainer = memo(function ({
       }
     }
   }, [rect]);
+
+  const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
+  const handleMove = useMove(selectedElementIdList);
+
+  const handleMouseDown: React.MouseEventHandler = (e) => {
+    const { clientX, clientY } = e;
+    handleMove({ x: clientX, y: clientY });
+  };
+
   return (
     <div
       ref={canvasSelectContainerRef}
@@ -130,9 +127,10 @@ const CanvasSelectContainer = memo(function ({
         boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
       }}
       className={cn(
-        'pointer-events-none absolute left-0 top-0 z-40 flex animate-fade-in items-center justify-center',
+        'absolute left-0 top-0 z-40 flex animate-fade-in items-center justify-center',
         toolbox.action === 'PAN' && '*:pointer-events-none',
       )}
+      onMouseDown={handleMouseDown}
     >
       <CanvasSelectResize elementId={selectedElementId} />
     </div>

@@ -6,7 +6,6 @@ import generateStyle from '@/utility/canvas/generate-style';
 import { memo } from 'react';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import { cn } from '@/utility/general-utilities';
-import useMove from '@/hook/canvas/use-move';
 
 type CanvasElementWrapperProps = {
   element: CanvasStoreElement;
@@ -23,14 +22,9 @@ export default function CanvasElementWrapper({
     isResizing,
     isMoving,
   } = useCanvasStore();
-  const handleMove = useMove(element);
   const isElementSelected = selectedElementIdList.includes(element.id);
 
-  const handleMouseDown = ({
-    clientX,
-    clientY,
-    shiftKey,
-  }: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = ({ shiftKey }: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
       if (!isElementSelected) {
         if (shiftKey) {
@@ -42,7 +36,6 @@ export default function CanvasElementWrapper({
           setSelectedElementIdList([element.id], true);
         }
       }
-      handleMove({ x: clientX, y: clientY });
     }
   };
 
@@ -58,7 +51,6 @@ export default function CanvasElementWrapper({
       onMouseDown={handleMouseDown}
       className={cn(
         'shadow-transparent transition-[box-shadow]',
-        isElementSelected && 'z-10',
         isElementSelected && !isMoving && 'shadow-primary',
         isElementSelected && isResizing && 'shadow-primary/50',
       )}
