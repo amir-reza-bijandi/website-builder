@@ -4,7 +4,7 @@ import getElementById from '@/utility/canvas/get-element-by-id';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-export default function useResize(elementId: string) {
+export default function useResize(elementIdList: string[]) {
   const {
     updateElement,
     isResizing,
@@ -24,12 +24,13 @@ export default function useResize(elementId: string) {
   );
 
   const initialMousePositionRef = useRef<Position>();
-  const initialElementRectRef = useRef<AbsoluteRect>();
+  const initialElementRectListRef = useRef<(AbsoluteRect & { id: string })[]>();
   const resizeDirectionRef = useRef<Direction>();
 
   const canvas = document.getElementById('canvas')!;
-  const element = getElementById(elementId)!;
-  const { position: elementPositon } = element;
+  const elementList = elementIdList.map(
+    (elementId) => getElementById(elementId)!,
+  );
 
   const handleResizing = ({ clientX, clientY, currentTarget }: MouseEvent) => {
     if (!isResizing) {
@@ -37,94 +38,188 @@ export default function useResize(elementId: string) {
     }
     const { x: initialClientX, y: initialClientY } =
       initialMousePositionRef.current!;
-    const {
-      left: initialLeft,
-      right: initialRight,
-      top: initialTop,
-      bottom: initialBottom,
-    } = initialElementRectRef.current!;
 
-    const deltaX = (clientX - initialClientX) / zoomFactor;
-    const deltaY = (clientY - initialClientY) / zoomFactor;
-
-    let left = initialLeft;
-    let right = initialRight;
-    let top = initialTop;
-    let bottom = initialBottom;
-
-    if (resizeDirectionRef.current === 'NW') {
-      left = initialLeft + deltaX;
-      top = initialTop + deltaY;
-      right = initialRight;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'NE') {
-      left = initialLeft;
-      top = initialTop + deltaY;
-      right = initialRight - deltaX;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'SE') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight - deltaX;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'SW') {
-      left = initialLeft + deltaX;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'N') {
-      left = initialLeft;
-      top = initialTop + deltaY;
-      right = initialRight;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'E') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight - deltaX;
-      bottom = initialBottom;
-    } else if (resizeDirectionRef.current === 'S') {
-      left = initialLeft;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom - deltaY;
-    } else if (resizeDirectionRef.current === 'W') {
-      left = initialLeft + deltaX;
-      top = initialTop;
-      right = initialRight;
-      bottom = initialBottom;
-    }
-
-    (currentTarget as HTMLBodyElement).style.cursor =
-      `url('/cursor/${resizeDirectionRef.current!.toLowerCase()}-resize.svg') 0 0, ${resizeDirectionRef.current!.toLowerCase()}-resize`;
+    const deltaClientX = (clientX - initialClientX) / zoomFactor;
+    const deltaClientY = (clientY - initialClientY) / zoomFactor;
 
     const canvasWidth = parseInt(getComputedStyle(canvas).width);
     const canvasHeight = parseInt(getComputedStyle(canvas).height);
 
-    const width = canvasWidth - (left + right);
-    const height = canvasHeight - (top + bottom);
+    const initialSelectionRect = getSelectionRect(
+      initialElementRectListRef.current!,
+    );
 
-    const MINIMUM_SIZE = 10;
-    // Prevent element from getting smaller than a certain size
-    if (width <= MINIMUM_SIZE) {
-      if (initialLeft === left) {
-        right = canvasWidth - left - 10;
-      } else {
-        left = canvasWidth - right - 10;
-      }
-    }
+    let resizedElementRectList: (AbsoluteRect & { id: string })[] =
+      initialElementRectListRef.current!.map(
+        ({
+          id,
+          left: initialLeft,
+          right: initialRight,
+          top: initialTop,
+          bottom: initialBottom,
+        }) => {
+          const isConnectedToLeft = initialLeft === initialSelectionRect.left;
+          const isConnectedToRight =
+            initialRight === initialSelectionRect.right;
+          const isConnectedToTop = initialTop === initialSelectionRect.top;
+          const isConnectedToBottom =
+            initialBottom === initialSelectionRect.bottom;
 
-    if (height <= MINIMUM_SIZE) {
-      if (initialTop === top) {
-        bottom = canvasWidth - top - 10;
-      } else {
-        top = canvasWidth - bottom - 10;
-      }
-    }
+          const {
+            left: selectionLeft,
+            right: selectionRight,
+            top: selectionTop,
+            bottom: selectionBottom,
+          } = initialSelectionRect;
 
-    updateElement({
-      ...element,
-      position: { mode: 'ABSOLUTE', left, right, top, bottom },
+          const deltaLeft = Math.abs(selectionLeft - initialLeft);
+          const deltaRight = Math.abs(selectionRight - initialRight);
+          const deltaTop = Math.abs(selectionTop - initialTop);
+          const deltaBottom = Math.abs(selectionBottom - initialBottom);
+
+          const initialSelectionWidth =
+            canvasWidth - (selectionLeft + selectionRight);
+          const initialSelectionHeight =
+            canvasHeight - (selectionTop + selectionBottom);
+
+          let left = initialLeft;
+          let right = initialRight;
+          let top = initialTop;
+          let bottom = initialBottom;
+
+          if (resizeDirectionRef.current === 'NW') {
+            const selectionHeight = initialSelectionHeight + -deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            const selectionWidth = initialSelectionWidth + -deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft + deltaClientX
+              : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
+            top = isConnectedToTop
+              ? initialTop + deltaClientY
+              : initialTop + (deltaTop * ratioY - deltaTop - -deltaClientY);
+            right = isConnectedToRight
+              ? initialRight
+              : selectionRight + deltaRight * ratioX;
+            bottom = isConnectedToBottom
+              ? initialBottom
+              : selectionBottom + deltaBottom * ratioY;
+          } else if (resizeDirectionRef.current === 'NE') {
+            const selectionHeight = initialSelectionHeight + -deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            const selectionWidth = initialSelectionWidth + deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft
+              : selectionLeft + deltaLeft * ratioX;
+            top = isConnectedToTop
+              ? initialTop + deltaClientY
+              : initialTop + (deltaTop * ratioY - deltaTop - -deltaClientY);
+            right = isConnectedToRight
+              ? initialRight - deltaClientX
+              : initialRight +
+                (deltaRight * ratioX - deltaRight - deltaClientX);
+            bottom = isConnectedToBottom
+              ? initialBottom
+              : selectionBottom + deltaBottom * ratioY;
+          } else if (resizeDirectionRef.current === 'SE') {
+            const selectionHeight = initialSelectionHeight + deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            const selectionWidth = initialSelectionWidth + deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft
+              : selectionLeft + deltaLeft * ratioX;
+            top = isConnectedToTop
+              ? initialTop
+              : selectionTop + deltaTop * ratioY;
+            right = isConnectedToRight
+              ? initialRight - deltaClientX
+              : initialRight +
+                (deltaRight * ratioX - deltaRight - deltaClientX);
+            bottom = isConnectedToBottom
+              ? initialBottom - deltaClientY
+              : initialBottom +
+                (deltaBottom * ratioY - deltaBottom - deltaClientY);
+          } else if (resizeDirectionRef.current === 'SW') {
+            const selectionHeight = initialSelectionHeight + deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            const selectionWidth = initialSelectionWidth + -deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft + deltaClientX
+              : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
+            top = isConnectedToTop
+              ? initialTop
+              : selectionTop + deltaTop * ratioY;
+            right = isConnectedToRight
+              ? initialRight
+              : selectionRight + deltaRight * ratioX;
+            bottom = isConnectedToBottom
+              ? initialBottom - deltaClientY
+              : initialBottom +
+                (deltaBottom * ratioY - deltaBottom - deltaClientY);
+          } else if (resizeDirectionRef.current === 'N') {
+            const selectionHeight = initialSelectionHeight + -deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            top = isConnectedToTop
+              ? initialTop + deltaClientY
+              : initialTop + (deltaTop * ratioY - deltaTop - -deltaClientY);
+            bottom = isConnectedToBottom
+              ? initialBottom
+              : selectionBottom + deltaBottom * ratioY;
+          } else if (resizeDirectionRef.current === 'E') {
+            const selectionWidth = initialSelectionWidth + deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft
+              : selectionLeft + deltaLeft * ratioX;
+            right = isConnectedToRight
+              ? initialRight - deltaClientX
+              : initialRight +
+                (deltaRight * ratioX - deltaRight - deltaClientX);
+          } else if (resizeDirectionRef.current === 'S') {
+            const selectionHeight = initialSelectionHeight + deltaClientY;
+            const ratioY = selectionHeight / initialSelectionHeight;
+            top = isConnectedToTop
+              ? initialTop
+              : selectionTop + deltaTop * ratioY;
+            bottom = isConnectedToBottom
+              ? initialBottom - deltaClientY
+              : initialBottom +
+                (deltaBottom * ratioY - deltaBottom - deltaClientY);
+          } else if (resizeDirectionRef.current === 'W') {
+            const selectionWidth = initialSelectionWidth + -deltaClientX;
+            const ratioX = selectionWidth / initialSelectionWidth;
+            left = isConnectedToLeft
+              ? initialLeft + deltaClientX
+              : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
+            right = isConnectedToRight
+              ? initialRight
+              : selectionRight + deltaRight * ratioX;
+          }
+          return { id, left, right, top, bottom };
+        },
+      );
+
+    (currentTarget as HTMLBodyElement).style.cursor =
+      `url('/cursor/${resizeDirectionRef.current!.toLowerCase()}-resize.svg') 0 0, ${resizeDirectionRef.current!.toLowerCase()}-resize`;
+
+    const resizedElementList = resizedElementRectList.map((elementRect) => {
+      const element = getElementById(elementRect.id)!;
+      return {
+        ...element,
+        position: {
+          mode: element.position.mode,
+          left: elementRect.left,
+          right: elementRect.right,
+          top: elementRect.top,
+          bottom: elementRect.bottom,
+        },
+      };
     });
+
+    updateElement(...resizedElementList);
 
     if (isSelectionVisible) {
       setSelectionVisible(false);
@@ -147,14 +242,17 @@ export default function useResize(elementId: string) {
     initialMousePosition: Position,
     resizeDirection: Direction,
   ) => {
-    if (elementPositon.mode === 'ABSOLUTE') {
+    if (elementList.every((element) => element.position.mode === 'ABSOLUTE')) {
       initialMousePositionRef.current = initialMousePosition;
-      initialElementRectRef.current = {
-        left: +elementPositon.left,
-        right: +elementPositon.right,
-        top: +elementPositon.top,
-        bottom: +elementPositon.bottom,
-      };
+      initialElementRectListRef.current = elementList.map((element) => ({
+        id: element.id,
+        left: element.position.mode === 'ABSOLUTE' ? +element.position.left : 0,
+        right:
+          element.position.mode === 'ABSOLUTE' ? +element.position.right : 0,
+        top: element.position.mode === 'ABSOLUTE' ? +element.position.top : 0,
+        bottom:
+          element.position.mode === 'ABSOLUTE' ? +element.position.bottom : 0,
+      }));
       resizeDirectionRef.current = resizeDirection;
 
       document.body.addEventListener('mousemove', handleResizing);
@@ -163,4 +261,32 @@ export default function useResize(elementId: string) {
     }
   };
   return handleResize;
+}
+
+function getSelectionRect(elementRectList: AbsoluteRect[]) {
+  const left = elementRectList.reduce(
+    (min, rect) => (rect.left < min ? rect.left : min),
+    Number.MAX_SAFE_INTEGER,
+  );
+
+  const right = elementRectList.reduce(
+    (min, rect) => (rect.right < min ? rect.right : min),
+    Number.MAX_SAFE_INTEGER,
+  );
+
+  const top = elementRectList.reduce(
+    (min, rect) => (rect.top < min ? rect.top : min),
+    Number.MAX_SAFE_INTEGER,
+  );
+
+  const bottom = elementRectList.reduce(
+    (min, rect) => (rect.bottom < min ? rect.bottom : min),
+    Number.MAX_SAFE_INTEGER,
+  );
+  return {
+    left,
+    right,
+    top,
+    bottom,
+  };
 }
