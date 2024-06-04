@@ -24,12 +24,15 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
-  const { view, setView } = useCanvasStore(
-    useShallow((store) => ({
-      view: store.view,
-      setView: store.setView,
-    })),
-  );
+  const { view, setView, selectedElementIdList, deleteElement } =
+    useCanvasStore(
+      useShallow((store) => ({
+        view: store.view,
+        setView: store.setView,
+        selectedElementIdList: store.selectedElementIdList,
+        deleteElement: store.deleteElement,
+      })),
+    );
 
   const handleUIScaleUp: React.MouseEventHandler = () => {
     setUiScale(Number((uiScale + 0.1).toFixed(1)));
@@ -60,6 +63,12 @@ export default function GlobalMenubar() {
   const handleZoomReset: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
     setView(createZoomView(canvas, 1));
+  };
+
+  const handleDelete = () => {
+    if (selectedElementIdList.length > 0) {
+      deleteElement(...selectedElementIdList);
+    }
   };
 
   return (
@@ -103,6 +112,9 @@ export default function GlobalMenubar() {
           </MenubarItem>
           <MenubarItem>
             Paste <MenubarShortcut>Ctrl+V</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem onClick={handleDelete}>
+            Delete <MenubarShortcut>Del</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
