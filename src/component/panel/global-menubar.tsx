@@ -34,6 +34,8 @@ export default function GlobalMenubar() {
       })),
     );
 
+  const isAnyElementSelected = selectedElementIdList.length > 0;
+
   const handleUIScaleUp: React.MouseEventHandler = () => {
     setUiScale(Number((uiScale + 0.1).toFixed(1)));
   };
@@ -66,7 +68,7 @@ export default function GlobalMenubar() {
   };
 
   const handleDelete = () => {
-    if (selectedElementIdList.length > 0) {
+    if (isAnyElementSelected) {
       deleteElement(...selectedElementIdList);
     }
   };
@@ -90,30 +92,30 @@ export default function GlobalMenubar() {
       <MenubarMenu>
         <MenubarTrigger>Edit</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>
+          <MenubarItem disabled>
             Undo <MenubarShortcut>Ctrl+Z</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem disabled>
             Redo <MenubarShortcut>Ctrl+Shift+Z</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem>
+          <MenubarItem disabled={!isAnyElementSelected}>
             Bring To Front <MenubarShortcut>Ctrl+&#125;</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem disabled={!isAnyElementSelected}>
             Send To Back <MenubarShortcut>Ctrl+&#123;</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem>
+          <MenubarItem disabled={!isAnyElementSelected}>
             Cut <MenubarShortcut>Ctrl+X</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem disabled={!isAnyElementSelected}>
             Copy <MenubarShortcut>Ctrl+C</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem disabled={!isAnyElementSelected}>
             Paste <MenubarShortcut>Ctrl+V</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem onClick={handleDelete}>
+          <MenubarItem disabled={!isAnyElementSelected} onClick={handleDelete}>
             Delete <MenubarShortcut>Del</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
