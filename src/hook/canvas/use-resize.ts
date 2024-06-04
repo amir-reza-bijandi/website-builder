@@ -92,6 +92,12 @@ export default function useResize(elementIdList: string[]) {
             const ratioY = selectionHeight / initialSelectionHeight;
             const selectionWidth = initialSelectionWidth + -deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originTop = canvasHeight - selectionBottom;
+            const originBottom = selectionBottom;
+            const originLeft = canvasWidth - selectionRight;
+            const originRight = selectionRight;
+
             left = isConnectedToLeft
               ? initialLeft + deltaClientX
               : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
@@ -104,11 +110,22 @@ export default function useResize(elementIdList: string[]) {
             bottom = isConnectedToBottom
               ? initialBottom
               : selectionBottom + deltaBottom * ratioY;
+
+            if (top > originTop) top = originTop;
+            if (bottom < originBottom) bottom = originBottom;
+            if (left > originLeft) left = originLeft;
+            if (right < originRight) right = originRight;
           } else if (resizeDirectionRef.current === 'NE') {
             const selectionHeight = initialSelectionHeight + -deltaClientY;
             const ratioY = selectionHeight / initialSelectionHeight;
             const selectionWidth = initialSelectionWidth + deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originTop = canvasHeight - selectionBottom;
+            const originBottom = selectionBottom;
+            const originLeft = selectionLeft;
+            const originRight = canvasWidth - selectionLeft;
+
             left = isConnectedToLeft
               ? initialLeft
               : selectionLeft + deltaLeft * ratioX;
@@ -122,11 +139,22 @@ export default function useResize(elementIdList: string[]) {
             bottom = isConnectedToBottom
               ? initialBottom
               : selectionBottom + deltaBottom * ratioY;
+
+            if (top > originTop) top = originTop;
+            if (bottom < originBottom) bottom = originBottom;
+            if (left < originLeft) left = originLeft;
+            if (right > originRight) right = originRight;
           } else if (resizeDirectionRef.current === 'SE') {
             const selectionHeight = initialSelectionHeight + deltaClientY;
             const ratioY = selectionHeight / initialSelectionHeight;
             const selectionWidth = initialSelectionWidth + deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originTop = selectionTop;
+            const originBottom = canvasWidth - selectionTop;
+            const originLeft = selectionLeft;
+            const originRight = canvasWidth - selectionLeft;
+
             left = isConnectedToLeft
               ? initialLeft
               : selectionLeft + deltaLeft * ratioX;
@@ -141,11 +169,22 @@ export default function useResize(elementIdList: string[]) {
               ? initialBottom - deltaClientY
               : initialBottom +
                 (deltaBottom * ratioY - deltaBottom - deltaClientY);
+
+            if (left < originLeft) left = originLeft;
+            if (right > originRight) right = originRight;
+            if (top < originTop) top = originTop;
+            if (bottom > originBottom) bottom = originBottom;
           } else if (resizeDirectionRef.current === 'SW') {
             const selectionHeight = initialSelectionHeight + deltaClientY;
             const ratioY = selectionHeight / initialSelectionHeight;
             const selectionWidth = initialSelectionWidth + -deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originTop = selectionTop;
+            const originBottom = canvasWidth - selectionTop;
+            const originLeft = canvasWidth - selectionRight;
+            const originRight = selectionRight;
+
             left = isConnectedToLeft
               ? initialLeft + deltaClientX
               : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
@@ -159,18 +198,34 @@ export default function useResize(elementIdList: string[]) {
               ? initialBottom - deltaClientY
               : initialBottom +
                 (deltaBottom * ratioY - deltaBottom - deltaClientY);
+
+            if (top < originTop) top = originTop;
+            if (bottom > originBottom) bottom = originBottom;
+            if (left > originLeft) left = originLeft;
+            if (right < originRight) right = originRight;
           } else if (resizeDirectionRef.current === 'N') {
             const selectionHeight = initialSelectionHeight + -deltaClientY;
             const ratioY = selectionHeight / initialSelectionHeight;
+
+            const originTop = canvasHeight - selectionBottom;
+            const originBottom = selectionBottom;
+
             top = isConnectedToTop
               ? initialTop + deltaClientY
               : initialTop + (deltaTop * ratioY - deltaTop - -deltaClientY);
             bottom = isConnectedToBottom
               ? initialBottom
               : selectionBottom + deltaBottom * ratioY;
+
+            if (top > originTop) top = originTop;
+            if (bottom < originBottom) bottom = originBottom;
           } else if (resizeDirectionRef.current === 'E') {
             const selectionWidth = initialSelectionWidth + deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originLeft = selectionLeft;
+            const originRight = canvasWidth - selectionLeft;
+
             left = isConnectedToLeft
               ? initialLeft
               : selectionLeft + deltaLeft * ratioX;
@@ -178,9 +233,16 @@ export default function useResize(elementIdList: string[]) {
               ? initialRight - deltaClientX
               : initialRight +
                 (deltaRight * ratioX - deltaRight - deltaClientX);
+
+            if (left < originLeft) left = originLeft;
+            if (right > originRight) right = originRight;
           } else if (resizeDirectionRef.current === 'S') {
             const selectionHeight = initialSelectionHeight + deltaClientY;
             const ratioY = selectionHeight / initialSelectionHeight;
+
+            const originTop = selectionTop;
+            const originBottom = canvasWidth - selectionTop;
+
             top = isConnectedToTop
               ? initialTop
               : selectionTop + deltaTop * ratioY;
@@ -188,15 +250,25 @@ export default function useResize(elementIdList: string[]) {
               ? initialBottom - deltaClientY
               : initialBottom +
                 (deltaBottom * ratioY - deltaBottom - deltaClientY);
+
+            if (top < originTop) top = originTop;
+            if (bottom > originBottom) bottom = originBottom;
           } else if (resizeDirectionRef.current === 'W') {
             const selectionWidth = initialSelectionWidth + -deltaClientX;
             const ratioX = selectionWidth / initialSelectionWidth;
+
+            const originLeft = canvasWidth - selectionRight;
+            const originRight = selectionRight;
+
             left = isConnectedToLeft
               ? initialLeft + deltaClientX
               : initialLeft + (deltaLeft * ratioX - deltaLeft - -deltaClientX);
             right = isConnectedToRight
               ? initialRight
               : selectionRight + deltaRight * ratioX;
+
+            if (left > originLeft) left = originLeft;
+            if (right < originRight) right = originRight;
           }
           return { id, left, right, top, bottom };
         },
