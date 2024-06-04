@@ -12,6 +12,7 @@ import {
 import useUIStore from '@/store/ui-store';
 import useCanvasStore from '@/store/canvas-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function GlobalMenubar() {
   const {
@@ -23,10 +24,12 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
-  const { view, setView } = useCanvasStore((store) => ({
-    view: store.view,
-    setView: store.setView,
-  }));
+  const { view, setView } = useCanvasStore(
+    useShallow((store) => ({
+      view: store.view,
+      setView: store.setView,
+    })),
+  );
 
   const handleUIScaleUp: React.MouseEventHandler = () => {
     setUiScale(Number((uiScale + 0.1).toFixed(1)));
