@@ -136,10 +136,18 @@ export default function GlobalMenubar() {
             Show Right Panel
           </MenubarCheckboxItem>
           <MenubarSeparator />
-          <MenubarItem inset onClick={handleZoomIn}>
+          <MenubarItem
+            inset
+            onClick={handleZoomIn}
+            disabled={view.zoomState === 'MAX'}
+          >
             Zoom + <MenubarShortcut>Ctrl++</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset onClick={handleZoomOut}>
+          <MenubarItem
+            inset
+            onClick={handleZoomOut}
+            disabled={view.zoomState === 'MIN'}
+          >
             Zoom - <MenubarShortcut>Ctrl+-</MenubarShortcut>
           </MenubarItem>
           <MenubarItem inset onClick={handleZoomReset}>

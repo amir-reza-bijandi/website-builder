@@ -33,5 +33,5 @@ export default function createZoomView(
   const offsetX = view.offsetX - deltaDistantX;
   const offsetY = view.offsetY - deltaDistantY;
 
-  return { zoomFactor: newZoomFactor, offsetX, offsetY };
+  return { zoomFactor: newZoomFactor, zoomState: 'NORMAL', offsetX, offsetY };
 }

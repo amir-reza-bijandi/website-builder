@@ -32,10 +32,11 @@ export default function useZoom() {
       else newZoomFactor = view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER;
 
       // Check if new zoom factor is within the desired range
-      if (
-        newZoomFactor <= CONFIG.ZOOM_FACTOR_MAX &&
-        newZoomFactor >= CONFIG.ZOOM_FACTOR_MIN
-      ) {
+      if (newZoomFactor > CONFIG.ZOOM_FACTOR_MAX) {
+        setView({ ...view, zoomState: 'MAX' });
+      } else if (newZoomFactor < CONFIG.ZOOM_FACTOR_MIN) {
+        setView({ ...view, zoomState: 'MIN' });
+      } else {
         const canvas = currentTarget.children[0];
         setView(createZoomView(canvas, newZoomFactor, clientX, clientY));
       }

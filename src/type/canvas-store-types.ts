@@ -13,6 +13,7 @@ export type CanvasStoreToolbox = {
 
 export type CanvasStoreView = {
   zoomFactor: number;
+  zoomState: 'MAX' | 'MIN' | 'NORMAL';
   offsetX: number;
   offsetY: number;
 };

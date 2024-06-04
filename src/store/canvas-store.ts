@@ -34,6 +34,7 @@ type CanvasStore = {
 const useCanvasStore = create<CanvasStore>((set) => ({
   view: {
     zoomFactor: 1,
+    zoomState: 'NORMAL',
     offsetX: 0,
     offsetY: 0,
   },
@@ -48,10 +49,11 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isResizing: false,
   isMoving: false,
   isFocused: true,
-  setView({ zoomFactor, offsetX, offsetY }) {
+  setView({ zoomFactor, zoomState, offsetX, offsetY }) {
     set((store) => ({
       view: {
         zoomFactor: zoomFactor ?? store.view.zoomFactor,
+        zoomState: zoomState ?? store.view.zoomState,
         offsetX: offsetX ?? store.view.offsetX,
         offsetY: offsetY ?? store.view.offsetY,
       },
