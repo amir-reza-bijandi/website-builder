@@ -6,6 +6,7 @@ import generateStyle from '@/utility/canvas/generate-style';
 import { memo } from 'react';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import { cn } from '@/utility/general-utilities';
+import { useShallow } from 'zustand/react/shallow';
 
 type CanvasElementWrapperProps = {
   element: CanvasStoreElement;
@@ -21,7 +22,16 @@ export default function CanvasElementWrapper({
     view,
     isResizing,
     isMoving,
-  } = useCanvasStore();
+  } = useCanvasStore(
+    useShallow((store) => ({
+      setSelectedElementIdList: store.setSelectedElementIdList,
+      selectedElementIdList: store.selectedElementIdList,
+      toolbox: store.toolbox,
+      view: store.view,
+      isResizing: store.isResizing,
+      isMoving: store.isMoving,
+    })),
+  );
   const isElementSelected = selectedElementIdList.includes(element.id);
 
   const handleMouseDown = ({ shiftKey }: React.MouseEvent<HTMLDivElement>) => {
