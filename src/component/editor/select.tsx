@@ -189,7 +189,7 @@ function CanvasSelectResize() {
       {/* Top */}
       <div
         style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute left-0 right-0 top-0 z-30 h-6 -translate-y-1/2 scale-y-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-n-resize'
+        className='pointer-events-auto absolute left-0 right-0 top-0 z-30 h-3 -translate-y-full scale-y-[calc(1/var(--zoom-factor))] cursor-custom-n-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'N');
@@ -198,7 +198,7 @@ function CanvasSelectResize() {
       {/* Right */}
       <div
         style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 right-0 top-0 z-30 w-6 translate-x-1/2 scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-e-resize'
+        className='pointer-events-auto absolute bottom-0 right-0 top-0 z-30 w-3 translate-x-1/2 scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-e-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'E');
@@ -207,7 +207,7 @@ function CanvasSelectResize() {
       {/* Bottom */}
       <div
         style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 left-0 right-0 z-30 h-6 translate-y-1/2 scale-y-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-s-resize'
+        className='pointer-events-auto absolute bottom-0 left-0 right-0 z-30 h-3 translate-y-1/2 scale-y-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-s-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'S');
@@ -216,7 +216,7 @@ function CanvasSelectResize() {
       {/* Left */}
       <div
         style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 left-0 top-0 z-30 w-6 -translate-x-1/2 scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-w-resize'
+        className='pointer-events-auto absolute bottom-0 left-0 top-0 z-30 w-3 -translate-x-full scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-w-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'W');
