@@ -11,6 +11,7 @@ type CanvasStore = {
   isPanning: boolean;
   isMoving: boolean;
   isResizing: boolean;
+  isFocused: boolean;
   elementList: CanvasStoreElement[];
   selectedElementIdList: string[];
   isSelectionVisible: boolean;
@@ -19,8 +20,10 @@ type CanvasStore = {
   setPanning: (isPanning: boolean) => void;
   setMoving: (isMoving: boolean) => void;
   setResizing: (isResizing: boolean) => void;
+  setFocus: (isFocused: boolean) => void;
   addElement: (element: CanvasStoreElement) => void;
   updateElement: (...updatedElements: CanvasStoreElement[]) => void;
+  deleteElement: (...elementIdList: string[]) => void;
   setSelectedElementIdList: (
     idList: string[],
     isSelectionVisible?: boolean,
@@ -44,6 +47,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isPanning: false,
   isResizing: false,
   isMoving: false,
+  isFocused: true,
   setView({ zoomFactor, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -70,6 +74,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   setResizing(isResizing) {
     set({ isResizing });
   },
+  setFocus(isFocused) {
+    set({ isFocused });
+  },
   addElement(element) {
     set((store) => ({
       elementList: [...store.elementList, element],
@@ -89,6 +96,22 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         }),
       };
     });
+  },
+  deleteElement(...elementIdList) {
+    set((store) => ({
+      elementList: store.elementList.filter(
+        (element) =>
+          !elementIdList.some(
+            (elementToRemoveId) => element.id === elementToRemoveId,
+          ),
+      ),
+      selectedElementIdList: store.selectedElementIdList.filter(
+        (selectedElementId) =>
+          !elementIdList.some(
+            (elementToRemoveId) => elementToRemoveId === selectedElementId,
+          ),
+      ),
+    }));
   },
   setSelectedElementIdList(idList, isSelectionVisible) {
     set((store) => ({

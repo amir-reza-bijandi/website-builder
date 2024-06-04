@@ -5,10 +5,24 @@ import CanvasSelect from './select';
 import usePan from '@/hook/canvas/use-pan';
 import useResizeOnCreate from '@/hook/canvas/use-resize-on-create';
 import useZoom from '@/hook/canvas/use-zoom';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function Canvas() {
-  const { view, toolbox, setSelectedElementIdList, selectedElementIdList } =
-    useCanvasStore();
+  const {
+    view,
+    toolbox,
+    setSelectedElementIdList,
+    selectedElementIdList,
+    setFocus,
+  } = useCanvasStore(
+    useShallow((store) => ({
+      view: store.view,
+      toolbox: store.toolbox,
+      setSelectedElementIdList: store.setSelectedElementIdList,
+      selectedElementIdList: store.selectedElementIdList,
+      setFocus: store.setFocus,
+    })),
+  );
 
   const handlePan = usePan();
   const handleResizeOnCreate = useResizeOnCreate();
@@ -36,6 +50,14 @@ export default function Canvas() {
     handleResizeOnCreate(mousePositin);
   };
 
+  const handleFocus: React.FocusEventHandler = () => {
+    setFocus(true);
+  };
+
+  const handleBlur: React.FocusEventHandler = () => {
+    setFocus(false);
+  };
+
   return (
     <main
       className={cn(
@@ -54,6 +76,9 @@ export default function Canvas() {
           } as React.CSSProperties
         }
         className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'
+        tabIndex={-1}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       >
         <CanvasRender />
         <CanvasSelect />

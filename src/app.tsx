@@ -6,10 +6,12 @@ import TopPanel from './component/panel/top-panel';
 import useUIScale from './hook/use-ui-scale';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
 import usePanningWithSpaceKey from './hook/canvas/use-panning-with-space-key';
+import useDeleteSelectedElement from './hook/canvas/use-delete-selected-element';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
   usePanningWithSpaceKey();
+  useDeleteSelectedElement();
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();
 
   return (
