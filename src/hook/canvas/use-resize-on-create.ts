@@ -66,10 +66,12 @@ export default function useResizeOnCreate() {
           const elementRect = elementDOM.getBoundingClientRect();
           const elementCanvas = getElementById(selectedElementIdList[0])!;
           if (
-            clientX > elementRect.left &&
-            clientX < elementRect.right &&
-            clientY > elementRect.top &&
-            clientY < elementRect.bottom
+            initialMousePositionRef.current.x >= elementRect.left &&
+            initialMousePositionRef.current.x <=
+              elementRect.left + elementRect.width &&
+            initialMousePositionRef.current.y >= elementRect.top &&
+            initialMousePositionRef.current.y <=
+              elementRect.top + elementRect.height
           ) {
             parentId = selectedElementIdList[0];
             layer = elementCanvas.layer + 1;
