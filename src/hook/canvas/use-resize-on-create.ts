@@ -1,7 +1,11 @@
 import useCanvasStore from '@/store/canvas-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
+import getElementById from '@/utility/canvas/get-element-by-id';
 import { useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+
+// useCanvasStore.subscribe(console.log);
 
 export default function useResizeOnCreate() {
   const {
@@ -12,8 +16,21 @@ export default function useResizeOnCreate() {
     view,
     addElement,
     updateElement,
+    selectedElementIdList,
     setSelectedElementIdList,
-  } = useCanvasStore();
+  } = useCanvasStore(
+    useShallow((store) => ({
+      toolbox: store.toolbox,
+      setToolbox: store.setToolbox,
+      setResizing: store.setResizing,
+      isResizing: store.isResizing,
+      view: store.view,
+      addElement: store.addElement,
+      updateElement: store.updateElement,
+      selectedElementIdList: store.selectedElementIdList,
+      setSelectedElementIdList: store.setSelectedElementIdList,
+    })),
+  );
   const initialMousePositionRef = useRef<Position>();
   const createdElementIdRef = useRef('');
 
@@ -35,30 +52,52 @@ export default function useResizeOnCreate() {
         const scaledInitialClientY =
           initialMousePositionRef.current.y / view.zoomFactor;
 
-        const scaledCanvasTop = canvasRect.top / view.zoomFactor;
-        const scaledCanvasLeft = canvasRect.left / view.zoomFactor;
-        const scaledCanvasBottom = canvasRect.bottom / view.zoomFactor;
-        const scaledCanvasRight = canvasRect.right / view.zoomFactor;
+        let originTop = canvasRect.top / view.zoomFactor;
+        let originLeft = canvasRect.left / view.zoomFactor;
+        let originBottom = canvasRect.bottom / view.zoomFactor;
+        let originRight = canvasRect.right / view.zoomFactor;
+
+        let parentId = '';
+        let layer = 0;
+        if (selectedElementIdList.length === 1) {
+          const elementDOM = document.getElementById(selectedElementIdList[0])!;
+          const elementRect = elementDOM.getBoundingClientRect();
+          const elementCanvas = getElementById(selectedElementIdList[0])!;
+          if (
+            clientX > elementRect.left &&
+            clientX < elementRect.right &&
+            clientY > elementRect.top &&
+            clientY < elementRect.bottom
+          ) {
+            parentId = selectedElementIdList[0];
+            layer = elementCanvas.layer + 1;
+            originLeft = elementRect.left / view.zoomFactor;
+            originTop = elementRect.top / view.zoomFactor;
+            originBottom = elementRect.bottom / view.zoomFactor;
+            originRight = elementRect.right / view.zoomFactor;
+          }
+        }
 
         const left =
           scaledClientX - scaledInitialClientX >= 0
-            ? scaledInitialClientX - scaledCanvasLeft
-            : scaledClientX - scaledCanvasLeft;
+            ? scaledInitialClientX - originLeft
+            : scaledClientX - originLeft;
         const top =
           scaledClientY - scaledInitialClientY >= 0
-            ? scaledInitialClientY - scaledCanvasTop
-            : scaledClientY - scaledCanvasTop;
+            ? scaledInitialClientY - originTop
+            : scaledClientY - originTop;
         const right =
           scaledClientX - scaledInitialClientX >= 0
-            ? scaledCanvasRight - scaledClientX
-            : scaledCanvasRight - scaledInitialClientX;
+            ? originRight - scaledClientX
+            : originRight - scaledInitialClientX;
         const bottom =
           scaledClientY - scaledInitialClientY >= 0
-            ? scaledCanvasBottom - scaledClientY
-            : scaledCanvasBottom - scaledInitialClientY;
+            ? originBottom - scaledClientY
+            : originBottom - scaledInitialClientY;
 
         const element = createElement(toolbox.tool, {
           id: createdElementIdRef.current || undefined,
+          parentId,
           position: {
             mode: 'ABSOLUTE',
             left,
@@ -66,7 +105,9 @@ export default function useResizeOnCreate() {
             right,
             bottom,
           },
+          layer,
         });
+
         if (element) {
           if (!createdElementIdRef.current) {
             addElement(element);

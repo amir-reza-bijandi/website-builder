@@ -7,6 +7,7 @@ import { create } from 'zustand';
 
 type CanvasStore = {
   view: CanvasStoreView;
+  layer: number;
   toolbox: CanvasStoreToolbox;
   isPanning: boolean;
   isMoving: boolean;
@@ -16,6 +17,7 @@ type CanvasStore = {
   selectedElementIdList: string[];
   isSelectionVisible: boolean;
   setView: (view: Partial<CanvasStoreView>) => void;
+  setLayer: (layerIndex: number) => void;
   setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
   setPanning: (isPanning: boolean) => void;
   setMoving: (isMoving: boolean) => void;
@@ -38,6 +40,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     offsetX: 0,
     offsetY: 0,
   },
+  layer: 0,
   toolbox: {
     action: 'SELECT',
     tool: null,
@@ -58,6 +61,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         offsetY: offsetY ?? store.view.offsetY,
       },
     }));
+  },
+  setLayer(layerIndex) {
+    set({ layer: layerIndex });
   },
   setToolbox({ action, tool }) {
     set((store) => ({

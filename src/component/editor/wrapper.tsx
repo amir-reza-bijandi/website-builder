@@ -1,20 +1,15 @@
 import useCanvasStore from '@/store/canvas-store';
-import Frame from './element/frame-element';
-import Text from './element/text-element';
-import Image from './element/image-element';
-import generateStyle from '@/utility/canvas/generate-style';
-import { memo } from 'react';
-import type { CanvasStoreElement } from '@/type/canvas-store-types';
-import { cn } from '@/utility/general-utilities';
 import { useShallow } from 'zustand/react/shallow';
+import { cn } from '@/utility/general-utilities';
+import generateStyle from '@/utility/canvas/generate-style';
+import type { CanvasStoreElement } from '@/type/canvas-store-types';
 
-type CanvasElementWrapperProps = {
+type WrapperProps = {
   element: CanvasStoreElement;
+  children: React.ReactNode;
 };
 
-export default function CanvasElementWrapper({
-  element,
-}: CanvasElementWrapperProps) {
+export default function Wrapper({ element, children }: WrapperProps) {
   const {
     setSelectedElementIdList,
     selectedElementIdList,
@@ -65,20 +60,7 @@ export default function CanvasElementWrapper({
         isElementSelected && isResizing && 'shadow-primary/50',
       )}
     >
-      <ElementRender element={element} />
+      {children}
     </div>
   );
 }
-
-type ElementRenderProps = CanvasElementWrapperProps;
-
-const ElementRender = memo(function ({ element }: ElementRenderProps) {
-  switch (element.type) {
-    case 'FRAME':
-      return <Frame key={element.id} element={element} />;
-    case 'TEXT':
-      return <Text key={element.id} element={element} />;
-    case 'IMAGE':
-      return <Image key={element.id} element={element} />;
-  }
-});

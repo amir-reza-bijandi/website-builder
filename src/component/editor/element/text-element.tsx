@@ -1,9 +1,14 @@
 import CanvasTextModel from '@/model/text-model';
+import Wrapper from '../wrapper';
 
 type TextProps = {
   element: CanvasTextModel;
 };
 
 export default function Text({ element }: TextProps) {
-  return <div className='h-full border'>This is a Text!</div>;
+  return (
+    <Wrapper element={element}>
+      <div className='h-full border'>This is a Text!</div>
+    </Wrapper>
+  );
 }
