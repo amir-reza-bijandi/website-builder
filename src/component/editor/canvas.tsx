@@ -14,6 +14,7 @@ export default function Canvas() {
     setSelectedElementIdList,
     selectedElementIdList,
     setFocus,
+    setLayer,
   } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
@@ -21,6 +22,7 @@ export default function Canvas() {
       setSelectedElementIdList: store.setSelectedElementIdList,
       selectedElementIdList: store.selectedElementIdList,
       setFocus: store.setFocus,
+      setLayer: store.setLayer,
     })),
   );
 
@@ -38,9 +40,10 @@ export default function Canvas() {
   }) => {
     // Clear selection when clicking on canvas
     const canvas = currentTarget.children[0];
-    if (target === canvas && toolbox.action !== 'PAN') {
-      if (selectedElementIdList[0]) {
+    if (target === canvas && toolbox.action === 'SELECT') {
+      if (selectedElementIdList.length) {
         setSelectedElementIdList([], false);
+        setLayer(0);
       }
     }
 

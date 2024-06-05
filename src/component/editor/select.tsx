@@ -5,6 +5,8 @@ import { cn } from '@/utility/general-utilities';
 import { memo, useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import useMove from '@/hook/canvas/use-move';
+import getElementById from '@/utility/canvas/get-element-by-id';
+import { CanvasStoreElement } from '@/type/canvas-store-types';
 
 export default memo(function CanvasSelect() {
   const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
@@ -83,12 +85,15 @@ const CanvasSelectContainer = memo(function ({
   rect,
 }: CanvasSelectContainerProps) {
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
-  const { zoomFactor, toolbox } = useCanvasStore(
-    useShallow((store) => ({
-      zoomFactor: store.view.zoomFactor,
-      toolbox: store.toolbox,
-    })),
-  );
+  const { zoomFactor, toolbox, setSelectedElementIdList, setLayer } =
+    useCanvasStore(
+      useShallow((store) => ({
+        zoomFactor: store.view.zoomFactor,
+        toolbox: store.toolbox,
+        setSelectedElementIdList: store.setSelectedElementIdList,
+        setLayer: store.setLayer,
+      })),
+    );
   // Retrigger reflow to apply animation
   useEffect(() => {
     const isResizing = useCanvasStore.getState().isResizing;
@@ -106,8 +111,65 @@ const CanvasSelectContainer = memo(function ({
   const handleMove = useMove(selectedElementIdList);
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
-    const { clientX, clientY } = e;
-    handleMove({ x: clientX, y: clientY });
+    if (toolbox.action === 'SELECT') {
+      const { clientX, clientY } = e;
+      handleMove({ x: clientX, y: clientY });
+    }
+  };
+
+  const handleDoubleClick: React.MouseEventHandler = ({ clientX, clientY }) => {
+    if (toolbox.action === 'SELECT') {
+      if (selectedElementIdList.length === 1) {
+        const selectedElement = getElementById(selectedElementIdList[0])!;
+        const elementList = useCanvasStore.getState().elementList;
+
+        const children = elementList.filter((element) => {
+          return (
+            element.parentId === selectedElement.id &&
+            element.layer - 1 === selectedElement.layer
+          );
+        });
+
+        if (children.length) {
+          const target = children.reduce((target, element) => {
+            const elementRect = document
+              .getElementById(element.id)!
+              .getBoundingClientRect();
+
+            const elementLeft = elementRect.left / zoomFactor;
+            const elementTop = elementRect.top / zoomFactor;
+            const elementRight =
+              elementRect.left + elementRect.width / zoomFactor;
+            const elementBottom =
+              elementRect.top + elementRect.height / zoomFactor;
+
+            console.log(
+              elementLeft <= clientX,
+              clientX <= elementRight,
+              elementTop <= clientY,
+              clientY <= elementBottom,
+              clientX,
+              clientX,
+            );
+
+            if (
+              elementLeft <= clientX &&
+              clientX <= elementRight &&
+              elementTop <= clientY &&
+              clientY <= elementBottom
+            ) {
+              return element;
+            }
+            return target;
+          }, {} as CanvasStoreElement);
+
+          if (target.id) {
+            setSelectedElementIdList([target.id], true);
+            setLayer(target.layer);
+          }
+        }
+      }
+    }
   };
 
   return (
@@ -124,6 +186,7 @@ const CanvasSelectContainer = memo(function ({
         toolbox.action === 'PAN' && '*:pointer-events-none',
       )}
       onMouseDown={handleMouseDown}
+      onDoubleClick={handleDoubleClick}
     >
       <CanvasSelectResize />
     </div>

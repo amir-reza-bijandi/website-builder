@@ -18,6 +18,7 @@ export default function useResizeOnCreate() {
     updateElement,
     selectedElementIdList,
     setSelectedElementIdList,
+    setLayer,
   } = useCanvasStore(
     useShallow((store) => ({
       toolbox: store.toolbox,
@@ -29,6 +30,7 @@ export default function useResizeOnCreate() {
       updateElement: store.updateElement,
       selectedElementIdList: store.selectedElementIdList,
       setSelectedElementIdList: store.setSelectedElementIdList,
+      setLayer: store.setLayer,
     })),
   );
   const initialMousePositionRef = useRef<Position>();
@@ -111,6 +113,10 @@ export default function useResizeOnCreate() {
         if (element) {
           if (!createdElementIdRef.current) {
             addElement(element);
+            const currentLayer = useCanvasStore.getState().layer;
+            if (element.layer > currentLayer) {
+              setLayer(element.layer);
+            }
             createdElementIdRef.current = element.id;
           } else {
             updateElement(element);

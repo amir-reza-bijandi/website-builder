@@ -17,6 +17,8 @@ export default function Wrapper({ element, children }: WrapperProps) {
     view,
     isResizing,
     isMoving,
+    layer,
+    setLayer,
   } = useCanvasStore(
     useShallow((store) => ({
       setSelectedElementIdList: store.setSelectedElementIdList,
@@ -25,20 +27,30 @@ export default function Wrapper({ element, children }: WrapperProps) {
       view: store.view,
       isResizing: store.isResizing,
       isMoving: store.isMoving,
+      layer: store.layer,
+      setLayer: store.setLayer,
     })),
   );
   const isElementSelected = selectedElementIdList.includes(element.id);
 
-  const handleMouseDown = ({ shiftKey }: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     if (toolbox.action === 'SELECT') {
       if (!isElementSelected) {
-        if (shiftKey) {
-          setSelectedElementIdList(
-            [...selectedElementIdList, element.id],
-            true,
-          );
+        if (element.layer === layer) {
+          if (e.shiftKey) {
+            setSelectedElementIdList(
+              [...selectedElementIdList, element.id],
+              true,
+            );
+          } else {
+            setSelectedElementIdList([element.id], true);
+          }
         } else {
-          setSelectedElementIdList([element.id], true);
+          if (element.layer < layer) {
+            setSelectedElementIdList([element.id], true);
+            setLayer(element.layer);
+          }
         }
       }
     }

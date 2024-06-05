@@ -119,6 +119,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
             (elementToRemoveId) => elementToRemoveId === selectedElementId,
           ),
       ),
+      layer: 0,
     }));
   },
   setSelectedElementIdList(idList, isSelectionVisible) {
