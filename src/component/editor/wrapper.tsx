@@ -4,6 +4,7 @@ import { cn } from '@/utility/general-utilities';
 import generateStyle from '@/utility/canvas/generate-style';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import useMove from '@/hook/canvas/use-move';
+import getElementById from '@/utility/canvas/get-element-by-id';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -22,6 +23,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
     setLayer,
     hoverTargetId,
     setHoverTargetId,
+    isCrossLayerSelectionAllowed,
   } = useCanvasStore(
     useShallow((store) => ({
       setSelectedElementIdList: store.setSelectedElementIdList,
@@ -34,6 +36,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
       setLayer: store.setLayer,
       hoverTargetId: store.hoverTargetId,
       setHoverTargetId: store.setHoverTargetId,
+      isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
     })),
   );
   const handleMove = useMove([element.id]);
@@ -43,14 +46,30 @@ export default function Wrapper({ element, children }: WrapperProps) {
     if (toolbox.action === 'SELECT') {
       e.stopPropagation();
       if (!isElementSelected) {
-        if (element.layer === layer) {
+        if (element.layer === layer || isCrossLayerSelectionAllowed) {
           if (e.shiftKey) {
-            setSelectedElementIdList(
-              [...selectedElementIdList, element.id],
-              true,
+            const selectedElementList = selectedElementIdList.map(
+              (elementId) => getElementById(elementId)!,
             );
+            const selectedChildIndex = selectedElementList.findIndex(
+              (element) => element.parentId === element.id,
+            );
+            // Prevent selecting children and parent at the same time
+            if (selectedChildIndex !== -1) {
+              selectedElementList.splice(selectedChildIndex, 1);
+              setSelectedElementIdList(
+                selectedElementList.map((element) => element.id),
+                true,
+              );
+            } else {
+              setSelectedElementIdList(
+                [...selectedElementIdList, element.id],
+                true,
+              );
+            }
           } else {
             setSelectedElementIdList([element.id], true);
+            setLayer(element.layer);
           }
         } else {
           if (element.layer < layer) {
@@ -63,15 +82,10 @@ export default function Wrapper({ element, children }: WrapperProps) {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const targetId = (e.target as HTMLElement).id;
+  const handleMouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
-      if (hoverTargetId !== targetId) {
-        setHoverTargetId('');
-      }
-      if (targetId !== hoverTargetId) {
-        setHoverTargetId(targetId);
-      }
+      e.stopPropagation();
+      setHoverTargetId(element.id);
     }
   };
 
@@ -89,7 +103,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
         } as React.CSSProperties
       }
       onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
+      onMouseOver={handleMouseOver}
       onMouseLeave={handleMouseLeave}
       className={cn(
         'pointer-events-none shadow-transparent transition-[box-shadow]',
@@ -97,6 +111,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
         isElementSelected && isResizing && 'shadow-primary/50',
         // Stop children from preventing the selection of parent
         element.layer <= layer && 'pointer-events-auto',
+        isCrossLayerSelectionAllowed && 'pointer-events-auto',
         !isElementSelected &&
           !isMoving &&
           !isResizing &&

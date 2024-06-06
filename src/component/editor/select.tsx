@@ -92,6 +92,7 @@ const CanvasSelectContainer = memo(function ({
     setLayer,
     hoverTargetId,
     setHoverTargetId,
+    isCrossLayerSelectionAllowed,
   } = useCanvasStore(
     useShallow((store) => ({
       zoomFactor: store.view.zoomFactor,
@@ -100,6 +101,7 @@ const CanvasSelectContainer = memo(function ({
       setLayer: store.setLayer,
       hoverTargetId: store.hoverTargetId,
       setHoverTargetId: store.setHoverTargetId,
+      isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
     })),
   );
   // Retrigger reflow to apply animation
@@ -191,6 +193,7 @@ const CanvasSelectContainer = memo(function ({
       className={cn(
         'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
         toolbox.action === 'PAN' && '*:pointer-events-none',
+        isCrossLayerSelectionAllowed && 'pointer-events-none',
       )}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}

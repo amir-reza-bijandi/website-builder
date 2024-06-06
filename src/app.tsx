@@ -7,11 +7,13 @@ import useUIScale from './hook/use-ui-scale';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
 import usePanningWithSpaceKey from './hook/canvas/use-panning-with-space-key';
 import useDeleteSelectedElement from './hook/canvas/use-delete-selected-element';
+import useCrossLayerSelection from './hook/canvas/use-cross-layer-selection';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
   usePanningWithSpaceKey();
   useDeleteSelectedElement();
+  useCrossLayerSelection();
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();
 
   return (

@@ -13,6 +13,7 @@ type CanvasStore = {
   isMoving: boolean;
   isResizing: boolean;
   isFocused: boolean;
+  isCrossLayerSelectionAllowed: boolean;
   elementList: CanvasStoreElement[];
   selectedElementIdList: string[];
   hoverTargetId: string;
@@ -24,6 +25,7 @@ type CanvasStore = {
   setMoving: (isMoving: boolean) => void;
   setResizing: (isResizing: boolean) => void;
   setFocus: (isFocused: boolean) => void;
+  setCrossLayerSelection: (isCrossLayerSelectionAllowed: boolean) => void;
   addElement: (element: CanvasStoreElement) => void;
   updateElement: (...updatedElements: CanvasStoreElement[]) => void;
   deleteElement: (...elementIdList: string[]) => void;
@@ -54,6 +56,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isResizing: false,
   isMoving: false,
   isFocused: true,
+  isCrossLayerSelectionAllowed: false,
   hoverTargetId: '',
   setView({ zoomFactor, zoomState, offsetX, offsetY }) {
     set((store) => ({
@@ -87,6 +90,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   },
   setFocus(isFocused) {
     set({ isFocused });
+  },
+  setCrossLayerSelection(isCrossLayerSelectionAllowed) {
+    set({ isCrossLayerSelectionAllowed });
   },
   addElement(element) {
     set((store) => ({
