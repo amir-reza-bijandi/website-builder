@@ -148,16 +148,14 @@ const CanvasSelectContainer = memo(function ({
 
             const elementLeft = elementRect.left / zoomFactor;
             const elementTop = elementRect.top / zoomFactor;
-            const elementRight =
-              elementRect.left + elementRect.width / zoomFactor;
-            const elementBottom =
-              elementRect.top + elementRect.height / zoomFactor;
+            const elementRight = elementLeft + elementRect.width / zoomFactor;
+            const elementBottom = elementTop + elementRect.height / zoomFactor;
 
             if (
-              elementLeft <= clientX &&
-              clientX <= elementRight &&
-              elementTop <= clientY &&
-              clientY <= elementBottom
+              elementLeft <= clientX / zoomFactor &&
+              clientX / zoomFactor <= elementRight &&
+              elementTop <= clientY / zoomFactor &&
+              clientY / zoomFactor <= elementBottom
             ) {
               return element;
             }
