@@ -67,9 +67,11 @@ export default function Wrapper({ element, children }: WrapperProps) {
       }
       onMouseDown={handleMouseDown}
       className={cn(
-        'shadow-transparent transition-[box-shadow]',
+        'pointer-events-none shadow-transparent transition-[box-shadow]',
         isElementSelected && !isMoving && 'shadow-primary',
         isElementSelected && isResizing && 'shadow-primary/50',
+        // Stop children from preventing the selection of parent
+        element.layer <= layer && 'pointer-events-auto',
       )}
     >
       {children}
