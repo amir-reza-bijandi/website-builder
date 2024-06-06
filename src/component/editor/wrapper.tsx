@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { cn } from '@/utility/general-utilities';
 import generateStyle from '@/utility/canvas/generate-style';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
+import useMove from '@/hook/canvas/use-move';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -31,6 +32,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
       setLayer: store.setLayer,
     })),
   );
+  const handleMove = useMove([element.id]);
   const isElementSelected = selectedElementIdList.includes(element.id);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -53,6 +55,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
           }
         }
       }
+      handleMove({ x: e.clientX, y: e.clientY });
     }
   };
 
