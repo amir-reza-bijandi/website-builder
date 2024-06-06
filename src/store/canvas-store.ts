@@ -113,7 +113,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
       elementList: store.elementList.filter(
         (element) =>
           !elementIdList.some(
-            (elementToRemoveId) => element.id === elementToRemoveId,
+            (elementToRemoveId) =>
+              element.id === elementToRemoveId ||
+              element.parentId === elementToRemoveId,
           ),
       ),
       selectedElementIdList: store.selectedElementIdList.filter(
