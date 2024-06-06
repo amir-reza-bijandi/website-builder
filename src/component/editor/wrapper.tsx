@@ -20,6 +20,8 @@ export default function Wrapper({ element, children }: WrapperProps) {
     isMoving,
     layer,
     setLayer,
+    hoverTargetId,
+    setHoverTargetId,
   } = useCanvasStore(
     useShallow((store) => ({
       setSelectedElementIdList: store.setSelectedElementIdList,
@@ -30,6 +32,8 @@ export default function Wrapper({ element, children }: WrapperProps) {
       isMoving: store.isMoving,
       layer: store.layer,
       setLayer: store.setLayer,
+      hoverTargetId: store.hoverTargetId,
+      setHoverTargetId: store.setHoverTargetId,
     })),
   );
   const handleMove = useMove([element.id]);
@@ -59,6 +63,22 @@ export default function Wrapper({ element, children }: WrapperProps) {
     }
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const targetId = (e.target as HTMLElement).id;
+    if (toolbox.action === 'SELECT') {
+      if (hoverTargetId !== targetId) {
+        setHoverTargetId('');
+      }
+      if (targetId !== hoverTargetId) {
+        setHoverTargetId(targetId);
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoverTargetId('');
+  };
+
   return (
     <div
       id={element.id}
@@ -69,12 +89,19 @@ export default function Wrapper({ element, children }: WrapperProps) {
         } as React.CSSProperties
       }
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         'pointer-events-none shadow-transparent transition-[box-shadow]',
         isElementSelected && !isMoving && 'shadow-primary',
         isElementSelected && isResizing && 'shadow-primary/50',
         // Stop children from preventing the selection of parent
         element.layer <= layer && 'pointer-events-auto',
+        !isElementSelected &&
+          !isMoving &&
+          !isResizing &&
+          hoverTargetId === element.id &&
+          'shadow-primary',
       )}
     >
       {children}

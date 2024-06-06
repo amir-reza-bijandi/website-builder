@@ -9,7 +9,7 @@ type FrameProps = {
 export default function Frame({ element }: FrameProps) {
   return (
     <Wrapper element={element}>
-      <div className='relative h-full border'>
+      <div className='pointer-events-none relative h-full border'>
         This is a Frame!
         <Render elementId={element.id} layer={element.layer + 1} />
       </div>

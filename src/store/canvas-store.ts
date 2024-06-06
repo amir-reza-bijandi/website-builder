@@ -15,6 +15,7 @@ type CanvasStore = {
   isFocused: boolean;
   elementList: CanvasStoreElement[];
   selectedElementIdList: string[];
+  hoverTargetId: string;
   isSelectionVisible: boolean;
   setView: (view: Partial<CanvasStoreView>) => void;
   setLayer: (layerIndex: number) => void;
@@ -30,6 +31,7 @@ type CanvasStore = {
     idList: string[],
     isSelectionVisible?: boolean,
   ) => void;
+  setHoverTargetId: (targetId: string) => void;
   setSelectionVisible: (visible: boolean) => void;
 };
 
@@ -52,6 +54,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isResizing: false,
   isMoving: false,
   isFocused: true,
+  hoverTargetId: '',
   setView({ zoomFactor, zoomState, offsetX, offsetY }) {
     set((store) => ({
       view: {
@@ -127,6 +130,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
       selectedElementIdList: idList,
       isSelectionVisible: isSelectionVisible || store.isSelectionVisible,
     }));
+  },
+  setHoverTargetId(targetId) {
+    set({ hoverTargetId: targetId });
   },
   setSelectionVisible(visible) {
     set({ isSelectionVisible: visible });

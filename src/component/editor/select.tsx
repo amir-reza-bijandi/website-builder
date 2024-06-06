@@ -85,15 +85,23 @@ const CanvasSelectContainer = memo(function ({
   rect,
 }: CanvasSelectContainerProps) {
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
-  const { zoomFactor, toolbox, setSelectedElementIdList, setLayer } =
-    useCanvasStore(
-      useShallow((store) => ({
-        zoomFactor: store.view.zoomFactor,
-        toolbox: store.toolbox,
-        setSelectedElementIdList: store.setSelectedElementIdList,
-        setLayer: store.setLayer,
-      })),
-    );
+  const {
+    zoomFactor,
+    toolbox,
+    setSelectedElementIdList,
+    setLayer,
+    hoverTargetId,
+    setHoverTargetId,
+  } = useCanvasStore(
+    useShallow((store) => ({
+      zoomFactor: store.view.zoomFactor,
+      toolbox: store.toolbox,
+      setSelectedElementIdList: store.setSelectedElementIdList,
+      setLayer: store.setLayer,
+      hoverTargetId: store.hoverTargetId,
+      setHoverTargetId: store.setHoverTargetId,
+    })),
+  );
   // Retrigger reflow to apply animation
   useEffect(() => {
     const isResizing = useCanvasStore.getState().isResizing;
@@ -143,15 +151,6 @@ const CanvasSelectContainer = memo(function ({
             const elementBottom =
               elementRect.top + elementRect.height / zoomFactor;
 
-            console.log(
-              elementLeft <= clientX,
-              clientX <= elementRight,
-              elementTop <= clientY,
-              clientY <= elementBottom,
-              clientX,
-              clientX,
-            );
-
             if (
               elementLeft <= clientX &&
               clientX <= elementRight &&
@@ -172,6 +171,14 @@ const CanvasSelectContainer = memo(function ({
     }
   };
 
+  const handleMouseMove = () => {
+    if (toolbox.action === 'SELECT') {
+      if (hoverTargetId) {
+        setHoverTargetId('');
+      }
+    }
+  };
+
   return (
     <div
       ref={canvasSelectContainerRef}
@@ -187,6 +194,7 @@ const CanvasSelectContainer = memo(function ({
       )}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
+      onMouseMove={handleMouseMove}
     >
       <CanvasSelectResize />
     </div>
