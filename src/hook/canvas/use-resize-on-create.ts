@@ -62,23 +62,27 @@ export default function useResizeOnCreate() {
         let parentId = '';
         let layer = 0;
         if (selectedElementIdList.length === 1) {
-          const elementDOM = document.getElementById(selectedElementIdList[0])!;
-          const elementRect = elementDOM.getBoundingClientRect();
           const elementCanvas = getElementById(selectedElementIdList[0])!;
-          if (
-            initialMousePositionRef.current.x >= elementRect.left &&
-            initialMousePositionRef.current.x <=
-              elementRect.left + elementRect.width &&
-            initialMousePositionRef.current.y >= elementRect.top &&
-            initialMousePositionRef.current.y <=
-              elementRect.top + elementRect.height
-          ) {
-            parentId = selectedElementIdList[0];
-            layer = elementCanvas.layer + 1;
-            originLeft = elementRect.left / view.zoomFactor;
-            originTop = elementRect.top / view.zoomFactor;
-            originBottom = elementRect.bottom / view.zoomFactor;
-            originRight = elementRect.right / view.zoomFactor;
+          if (elementCanvas.type === 'FRAME') {
+            const elementDOM = document.getElementById(
+              selectedElementIdList[0],
+            )!;
+            const elementRect = elementDOM.getBoundingClientRect();
+            if (
+              initialMousePositionRef.current.x >= elementRect.left &&
+              initialMousePositionRef.current.x <=
+                elementRect.left + elementRect.width &&
+              initialMousePositionRef.current.y >= elementRect.top &&
+              initialMousePositionRef.current.y <=
+                elementRect.top + elementRect.height
+            ) {
+              parentId = selectedElementIdList[0];
+              layer = elementCanvas.layer + 1;
+              originLeft = elementRect.left / view.zoomFactor;
+              originTop = elementRect.top / view.zoomFactor;
+              originBottom = elementRect.bottom / view.zoomFactor;
+              originRight = elementRect.right / view.zoomFactor;
+            }
           }
         }
 
