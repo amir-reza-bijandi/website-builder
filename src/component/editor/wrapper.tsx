@@ -40,8 +40,8 @@ export default function Wrapper({ element, children }: WrapperProps) {
   const isElementSelected = selectedElementIdList.includes(element.id);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
     if (toolbox.action === 'SELECT') {
+      e.stopPropagation();
       if (!isElementSelected) {
         if (element.layer === layer) {
           if (e.shiftKey) {
