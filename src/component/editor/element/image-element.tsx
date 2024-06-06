@@ -8,7 +8,7 @@ type ImageProps = {
 export default function Image({ element }: ImageProps) {
   return (
     <Wrapper element={element}>
-      <div className='h-full border'>This is an Image!</div>
+      <div className='pointer-events-none h-full border'>This is an Image!</div>
     </Wrapper>
   );
 }

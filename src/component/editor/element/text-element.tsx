@@ -8,7 +8,7 @@ type TextProps = {
 export default function Text({ element }: TextProps) {
   return (
     <Wrapper element={element}>
-      <div className='h-full border'>This is a Text!</div>
+      <div className='pointer-events-none h-full border'>This is a Text!</div>
     </Wrapper>
   );
 }
