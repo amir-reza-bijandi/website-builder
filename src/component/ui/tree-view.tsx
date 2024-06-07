@@ -1,7 +1,15 @@
 import { cn } from '@/utility/general-utilities';
 import { ChevronRightIcon } from 'lucide-react';
-import { createContext, memo, useContext, useState } from 'react';
+import {
+  createContext,
+  memo,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { ScrollArea } from './scroll-area';
+import getElementAncestorIdList from '@/utility/canvas/get-element-ancestor-id-list';
 
 export type TreeViewItem = {
   id: string;
@@ -81,10 +89,24 @@ const TreeViewItem = memo(function ({
   const { selectedItemIdList, itemList, onSelect } =
     useContext(TreeViewContext);
   const [isExpanded, setExpand] = useState(false);
+
   const isSelected = selectedItemIdList.some(
     (selectedItemId) => selectedItemId === id,
   );
   const hasChildren = itemList.some((item) => item.parentId === id);
+  const isSelectedAncestor = useMemo(
+    () =>
+      selectedItemIdList
+        .map((selectedItemId) => getElementAncestorIdList(selectedItemId))
+        .some((list) => list?.some((ancestorId) => ancestorId === id)),
+    [selectedItemIdList, id],
+  );
+
+  useEffect(() => {
+    if (isSelectedAncestor) {
+      setExpand(true);
+    }
+  }, [isSelectedAncestor]);
 
   const handleExpand: React.MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -102,6 +124,7 @@ const TreeViewItem = memo(function ({
         className={cn(
           'relative h-10 rounded',
           isSelected && 'bg-primary text-primary-foreground',
+          isSelectedAncestor && 'text-primary',
           isExpanded && 'rounded-bl-none rounded-br-none',
         )}
       >
@@ -119,7 +142,9 @@ const TreeViewItem = memo(function ({
         )}
         <div
           style={{ left: `calc(2rem + (${layer} * 1.8rem))` }}
-          className='pointer-events-none absolute top-1/2 -translate-y-1/2'
+          className={cn(
+            'pointer-events-none absolute top-1/2 -translate-y-1/2',
+          )}
         >
           {icon}
         </div>
