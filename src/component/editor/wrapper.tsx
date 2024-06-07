@@ -116,7 +116,6 @@ export default function Wrapper({ element, children }: WrapperProps) {
           !isMoving &&
           !isResizing &&
           hoverTargetId === element.id &&
-          element.layer <= layer &&
           'shadow-primary',
       )}
     >
