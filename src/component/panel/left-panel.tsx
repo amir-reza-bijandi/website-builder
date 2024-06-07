@@ -1,5 +1,6 @@
 import { cn } from '@/utility/general-utilities';
 import Toolbox from './toolbox';
+import ElementList from './element-list';
 
 type LeftPanelProps = {
   hidden?: boolean;
@@ -9,11 +10,11 @@ export default function LeftPanel({ hidden = false }: LeftPanelProps) {
   return (
     <div
       className={cn(
-        'absolute bottom-0 left-0 top-0 z-50 flex w-80 items-center justify-center border-r bg-background transition-transform',
+        'absolute bottom-0 left-0 top-0 z-50 w-80 items-center border-r bg-background p-3 transition-transform',
         hidden && '-translate-x-full',
       )}
     >
-      Left Panel
+      <ElementList />
       <Toolbox />
     </div>
   );

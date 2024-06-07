@@ -10,6 +10,11 @@ export default abstract class CanvasBaseModel<T extends CanvasElementType> {
     readonly type: T,
     readonly id: string = `${type}-${nanoid()}`,
     readonly parentId: string = '',
+    readonly displayName: string = type
+      .toLowerCase()
+      .split('')
+      .map((char, index) => (index === 0 ? char.toUpperCase() : char))
+      .join(''),
     readonly width: number | 'AUTO' = 'AUTO',
     readonly height: number | 'AUTO' = 'AUTO',
     readonly position: CanvasElementPosition = {

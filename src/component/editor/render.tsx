@@ -22,8 +22,8 @@ export default function Render({ elementId, layer = 0 }: RenderProps) {
         <CanvasElement key={element.id} element={element} />
       ));
     } else {
-      layerElementList = elementList.filter(
-        (element) => element.parentId === elementId && element.layer === layer,
+      layerElementList = layerElementList.filter(
+        (element) => element.parentId === elementId,
       );
       return layerElementList.map((element) => (
         <CanvasElement key={element.id} element={element} />

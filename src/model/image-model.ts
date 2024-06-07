@@ -6,6 +6,7 @@ export default class CanvasImageModel extends CanvasBaseModel<'IMAGE'> {
   constructor({
     id,
     parentId,
+    displayName,
     width,
     height,
     position,
@@ -18,6 +19,7 @@ export default class CanvasImageModel extends CanvasBaseModel<'IMAGE'> {
       'IMAGE',
       id,
       parentId,
+      displayName,
       width,
       height,
       position,

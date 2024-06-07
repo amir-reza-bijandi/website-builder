@@ -23,11 +23,9 @@ export default function useCrossLayerSelection() {
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (isFocused) {
-        if (e.key === 'Control') {
-          if (isCrossLayerSelectionAllowed) {
-            setCrossLayerSelection(false);
-          }
+      if (e.key === 'Control') {
+        if (isCrossLayerSelectionAllowed) {
+          setCrossLayerSelection(false);
         }
       }
     };

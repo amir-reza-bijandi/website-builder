@@ -12,6 +12,7 @@ export default class CanvasFrameModel extends CanvasBaseModel<'FRAME'> {
   constructor({
     id,
     parentId,
+    displayName,
     width,
     height,
     position,
@@ -30,6 +31,7 @@ export default class CanvasFrameModel extends CanvasBaseModel<'FRAME'> {
       'FRAME',
       id,
       parentId,
+      displayName,
       width,
       height,
       position,

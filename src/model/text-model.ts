@@ -6,6 +6,7 @@ export default class CanvasTextModel extends CanvasBaseModel<'TEXT'> {
   constructor({
     id,
     parentId,
+    displayName,
     width,
     height,
     position,
@@ -18,6 +19,7 @@ export default class CanvasTextModel extends CanvasBaseModel<'TEXT'> {
       'TEXT',
       id,
       parentId,
+      displayName,
       width,
       height,
       position,
