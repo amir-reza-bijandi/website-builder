@@ -3,22 +3,19 @@ import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useCrossLayerSelection() {
-  const { isCrossLayerSelectionAllowed, setCrossLayerSelection, isFocused } =
+  const { isCrossLayerSelectionAllowed, setCrossLayerSelection } =
     useCanvasStore(
       useShallow((store) => ({
         isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
         setCrossLayerSelection: store.setCrossLayerSelection,
-        isFocused: store.isFocused,
       })),
     );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isFocused) {
-        if (e.key === 'Control') {
-          if (!isCrossLayerSelectionAllowed) {
-            setCrossLayerSelection(true);
-          }
+      if (e.key === 'Control') {
+        if (!isCrossLayerSelectionAllowed) {
+          setCrossLayerSelection(true);
         }
       }
     };
@@ -35,5 +32,5 @@ export default function useCrossLayerSelection() {
       document.body.removeEventListener('keydown', handleKeyDown, false);
       document.body.removeEventListener('keyup', handleKeyUp, false);
     };
-  }, [isCrossLayerSelectionAllowed, setCrossLayerSelection, isFocused]);
+  }, [isCrossLayerSelectionAllowed, setCrossLayerSelection]);
 }
