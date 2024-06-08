@@ -279,14 +279,36 @@ export default function useResize(elementIdList: string[]) {
 
     const resizedElementList = resizedElementRectList.map((elementRect) => {
       const element = getElementById(elementRect.id)!;
+      let left = elementRect.left;
+      let right = elementRect.right;
+      let top = elementRect.top;
+      let bottom = elementRect.bottom;
+
+      if (element.parentId) {
+        const parentRect = document
+          .getElementById(element.parentId)!
+          .getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+
+        const parentLeft = (parentRect.left - canvasRect.left) / zoomFactor;
+        const parentTop = (parentRect.top - canvasRect.top) / zoomFactor;
+        const parentRight = (canvasRect.right - parentRect.right) / zoomFactor;
+        const parentBottom =
+          (canvasRect.bottom - parentRect.bottom) / zoomFactor;
+
+        left -= parentLeft;
+        right -= parentRight;
+        top -= parentTop;
+        bottom -= parentBottom;
+      }
       return {
         ...element,
         position: {
           mode: element.position.mode,
-          left: elementRect.left,
-          right: elementRect.right,
-          top: elementRect.top,
-          bottom: elementRect.bottom,
+          left,
+          right,
+          top,
+          bottom,
         },
       };
     });
@@ -316,15 +338,19 @@ export default function useResize(elementIdList: string[]) {
   ) => {
     if (elementList.every((element) => element.position.mode === 'ABSOLUTE')) {
       initialMousePositionRef.current = initialMousePosition;
-      initialElementRectListRef.current = elementList.map((element) => ({
-        id: element.id,
-        left: element.position.mode === 'ABSOLUTE' ? +element.position.left : 0,
-        right:
-          element.position.mode === 'ABSOLUTE' ? +element.position.right : 0,
-        top: element.position.mode === 'ABSOLUTE' ? +element.position.top : 0,
-        bottom:
-          element.position.mode === 'ABSOLUTE' ? +element.position.bottom : 0,
-      }));
+      initialElementRectListRef.current = elementList.map((element) => {
+        const canvasRect = canvas.getBoundingClientRect();
+        const elementRect = document
+          .getElementById(element.id)!
+          .getBoundingClientRect();
+        return {
+          id: element.id,
+          left: (elementRect.left - canvasRect.left) / zoomFactor,
+          right: (canvasRect.right - elementRect.right) / zoomFactor,
+          top: (elementRect.top - canvasRect.top) / zoomFactor,
+          bottom: (canvasRect.bottom - elementRect.bottom) / zoomFactor,
+        };
+      });
       resizeDirectionRef.current = resizeDirection;
 
       document.body.addEventListener('mousemove', handleResizing);
