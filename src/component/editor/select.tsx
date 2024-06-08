@@ -128,11 +128,39 @@ const CanvasSelectContainer = memo(function ({
   const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
   const handleMove = useMove(selectedElementIdList);
 
-  // Moving element when it's selected
   const handleMouseDown: React.MouseEventHandler = (e) => {
     if (toolbox.action === 'SELECT') {
       const { clientX, clientY } = e;
+      // Moving element when it's selected
       handleMove({ x: clientX, y: clientY });
+
+      // Deselect element when shift key is pressed
+      if (e.shiftKey) {
+        const selectedElementIdList =
+          useCanvasStore.getState().selectedElementIdList;
+        setSelectedElementIdList(
+          selectedElementIdList.filter((selectedElementId) => {
+            const elementRect = document
+              .getElementById(selectedElementId)!
+              .getBoundingClientRect();
+
+            const elementLeft = elementRect.left / zoomFactor;
+            const elementTop = elementRect.top / zoomFactor;
+            const elementRight = elementLeft + elementRect.width / zoomFactor;
+            const elementBottom = elementTop + elementRect.height / zoomFactor;
+
+            if (
+              elementLeft <= clientX / zoomFactor &&
+              clientX / zoomFactor <= elementRight &&
+              elementTop <= clientY / zoomFactor &&
+              clientY / zoomFactor <= elementBottom
+            ) {
+              return false;
+            }
+            return true;
+          }),
+        );
+      }
     }
   };
 
