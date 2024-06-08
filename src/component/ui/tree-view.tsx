@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { ScrollArea } from './scroll-area';
-import getElementAncestorIdList from '@/utility/canvas/get-element-ancestor-id-list';
+import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 
 export type TreeViewItem = {
   id: string;
@@ -102,7 +102,7 @@ const TreeViewItem = memo(function ({
   const isSelectedAncestor = useMemo(
     () =>
       selectedItemIdList
-        .map((selectedItemId) => getElementAncestorIdList(selectedItemId))
+        .map((selectedItemId) => getAncestorIdList(selectedItemId))
         .some((list) => list?.some((ancestorId) => ancestorId === id)),
     [selectedItemIdList, id],
   );

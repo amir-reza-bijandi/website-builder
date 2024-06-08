@@ -1,9 +1,7 @@
 import useCanvasStore from '@/store/canvas-store';
 import getElementById from './get-element-by-id';
 
-export default function getElementAncestorIdList(
-  elementId: string,
-): string[] | null {
+export default function getAncestorIdList(elementId: string): string[] | null {
   const elementList = useCanvasStore.getState().elementList;
   try {
     const targetElement = getElementById(elementId);
@@ -14,7 +12,7 @@ export default function getElementAncestorIdList(
       .filter((element) => element.layer < targetElement.layer)
       .sort((a, b) => b.layer - a.layer);
 
-    return filteredElementList.reduce(
+    const result = filteredElementList.reduce(
       (result, element) => {
         if (element.id === result.at(-1)) {
           if (element.parentId) {
@@ -25,6 +23,8 @@ export default function getElementAncestorIdList(
       },
       [targetElement.parentId],
     );
+
+    return result.length > 0 ? result : null;
   } catch (error) {
     console.error(error);
     return null;

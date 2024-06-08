@@ -3,7 +3,8 @@ import useCanvasStore from '@/store/canvas-store';
 import { CanvasElementType } from '@/type/element-property-types';
 import { FrameIcon, ImageIcon, TypeIcon } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
-import getElementById from '@/utility/canvas/get-element-by-id';
+import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
+import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 
 export default function ElementList() {
   const {
@@ -56,28 +57,30 @@ export default function ElementList() {
           );
         } else {
           // Select multiple elements
-          const selectedElementList = selectedElementIdList.map(
-            (selectedElementId) => getElementById(selectedElementId)!,
-          );
-          const selectedElement = getElementById(selectedItemId)!;
-          const childElements = selectedElementList.filter(
-            (element) => element.parentId === selectedItemId,
+          const childElements = getDescendentIdList(selectedItemId);
+
+          const isDescendentSelected = selectedElementIdList
+            .map((selectedElementId) => getAncestorIdList(selectedElementId))
+            .some((ancestorIdList) =>
+              ancestorIdList?.some((ancestorId) => {
+                return ancestorId === selectedItemId;
+              }),
+            );
+
+          const isAncestorSelected = getAncestorIdList(selectedItemId)?.some(
+            (ancestorId) =>
+              selectedElementIdList.some(
+                (selectedElementId) => selectedElementId === ancestorId,
+              ),
           );
 
-          const isChildrenSelected = childElements.length;
-          const isParentSelected = selectedElementList.some(
-            (element) => element.id === selectedElement.parentId,
-          );
-
-          // Check if the selected element is the parent of some already selected elements
-          if (isChildrenSelected) {
+          // Check if th e selected element is the parent of some already selected elements
+          if (isDescendentSelected) {
             setSelectedElementIdList(
               [
                 ...selectedElementIdList.filter(
                   (selectedElementId) =>
-                    !childElements.some(
-                      (childElement) => childElement.id === selectedElementId,
-                    ),
+                    !childElements?.includes(selectedElementId),
                 ),
                 selectedItemId,
               ],
@@ -85,7 +88,7 @@ export default function ElementList() {
             );
           }
           // Check if selected element is a child of some already selected element
-          else if (isParentSelected) {
+          else if (isAncestorSelected) {
             return;
           } else {
             setSelectedElementIdList(
