@@ -16,8 +16,10 @@ export default memo(function CanvasSelect() {
       elementList: store.elementList,
     })),
   );
+  // We need the zoom factor but we dont want it to cause rerenders
   const zoomFactor = useCanvasStore.getState().view.zoomFactor;
 
+  // Not showing anything when no element is selected
   if (selectedElementIdList.length === 0 || !isSelectionVisible) return null;
 
   const elementRectList = selectedElementIdList.map((elementId) =>
@@ -25,6 +27,7 @@ export default memo(function CanvasSelect() {
   );
   const canvasRect = document.getElementById('canvas')!.getBoundingClientRect();
 
+  // Finding the lowest value for every direction to use for rendering select rectange
   const left = elementRectList.reduce((min, rect) => {
     const left = Math.abs(canvasRect.left - rect.left) / zoomFactor;
     if (min > left) {
@@ -81,6 +84,10 @@ type CanvasSelectContainerProps = {
   };
 };
 
+/* We want the zoom factor changes to rerender the click targets of select rectangle
+   and to not effect the calculations of rectangle postion, so we create a separate
+   component */
+
 const CanvasSelectContainer = memo(function ({
   rect,
 }: CanvasSelectContainerProps) {
@@ -106,6 +113,7 @@ const CanvasSelectContainer = memo(function ({
   );
   // Retrigger reflow to apply animation
   useEffect(() => {
+    // Prevent filckering when resizing
     const isResizing = useCanvasStore.getState().isResizing;
     if (!isResizing) {
       const canvasSelectContainer = canvasSelectContainerRef.current;
@@ -120,6 +128,7 @@ const CanvasSelectContainer = memo(function ({
   const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
   const handleMove = useMove(selectedElementIdList);
 
+  // Moving element when it's selected
   const handleMouseDown: React.MouseEventHandler = (e) => {
     if (toolbox.action === 'SELECT') {
       const { clientX, clientY } = e;
@@ -127,8 +136,10 @@ const CanvasSelectContainer = memo(function ({
     }
   };
 
+  // Changing current layer with double click
   const handleDoubleClick: React.MouseEventHandler = ({ clientX, clientY }) => {
     if (toolbox.action === 'SELECT') {
+      // Prevent double click if muliple elements are selected
       if (selectedElementIdList.length === 1) {
         const selectedElement = getElementById(selectedElementIdList[0])!;
         const elementList = useCanvasStore.getState().elementList;
@@ -140,7 +151,9 @@ const CanvasSelectContainer = memo(function ({
           );
         });
 
+        // Check whether the element has any children
         if (children.length) {
+          // Finding the target of double click based on their position on the canvas
           const target = children.reduce((target, element) => {
             const elementRect = document
               .getElementById(element.id)!
@@ -171,6 +184,7 @@ const CanvasSelectContainer = memo(function ({
     }
   };
 
+  // Prevent highlighting already selected elements
   const handleMouseMove = () => {
     if (toolbox.action === 'SELECT') {
       if (hoverTargetId) {
@@ -190,7 +204,9 @@ const CanvasSelectContainer = memo(function ({
       }}
       className={cn(
         'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
+        // Prevent interfering with pan mode
         toolbox.action === 'PAN' && '*:pointer-events-none',
+        // Make it possible to select element that are blow the selection rectangle
         isCrossLayerSelectionAllowed && 'pointer-events-none',
       )}
       onMouseDown={handleMouseDown}
@@ -217,6 +233,7 @@ function CanvasSelectResize() {
     { clientX, clientY }: React.MouseEvent,
     direction: Direction,
   ) => {
+    // Resize elements
     handleResize({ x: clientX, y: clientY }, direction);
   };
 

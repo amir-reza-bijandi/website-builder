@@ -47,6 +47,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
       e.stopPropagation();
       if (!isElementSelected) {
         if (element.layer === layer || isCrossLayerSelectionAllowed) {
+          // Select mutiple elements
           if (e.shiftKey) {
             const selectedElementList = selectedElementIdList.map(
               (elementId) => getElementById(elementId)!,
@@ -71,17 +72,21 @@ export default function Wrapper({ element, children }: WrapperProps) {
             setSelectedElementIdList([element.id], true);
             setLayer(element.layer);
           }
-        } else {
+        }
+        // Prevent selecting parent and children at the same time
+        else {
           if (element.layer < layer) {
             setSelectedElementIdList([element.id], true);
             setLayer(element.layer);
           }
         }
       }
+      // Moving element
       handleMove({ x: e.clientX, y: e.clientY });
     }
   };
 
+  // setup for the highlight effect of selectable elements
   const handleMouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
       e.stopPropagation();
@@ -107,11 +112,14 @@ export default function Wrapper({ element, children }: WrapperProps) {
       onMouseLeave={handleMouseLeave}
       className={cn(
         'pointer-events-none shadow-transparent transition-[box-shadow]',
+        // Fade effect when moving elements
         isElementSelected && !isMoving && 'shadow-primary',
         isElementSelected && isResizing && 'shadow-primary/50',
-        // Stop children from preventing the selection of parent
+        // Make non-relevant elements non-interactive
         element.layer <= layer && 'pointer-events-auto',
+        // Make every element interactive when cross layer selection mode is active
         isCrossLayerSelectionAllowed && 'pointer-events-auto',
+        // Highlight effect when hovering over selectable element
         !isElementSelected &&
           !isMoving &&
           !isResizing &&

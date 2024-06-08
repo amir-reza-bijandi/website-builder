@@ -39,6 +39,7 @@ const TreeViewContext = createContext<TreeViewContextValue>(
 );
 
 const TreeView = memo(function (props: TreeViewProps) {
+  // Clear selection when clicked on empty space of tree view
   const handleClearSelection: React.MouseEventHandler = (e) => {
     props.onSelect?.({ ...e, selectedItemId: '', selectedItemLayer: 0 });
   };
@@ -63,6 +64,7 @@ const TreeViewRender = memo(function ({
   itemLayer = 0,
 }: TreeViewRenderProps) {
   const { itemList } = useContext(TreeViewContext);
+  // Filter item that are in the desired layer
   let layerItemList = itemList.filter((item) => item.layer === itemLayer);
 
   if (layerItemList.length) {
@@ -71,6 +73,7 @@ const TreeViewRender = memo(function ({
         <TreeViewItem key={item.id} item={item} />
       ));
     } else {
+      // When rendering lower layers we need to filter items with the same parent
       layerItemList = layerItemList.filter((item) => item.parentId === itemId);
       return layerItemList.map((item) => (
         <TreeViewItem key={item.id} item={item} />
@@ -94,6 +97,8 @@ const TreeViewItem = memo(function ({
     (selectedItemId) => selectedItemId === id,
   );
   const hasChildren = itemList.some((item) => item.parentId === id);
+  /* Check whether the current item that is being rendered is an ancestor of
+     an selected item */
   const isSelectedAncestor = useMemo(
     () =>
       selectedItemIdList
@@ -102,6 +107,7 @@ const TreeViewItem = memo(function ({
     [selectedItemIdList, id],
   );
 
+  // Expand the currect items when an item is selected through canvas
   useEffect(() => {
     if (isSelectedAncestor) {
       setExpand(true);
@@ -109,6 +115,9 @@ const TreeViewItem = memo(function ({
   }, [isSelectedAncestor]);
 
   const handleExpand: React.MouseEventHandler = (e) => {
+    /* Since there is a parent child relationship between items, 
+       this prevents clicking on the child to trigger the same 
+       event for the parent */
     e.stopPropagation();
     setExpand((lastState) => !lastState);
   };
@@ -123,11 +132,13 @@ const TreeViewItem = memo(function ({
       <div
         className={cn(
           'relative h-10 rounded',
+          // Change styles based on current state
           isSelected && 'bg-primary text-primary-foreground',
           isSelectedAncestor && 'text-primary',
           isExpanded && 'rounded-bl-none rounded-br-none',
         )}
       >
+        {/* Showing the expand icon only if there are children to render */}
         {hasChildren && (
           <div
             style={{ left: `calc(0.5rem + (${layer} * 1.8rem))` }}
@@ -140,6 +151,7 @@ const TreeViewItem = memo(function ({
             <ChevronRightIcon size={16} />
           </div>
         )}
+        {/* Item icon */}
         <div
           style={{ left: `calc(2rem + (${layer} * 1.8rem))` }}
           className={cn(
@@ -148,6 +160,7 @@ const TreeViewItem = memo(function ({
         >
           {icon}
         </div>
+        {/* Input to use for renaming */}
         <input
           style={{
             paddingLeft: `calc(3.8rem + (${layer} * 1.8rem))`,
@@ -158,6 +171,7 @@ const TreeViewItem = memo(function ({
           defaultValue={value}
         />
       </div>
+      {/* Showing children only if item is expanded */}
       {isExpanded && (
         <div
           className={cn(

@@ -100,19 +100,17 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     }));
   },
   updateElement(...updatedElements) {
-    set((store) => {
-      return {
-        elementList: store.elementList.map((element) => {
-          const updatedElement = updatedElements.find(
-            (updatedElement) => updatedElement.id === element.id,
-          );
-          if (updatedElement) {
-            return updatedElement;
-          }
-          return element;
-        }),
-      };
-    });
+    set((store) => ({
+      elementList: store.elementList.map((element) => {
+        const updatedElement = updatedElements.find(
+          (updatedElement) => updatedElement.id === element.id,
+        );
+        if (updatedElement) {
+          return updatedElement;
+        }
+        return element;
+      }),
+    }));
   },
   deleteElement(...elementIdList) {
     set((store) => ({
@@ -121,15 +119,18 @@ const useCanvasStore = create<CanvasStore>((set) => ({
           !elementIdList.some(
             (elementToRemoveId) =>
               element.id === elementToRemoveId ||
+              // Remove child child elements as well
               element.parentId === elementToRemoveId,
           ),
       ),
+      // Remove elements from selection
       selectedElementIdList: store.selectedElementIdList.filter(
         (selectedElementId) =>
           !elementIdList.some(
             (elementToRemoveId) => elementToRemoveId === selectedElementId,
           ),
       ),
+      // Reseting the layer
       layer: 0,
     }));
   },

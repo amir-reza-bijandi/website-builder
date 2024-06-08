@@ -38,7 +38,7 @@ export default function Canvas() {
     currentTarget,
     target,
   }) => {
-    // Clear selection when clicking on canvas
+    // Clear selection when clicking on an empty part of canvas
     const canvas = currentTarget.children[0];
     if (target === canvas && toolbox.action === 'SELECT') {
       if (selectedElementIdList.length) {
@@ -47,16 +47,19 @@ export default function Canvas() {
       }
     }
 
-    const mousePositin = { x: clientX, y: clientY };
+    const mousePosition = { x: clientX, y: clientY };
 
-    handlePan(mousePositin);
-    handleResizeOnCreate(mousePositin);
+    // Allows for panning
+    handlePan(mousePosition);
+
+    // Allows for creating and reszing elements
+    handleResizeOnCreate(mousePosition);
   };
 
+  // Change the focus state of the canvas
   const handleFocus: React.FocusEventHandler = () => {
     setFocus(true);
   };
-
   const handleBlur: React.FocusEventHandler = () => {
     setFocus(false);
   };

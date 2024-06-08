@@ -39,6 +39,7 @@ export default function ElementList() {
     selectedItemId,
     selectedItemLayer,
   }) => {
+    // Check whether the id is empty or not
     if (selectedItemId) {
       const isElementSelected = selectedElementIdList.some(
         (selectedElementId) => selectedElementId === selectedItemId,
@@ -46,7 +47,7 @@ export default function ElementList() {
       if (ctrlKey) {
         // Check if element is already selected
         if (isElementSelected) {
-          // Remove element from selection list
+          // deselect the element
           setSelectedElementIdList(
             selectedElementIdList.filter(
               (selectedElementId) => selectedElementId !== selectedItemId,

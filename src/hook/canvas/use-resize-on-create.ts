@@ -45,7 +45,6 @@ export default function useResizeOnCreate() {
         .getElementById('canvas')!
         .getBoundingClientRect();
       if (initialMousePositionRef.current) {
-        // Take zoom factor into account
         const scaledClientX = clientX / view.zoomFactor;
         const scaledClientY = clientY / view.zoomFactor;
 
@@ -61,13 +60,18 @@ export default function useResizeOnCreate() {
 
         let parentId = '';
         let layer = 0;
+
+        // Create the element as a child of an other element
         if (selectedElementIdList.length === 1) {
           const elementCanvas = getElementById(selectedElementIdList[0])!;
+          // Parent element has to be frame
           if (elementCanvas.type === 'FRAME') {
             const elementDOM = document.getElementById(
               selectedElementIdList[0],
             )!;
             const elementRect = elementDOM.getBoundingClientRect();
+
+            // Check whether the new element is being created within the boundaries of it's parent
             if (
               initialMousePositionRef.current.x >= elementRect.left &&
               initialMousePositionRef.current.x <=
@@ -86,6 +90,7 @@ export default function useResizeOnCreate() {
           }
         }
 
+        // Calculate the position of the element
         const left =
           scaledClientX - scaledInitialClientX >= 0
             ? scaledInitialClientX - originLeft
@@ -117,6 +122,7 @@ export default function useResizeOnCreate() {
         });
 
         if (element) {
+          // Create element for the first time
           if (!createdElementIdRef.current) {
             addElement(element);
             const currentLayer = useCanvasStore.getState().layer;
@@ -125,6 +131,7 @@ export default function useResizeOnCreate() {
             }
             createdElementIdRef.current = element.id;
           } else {
+            // Update the created element
             updateElement(element);
           }
         }

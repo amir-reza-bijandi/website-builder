@@ -12,6 +12,7 @@ type RenderProps = {
 
 export default function Render({ elementId, layer = 0 }: RenderProps) {
   const elementList = useCanvasStore((store) => store.elementList);
+  // Filter element that are in the desired layer
   let layerElementList = elementList.filter(
     (element) => element.layer === layer,
   );
@@ -22,6 +23,7 @@ export default function Render({ elementId, layer = 0 }: RenderProps) {
         <CanvasElement key={element.id} element={element} />
       ));
     } else {
+      // When rendering lower layers we need to filter elements with the same parent
       layerElementList = layerElementList.filter(
         (element) => element.parentId === elementId,
       );
