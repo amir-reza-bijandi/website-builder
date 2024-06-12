@@ -1,4 +1,7 @@
-import TreeView, { TreeViewSelectEventHandler } from '../ui/tree-view';
+import TreeView, {
+  TreeViewReorderEventHandler,
+  TreeViewSelectEventHandler,
+} from '../ui/tree-view';
 import useCanvasStore from '@/store/canvas-store';
 import { CanvasElementType } from '@/type/element-property-types';
 import { FrameIcon, ImageIcon, TypeIcon } from 'lucide-react';
@@ -114,11 +117,17 @@ export default function ElementList() {
       setSelectedElementIdList([], false);
     }
   };
+
+  const handleReorder: TreeViewReorderEventHandler = (e) => {
+    console.log(e);
+  };
+
   return (
     <TreeView
       itemList={treeViewItemList}
       selectedItemIdList={selectedElementIdList}
       onSelect={handleSelect}
+      onReorder={handleReorder}
     />
   );
 }

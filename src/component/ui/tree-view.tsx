@@ -1,15 +1,17 @@
 import { cn } from '@/utility/general-utilities';
 import { ChevronRightIcon } from 'lucide-react';
-import {
+import React, {
   createContext,
   memo,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { ScrollArea } from './scroll-area';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
+import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 
 export type TreeViewItem = {
   id: string;
@@ -22,31 +24,86 @@ export type TreeViewItem = {
 export type TreeViewSelectEvent = React.MouseEvent & {
   selectedItemId: string;
   selectedItemLayer: number;
+  mouse: 'CLICK' | 'DOWN';
 };
 
 export type TreeViewSelectEventHandler = (event: TreeViewSelectEvent) => void;
+
+type DropLocation = 'TOP' | 'CENTER' | 'BOTTOM' | null;
+
+export type TreeViewReorderEvent = {
+  itemId: string;
+  targetId: string;
+  dropLocation: DropLocation;
+};
+
+export type TreeViewReorderEventHandler = (event: TreeViewReorderEvent) => void;
 
 type TreeViewProps = {
   itemList: TreeViewItem[];
   selectedItemIdList: string[];
   onSelect?: TreeViewSelectEventHandler;
+  onReorder?: TreeViewReorderEventHandler;
 };
 
-type TreeViewContextValue = TreeViewProps;
+type DropStatus = {
+  targetId: string;
+  dropLocation: DropLocation;
+};
+
+type TreeViewContextValue = TreeViewProps & {
+  isMouseDownRef: React.MutableRefObject<boolean>;
+  isDraggingRef: React.MutableRefObject<boolean>;
+  dropStatus: DropStatus;
+  setDropStatus: React.Dispatch<React.SetStateAction<DropStatus>>;
+};
 
 const TreeViewContext = createContext<TreeViewContextValue>(
   {} as TreeViewContextValue,
 );
 
 const TreeView = memo(function (props: TreeViewProps) {
+  const [dropStatus, setDropStatus] = useState<DropStatus>({
+    targetId: '',
+    dropLocation: null,
+  });
+  const isDraggingRef = useRef(false);
+  const isMouseDownRef = useRef(false);
+
   // Clear selection when clicked on empty space of tree view
   const handleClearSelection: React.MouseEventHandler = (e) => {
-    props.onSelect?.({ ...e, selectedItemId: '', selectedItemLayer: 0 });
+    props.onSelect?.({
+      ...e,
+      selectedItemId: '',
+      selectedItemLayer: 0,
+      mouse: 'DOWN',
+    });
   };
+
+  const handleClearDropTarget = () => {
+    if (isDraggingRef.current) {
+      setDropStatus(() => {
+        return { dropLocation: null, targetId: '' };
+      });
+    }
+  };
+
   return (
-    <ScrollArea className='h-full' onMouseDown={handleClearSelection}>
+    <ScrollArea
+      className='h-full'
+      onMouseDown={handleClearSelection}
+      onMouseLeave={handleClearDropTarget}
+    >
       <div className='space-y-2'>
-        <TreeViewContext.Provider value={props}>
+        <TreeViewContext.Provider
+          value={{
+            ...props,
+            dropStatus,
+            setDropStatus,
+            isDraggingRef,
+            isMouseDownRef,
+          }}
+        >
           <TreeViewRender />
         </TreeViewContext.Provider>
       </div>
@@ -69,14 +126,14 @@ const TreeViewRender = memo(function ({
 
   if (layerItemList.length) {
     if (itemLayer === 0) {
-      return layerItemList.map((item) => (
-        <TreeViewItem key={item.id} item={item} />
+      return layerItemList.map((item, index) => (
+        <TreeViewItem key={item.id} item={item} index={index} />
       ));
     } else {
       // When rendering lower layers we need to filter items with the same parent
       layerItemList = layerItemList.filter((item) => item.parentId === itemId);
-      return layerItemList.map((item) => (
-        <TreeViewItem key={item.id} item={item} />
+      return layerItemList.map((item, index) => (
+        <TreeViewItem key={item.id} item={item} index={index} />
       ));
     }
   }
@@ -84,13 +141,23 @@ const TreeViewRender = memo(function ({
 
 type TreeViewItemProps = {
   item: TreeViewItem;
+  index: number;
 };
 
 const TreeViewItem = memo(function ({
   item: { id, value, layer, icon },
+  index,
 }: TreeViewItemProps) {
-  const { selectedItemIdList, itemList, onSelect } =
-    useContext(TreeViewContext);
+  const {
+    selectedItemIdList,
+    itemList,
+    onSelect,
+    onReorder,
+    dropStatus,
+    setDropStatus,
+    isDraggingRef,
+    isMouseDownRef,
+  } = useContext(TreeViewContext);
   const [isExpanded, setExpand] = useState(false);
 
   const isSelected = selectedItemIdList.some(
@@ -106,6 +173,8 @@ const TreeViewItem = memo(function ({
         .some((list) => list?.some((ancestorId) => ancestorId === id)),
     [selectedItemIdList, id],
   );
+  const isDropTarget = dropStatus.targetId === id;
+  const selectOnReleaseRef = useRef(false);
 
   // Expand the currect items when an item is selected through canvas
   useEffect(() => {
@@ -122,18 +191,131 @@ const TreeViewItem = memo(function ({
     setExpand((lastState) => !lastState);
   };
 
-  const handleSelect: React.MouseEventHandler = (e) => {
+  const handleMouseDown: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    onSelect?.({ ...e, selectedItemId: id, selectedItemLayer: layer });
+    if (isSelected) {
+      selectOnReleaseRef.current = true;
+    } else {
+      onSelect?.({
+        ...e,
+        selectedItemId: id,
+        selectedItemLayer: layer,
+        mouse: 'CLICK',
+      });
+    }
+    isMouseDownRef.current = true;
+
+    document.body.addEventListener('mouseup', handleDrop);
+  };
+
+  const handleMouseUp: React.MouseEventHandler = (e) => {
+    if (selectOnReleaseRef.current) {
+      onSelect?.({
+        ...e,
+        selectedItemId: id,
+        selectedItemLayer: layer,
+        mouse: 'CLICK',
+      });
+      selectOnReleaseRef.current = false;
+    }
+  };
+
+  const handleMouseMove: React.MouseEventHandler = (e) => {
+    const NON_CENTER_HITBOX = 10;
+    if (isMouseDownRef.current) {
+      isDraggingRef.current = true;
+    }
+    if (isMouseDownRef.current) {
+      const { clientX, clientY, currentTarget } = e;
+      e.stopPropagation();
+      const targetRect = currentTarget.getBoundingClientRect();
+      const deltaY = clientY - targetRect.top;
+      let dropLocation: DropLocation = null;
+
+      if (
+        clientX >= targetRect.left &&
+        clientX <= targetRect.left + targetRect.width
+      ) {
+        if (deltaY < NON_CENTER_HITBOX) {
+          dropLocation = 'TOP';
+        } else if (deltaY > targetRect.height - NON_CENTER_HITBOX) {
+          dropLocation = 'BOTTOM';
+        } else {
+          dropLocation = 'CENTER';
+        }
+      }
+
+      // Prevent unnecessary rerender when hovering over items
+      if (
+        dropLocation !== dropStatus.dropLocation ||
+        id !== dropStatus.targetId
+      ) {
+        // Prevent changing drop target when hovering descendents
+        const descendentList = selectedItemIdList
+          .map((itemId) => getDescendentIdList(itemId))
+          .flat();
+        const isDescendent = descendentList.includes(id);
+        if (isDescendent) return;
+
+        setDropStatus({ dropLocation, targetId: id });
+      }
+    }
+  };
+
+  const handleDrop = () => {
+    if (isDraggingRef.current) {
+      setDropStatus((lastState) => {
+        onReorder?.({
+          itemId: id,
+          targetId: lastState.targetId,
+          dropLocation: lastState.dropLocation,
+        });
+        return { dropLocation: null, targetId: '' };
+      });
+      selectOnReleaseRef.current = false;
+      isDraggingRef.current = false;
+    }
+    isMouseDownRef.current = false;
+    document.body.removeEventListener('mouseup', handleDrop);
   };
 
   return (
-    <div onMouseDown={handleSelect}>
+    <div
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      style={
+        {
+          '--offset': `calc((${layer} * 1.8rem) + ${layer === 0 ? '0' : '0.5rem'})`,
+        } as React.CSSProperties
+      }
+      className={cn(
+        'relative before:absolute before:-inset-[0.3125rem] before:block before:border-solid before:border-primary',
+        isDropTarget &&
+          dropStatus.dropLocation === 'CENTER' &&
+          !isSelected &&
+          'before:inset-0 before:rounded before:border-2',
+        isDropTarget &&
+          dropStatus.dropLocation === 'TOP' &&
+          'before:translate-x-[var(--offset)] before:border-t-2',
+        isDropTarget &&
+          dropStatus.dropLocation === 'TOP' &&
+          index === 0 &&
+          layer === 0 &&
+          'before:inset-0',
+        isDropTarget &&
+          dropStatus.dropLocation === 'BOTTOM' &&
+          'before:translate-x-[var(--offset)] before:border-b-2',
+      )}
+    >
       <div
         className={cn(
           'relative h-10 rounded',
           // Change styles based on current state
           isSelected && 'bg-primary text-primary-foreground',
+          isSelected &&
+            dropStatus.targetId &&
+            'bg-primary/50 text-primary-foreground',
           isSelectedAncestor && 'text-primary',
           isExpanded && 'rounded-bl-none rounded-br-none',
         )}
@@ -177,7 +359,10 @@ const TreeViewItem = memo(function ({
           className={cn(
             'space-y-2',
             isSelected &&
-              ' rounded-bl rounded-br bg-primary/5 outline outline-[1px] -outline-offset-1 outline-primary',
+              'rounded-bl rounded-br bg-primary/5 outline outline-[1px] -outline-offset-1 outline-primary',
+            isSelected &&
+              dropStatus.targetId &&
+              'text-primary-foreground outline-none outline-0',
           )}
         >
           <TreeViewRender itemId={id} itemLayer={layer + 1} />
