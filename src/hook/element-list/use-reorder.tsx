@@ -2,6 +2,7 @@ import { ElementListContext } from '@/component/panel/element-list';
 import useCanvasStore from '@/store/canvas-store';
 import { Placement } from '@/type/general-types';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
+import getElementById from '@/utility/canvas/get-element-by-id';
 import { useContext } from 'react';
 
 export default function useReorder(
@@ -23,17 +24,28 @@ export default function useReorder(
     if (isDraggingRef.current) {
       setDropStatus((lastState) => {
         if (lastState.dropLocation) {
+          // We need the latest changes in selected elements
           const selectedElementIdList =
             useCanvasStore.getState().selectedElementIdList;
+
+          // Prevent dropping the element on itself
           if (
             selectedElementIdList.length !== 1 ||
             selectedElementIdList[0] !== lastState.targetId
-          )
-            changeElementOrder(
-              useCanvasStore.getState().selectedElementIdList,
-              lastState.targetId,
-              lastState.dropLocation,
-            );
+          ) {
+            const targetElement = getElementById(lastState.targetId)!;
+            if (
+              targetElement.type === 'FRAME' ||
+              lastState.dropLocation !== 'INSIDE'
+            ) {
+              // Prevent droping the element inside an non-frame parent
+              changeElementOrder(
+                useCanvasStore.getState().selectedElementIdList,
+                lastState.targetId,
+                lastState.dropLocation,
+              );
+            }
+          }
         }
         return { dropLocation: null, targetId: '' };
       });

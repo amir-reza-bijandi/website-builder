@@ -231,6 +231,7 @@ const ElementListItem = memo(function ({
         isDropTarget &&
           dropStatus.dropLocation === 'INSIDE' &&
           !isSelected &&
+          type === 'FRAME' &&
           'before:inset-0 before:rounded before:border-2',
         isDropTarget &&
           dropStatus.dropLocation === 'BEFORE' &&
