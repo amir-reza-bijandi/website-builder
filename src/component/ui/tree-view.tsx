@@ -12,6 +12,8 @@ import React, {
 import { ScrollArea } from './scroll-area';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
+import { Placement } from '@/type/general-types';
+import useCanvasStore from '@/store/canvas-store';
 
 export type TreeViewItem = {
   id: string;
@@ -29,12 +31,10 @@ export type TreeViewSelectEvent = React.MouseEvent & {
 
 export type TreeViewSelectEventHandler = (event: TreeViewSelectEvent) => void;
 
-type DropLocation = 'TOP' | 'CENTER' | 'BOTTOM' | null;
-
 export type TreeViewReorderEvent = {
-  itemId: string;
+  itemIdList: string[];
   targetId: string;
-  dropLocation: DropLocation;
+  dropLocation: Placement;
 };
 
 export type TreeViewReorderEventHandler = (event: TreeViewReorderEvent) => void;
@@ -48,7 +48,7 @@ type TreeViewProps = {
 
 type DropStatus = {
   targetId: string;
-  dropLocation: DropLocation;
+  dropLocation: Placement | null;
 };
 
 type TreeViewContextValue = TreeViewProps & {
@@ -159,6 +159,7 @@ const TreeViewItem = memo(function ({
     isMouseDownRef,
   } = useContext(TreeViewContext);
   const [isExpanded, setExpand] = useState(false);
+  const elementList = useCanvasStore((store) => store.elementList);
 
   const isSelected = selectedItemIdList.some(
     (selectedItemId) => selectedItemId === id,
@@ -171,7 +172,7 @@ const TreeViewItem = memo(function ({
       selectedItemIdList
         .map((selectedItemId) => getAncestorIdList(selectedItemId))
         .some((list) => list?.some((ancestorId) => ancestorId === id)),
-    [selectedItemIdList, id],
+    [selectedItemIdList, id, elementList],
   );
   const isDropTarget = dropStatus.targetId === id;
   const selectOnReleaseRef = useRef(false);
@@ -230,18 +231,18 @@ const TreeViewItem = memo(function ({
       e.stopPropagation();
       const targetRect = currentTarget.getBoundingClientRect();
       const deltaY = clientY - targetRect.top;
-      let dropLocation: DropLocation = null;
+      let dropLocation: Placement | null = null;
 
       if (
         clientX >= targetRect.left &&
         clientX <= targetRect.left + targetRect.width
       ) {
         if (deltaY < NON_CENTER_HITBOX) {
-          dropLocation = 'TOP';
+          dropLocation = 'BEFORE';
         } else if (deltaY > targetRect.height - NON_CENTER_HITBOX) {
-          dropLocation = 'BOTTOM';
+          dropLocation = 'AFTER';
         } else {
-          dropLocation = 'CENTER';
+          dropLocation = 'INSIDE';
         }
       }
 
@@ -265,11 +266,13 @@ const TreeViewItem = memo(function ({
   const handleDrop = () => {
     if (isDraggingRef.current) {
       setDropStatus((lastState) => {
-        onReorder?.({
-          itemId: id,
-          targetId: lastState.targetId,
-          dropLocation: lastState.dropLocation,
-        });
+        if (lastState.dropLocation) {
+          onReorder?.({
+            itemIdList: selectedItemIdList,
+            targetId: lastState.targetId,
+            dropLocation: lastState.dropLocation,
+          });
+        }
         return { dropLocation: null, targetId: '' };
       });
       selectOnReleaseRef.current = false;
@@ -292,19 +295,19 @@ const TreeViewItem = memo(function ({
       className={cn(
         'relative before:absolute before:-inset-[0.3125rem] before:block before:border-solid before:border-primary',
         isDropTarget &&
-          dropStatus.dropLocation === 'CENTER' &&
+          dropStatus.dropLocation === 'INSIDE' &&
           !isSelected &&
           'before:inset-0 before:rounded before:border-2',
         isDropTarget &&
-          dropStatus.dropLocation === 'TOP' &&
+          dropStatus.dropLocation === 'BEFORE' &&
           'before:translate-x-[var(--offset)] before:border-t-2',
         isDropTarget &&
-          dropStatus.dropLocation === 'TOP' &&
+          dropStatus.dropLocation === 'BEFORE' &&
           index === 0 &&
           layer === 0 &&
           'before:inset-0',
         isDropTarget &&
-          dropStatus.dropLocation === 'BOTTOM' &&
+          dropStatus.dropLocation === 'AFTER' &&
           'before:translate-x-[var(--offset)] before:border-b-2',
       )}
     >

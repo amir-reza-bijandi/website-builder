@@ -11,3 +11,5 @@ export type AbsoluteRect = {
   top: number;
   bottom: number;
 };
+
+export type Placement = 'BEFORE' | 'AFTER' | 'INSIDE';

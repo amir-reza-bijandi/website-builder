@@ -15,12 +15,14 @@ export default function ElementList() {
     selectedElementIdList,
     setSelectedElementIdList,
     setLayer,
+    changeElementOrder,
   } = useCanvasStore(
     useShallow((store) => ({
       elementList: store.elementList,
       selectedElementIdList: store.selectedElementIdList,
       setSelectedElementIdList: store.setSelectedElementIdList,
       setLayer: store.setLayer,
+      changeElementOrder: store.changeElementOrder,
     })),
   );
 
@@ -118,8 +120,14 @@ export default function ElementList() {
     }
   };
 
-  const handleReorder: TreeViewReorderEventHandler = (e) => {
-    console.log(e);
+  const handleReorder: TreeViewReorderEventHandler = ({
+    itemIdList,
+    targetId,
+    dropLocation,
+  }) => {
+    if (!elementList.length) return;
+    if (itemIdList.length === 1 && itemIdList[0] === targetId) return;
+    changeElementOrder(itemIdList, targetId, dropLocation);
   };
 
   return (
