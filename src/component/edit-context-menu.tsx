@@ -12,14 +12,7 @@ export default function EditContextMenu({ children }: EditContextMenuProps) {
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
-      <ContextMenuContent
-        id='edit-context-menu'
-        onMouseDown={(e) => {
-          if (e.button === 2) {
-            e.preventDefault();
-          }
-        }}
-      >
+      <ContextMenuContent>
         <ContextMenuItem>Bring To Front</ContextMenuItem>
         <ContextMenuItem>Send To Back</ContextMenuItem>
         <ContextMenuSeparator />
