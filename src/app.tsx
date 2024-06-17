@@ -16,6 +16,7 @@ export default function App() {
   usePanningWithSpaceKey();
   useDeleteSelectedElement();
   useCrossLayerSelection();
+
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();
 
   return (

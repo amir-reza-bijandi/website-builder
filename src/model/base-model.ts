@@ -4,17 +4,14 @@ import type {
   CanvasElementPosition,
   CanvasElementConstraint,
 } from '@/type/element-property-types';
+import { capitalize } from '@/utility/general-utilities';
 
 export default abstract class CanvasBaseModel<T extends CanvasElementType> {
   constructor(
     readonly type: T,
     readonly id: string = `${type}-${nanoid()}`,
     readonly parentId: string = '',
-    readonly displayName: string = type
-      .toLowerCase()
-      .split('')
-      .map((char, index) => (index === 0 ? char.toUpperCase() : char))
-      .join(''),
+    readonly displayName: string = capitalize(type),
     readonly width: number | 'AUTO' = 'AUTO',
     readonly height: number | 'AUTO' = 'AUTO',
     readonly position: CanvasElementPosition = {

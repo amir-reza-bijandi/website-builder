@@ -13,12 +13,14 @@ import useSelect from '@/hook/element-list/use-select';
 import useReorder from '@/hook/element-list/use-reorder';
 import { ChevronRightIcon, FrameIcon, ImageIcon, TypeIcon } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
-import { cn } from '@/utility/general-utilities';
+import { capitalize, cn } from '@/utility/general-utilities';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import type { Placement } from '@/type/general-types';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import type { CanvasElementType } from '@/type/element-property-types';
 import EditContextMenu from '../edit-context-menu';
+import createElement from '@/utility/canvas/create-element';
+import getElementById from '@/utility/canvas/get-element-by-id';
 
 type DropStatus = {
   targetId: string;
@@ -30,6 +32,8 @@ type ElementListContextValue = {
   isDraggingRef: React.MutableRefObject<boolean>;
   dropStatus: DropStatus;
   setDropStatus: React.Dispatch<React.SetStateAction<DropStatus>>;
+  renameTargetId: string;
+  setRenameTargetId: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const ElementListContext = createContext<ElementListContextValue>(
@@ -43,20 +47,24 @@ const iconMap: Record<CanvasElementType, JSX.Element> = {
 };
 
 const ElementList = memo(function () {
-  const setSelectedElementIdList = useCanvasStore(
-    (store) => store.setSelectedElementIdList,
+  const { setSelectedElementIdList } = useCanvasStore(
+    useShallow((store) => ({
+      setSelectedElementIdList: store.setSelectedElementIdList,
+      updateElement: store.updateElement,
+    })),
   );
   const [dropStatus, setDropStatus] = useState<DropStatus>({
     targetId: '',
     dropLocation: null,
   });
+  const [renameTargetId, setRenameTargetId] = useState('');
   const isDraggingRef = useRef(false);
   const isMouseDownRef = useRef(false);
 
   // Clear selection when clicked on empty space of tree view
   const handleClearSelection: React.MouseEventHandler = (e) => {
-    const contextMenu = document.getElementById('edit-context-menu');
     // Only clear selection if the context menu is not the target
+    const contextMenu = document.getElementById('edit-context-menu');
     if (contextMenu) {
       if (contextMenu.contains(e.target as Node)) {
         return;
@@ -87,6 +95,8 @@ const ElementList = memo(function () {
             setDropStatus,
             isDraggingRef,
             isMouseDownRef,
+            renameTargetId,
+            setRenameTargetId,
           }}
         >
           <ElementListRender />
@@ -134,19 +144,31 @@ type ElementListItemProps = {
 };
 
 const ElementListItem = memo(function ({
-  element: { id, type, displayName, layer },
+  element,
   index,
 }: ElementListItemProps) {
-  const { dropStatus, setDropStatus, isDraggingRef, isMouseDownRef } =
-    useContext(ElementListContext);
-  const { elementList, selectedElementIdList, changeElementOrder } =
-    useCanvasStore(
-      useShallow((store) => ({
-        elementList: store.elementList,
-        selectedElementIdList: store.selectedElementIdList,
-        changeElementOrder: store.changeElementOrder,
-      })),
-    );
+  const { id, type, displayName, layer } = element;
+  const {
+    dropStatus,
+    setDropStatus,
+    isDraggingRef,
+    isMouseDownRef,
+    renameTargetId,
+    setRenameTargetId,
+  } = useContext(ElementListContext);
+  const {
+    elementList,
+    selectedElementIdList,
+    changeElementOrder,
+    updateElement,
+  } = useCanvasStore(
+    useShallow((store) => ({
+      elementList: store.elementList,
+      selectedElementIdList: store.selectedElementIdList,
+      changeElementOrder: store.changeElementOrder,
+      updateElement: store.updateElement,
+    })),
+  );
   const [isExpanded, setExpand] = useState(false);
   const handleSelect = useSelect();
   const selectOnReleaseRef = useRef(false);
@@ -191,11 +213,16 @@ const ElementListItem = memo(function ({
         handleSelect(id, layer, e.ctrlKey);
       }
       handleReorder();
+
+      if (renameTargetId && renameTargetId !== id) {
+        handleRenameSubmit('');
+      }
     } else if (e.button === 2) {
       // Disable mutliple selection on right click
       if (!isSelected) {
         handleSelect(id, layer, false);
       }
+      handleRenameSubmit('');
     }
   };
 
@@ -231,12 +258,70 @@ const ElementListItem = memo(function ({
     document.body.removeEventListener('mouseup', handleDrop);
   };
 
+  const handleDoubleClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    e.stopPropagation();
+    handleRenameSubmit(id);
+
+    // Focus the input
+    const input = e.currentTarget.querySelector('input');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(0, input.value.length);
+    }
+  };
+
+  // Rename element whenever the input looses focus
+  const handleBlur: React.FocusEventHandler = () => {
+    handleRenameSubmit('');
+  };
+
+  // Rename element when the enter or escape key is pressed
+  const handleKeyDown: React.KeyboardEventHandler = (e) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      handleRenameSubmit('');
+    }
+  };
+
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = ({
+    currentTarget: input,
+  }) => {
+    let displayName = input.value;
+    const updatedElement = createElement(type, {
+      ...element,
+      displayName,
+    })!;
+    updateElement(updatedElement);
+  };
+
+  const handleRenameSubmit = (targetId: string) => {
+    const input = document.getElementById(
+      `ELEMENT-LIST-INPUT-${id}`,
+    ) as HTMLInputElement | null;
+    setRenameTargetId((oldTargetId) => {
+      if (input) {
+        if (!input.value) {
+          const oldTarget = getElementById(oldTargetId);
+          if (oldTarget) {
+            const updatedElement = createElement(type, {
+              ...oldTarget,
+              displayName: capitalize(oldTarget.type),
+            })!;
+            updateElement(updatedElement);
+          }
+        }
+      }
+      return targetId;
+    });
+    input?.blur();
+  };
+
   return (
     <EditContextMenu>
       <div
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleDrag}
+        onDoubleClick={handleDoubleClick}
         style={
           {
             '--offset': `calc((${layer} * 1.8rem) + ${layer === 0 ? '0' : '0.5rem'})`,
@@ -272,6 +357,7 @@ const ElementListItem = memo(function ({
               'bg-primary/50 text-primary-foreground',
             isSelectedAncestor && 'text-primary',
             isExpanded && 'rounded-bl-none rounded-br-none',
+            renameTargetId === id && 'bg-transparent text-foreground',
           )}
         >
           {/* Showing the expand icon only if there are children to render */}
@@ -298,13 +384,20 @@ const ElementListItem = memo(function ({
           </div>
           {/* Input to use for renaming */}
           <input
+            id={`ELEMENT-LIST-INPUT-${id}`}
             style={{
               paddingLeft: `calc(3.8rem + (${layer} * 1.8rem))`,
-              boxShadow: `0 0 0 0.1rem var(--tw-shadow-color)`,
             }}
-            className='pointer-events-none h-full w-full rounded bg-transparent shadow-transparent outline-none transition-shadow focus-visible:shadow-primary'
+            className={cn(
+              'pointer-events-none h-full w-full rounded bg-transparent shadow-transparent outline-none transition-shadow focus-visible:shadow-primary',
+              renameTargetId === id &&
+                'pointer-events-auto outline outline-2 -outline-offset-2 outline-primary',
+            )}
             type='text'
-            defaultValue={displayName}
+            value={displayName}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
           />
         </div>
         {/* Showing children only if item is expanded */}
@@ -317,6 +410,7 @@ const ElementListItem = memo(function ({
               isSelected &&
                 dropStatus.targetId &&
                 'text-primary-foreground outline-none outline-0',
+              renameTargetId && 'outline-transparent',
             )}
           >
             <ElementListRender elementId={id} elementLayer={layer + 1} />

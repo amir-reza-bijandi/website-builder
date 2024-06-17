@@ -90,7 +90,7 @@ type CanvasSelectContainerProps = {
    component */
 
 const CanvasSelectContainer = memo(function ({
-  rect,
+  rect: { left, top, width, height },
 }: CanvasSelectContainerProps) {
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -124,7 +124,7 @@ const CanvasSelectContainer = memo(function ({
         canvasSelectContainer.classList.add('animate-fade-in');
       }
     }
-  }, [rect]);
+  }, [left, top, width, height]);
 
   const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
   const handleMove = useMove(selectedElementIdList);
@@ -231,9 +231,9 @@ const CanvasSelectContainer = memo(function ({
       <div
         ref={canvasSelectContainerRef}
         style={{
-          transform: `translate(${rect.left}px, ${rect.top}px)`,
-          width: rect.width,
-          height: rect.height,
+          transform: `translate(${left}px, ${top}px)`,
+          width: width,
+          height: height,
           boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
         }}
         className={cn(
