@@ -6,6 +6,7 @@ import usePan from '@/hook/canvas/use-pan';
 import useResizeOnCreate from '@/hook/canvas/use-resize-on-create';
 import useZoom from '@/hook/canvas/use-zoom';
 import { useShallow } from 'zustand/react/shallow';
+import CanvasContextMenu from '../canvas-context-menu';
 
 export default function Canvas() {
   const {
@@ -65,30 +66,33 @@ export default function Canvas() {
   };
 
   return (
-    <main
-      className={cn(
-        'relative flex h-full items-center justify-center overflow-hidden',
-        toolbox.action === 'ADD' && 'cursor-custom-crosshair',
-        isPanningAllowed && 'cursor-custom-grab active:cursor-custom-grabbing',
-      )}
-      onWheel={handleZoom}
-      onMouseDown={handleMouseDown}
-    >
-      <div
-        id='canvas'
-        style={
-          {
-            transform: `translate(calc(${view.offsetX}px), calc(${view.offsetY}px)) scale(${view.zoomFactor})`,
-          } as React.CSSProperties
-        }
-        className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'
-        tabIndex={-1}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+    <CanvasContextMenu>
+      <main
+        className={cn(
+          'relative flex h-full items-center justify-center overflow-hidden',
+          toolbox.action === 'ADD' && 'cursor-custom-crosshair',
+          isPanningAllowed &&
+            'cursor-custom-grab active:cursor-custom-grabbing',
+        )}
+        onWheel={handleZoom}
+        onMouseDown={handleMouseDown}
       >
-        <CanvasRender />
-        <CanvasSelect />
-      </div>
-    </main>
+        <div
+          id='canvas'
+          style={
+            {
+              transform: `translate(calc(${view.offsetX}px), calc(${view.offsetY}px)) scale(${view.zoomFactor})`,
+            } as React.CSSProperties
+          }
+          className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'
+          tabIndex={-1}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        >
+          <CanvasRender />
+          <CanvasSelect />
+        </div>
+      </main>
+    </CanvasContextMenu>
   );
 }
