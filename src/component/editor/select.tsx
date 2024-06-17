@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
+import EditContextMenu from '../edit-context-menu';
 
 export default memo(function CanvasSelect() {
   const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
@@ -129,38 +130,42 @@ const CanvasSelectContainer = memo(function ({
   const handleMove = useMove(selectedElementIdList);
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
-    if (toolbox.action === 'SELECT') {
-      const { clientX, clientY } = e;
-      // Moving element when it's selected
-      handleMove({ x: clientX, y: clientY });
+    if (e.button === 0) {
+      if (toolbox.action === 'SELECT') {
+        const { clientX, clientY } = e;
+        // Moving element when it's selected
+        handleMove({ x: clientX, y: clientY });
 
-      // Deselect element when shift key is pressed
-      if (e.shiftKey) {
-        const selectedElementIdList =
-          useCanvasStore.getState().selectedElementIdList;
-        setSelectedElementIdList(
-          selectedElementIdList.filter((selectedElementId) => {
-            const elementRect = document
-              .getElementById(selectedElementId)!
-              .getBoundingClientRect();
+        // Deselect element when shift key is pressed
+        if (e.shiftKey) {
+          const selectedElementIdList =
+            useCanvasStore.getState().selectedElementIdList;
+          setSelectedElementIdList(
+            selectedElementIdList.filter((selectedElementId) => {
+              const elementRect = document
+                .getElementById(selectedElementId)!
+                .getBoundingClientRect();
 
-            const elementLeft = elementRect.left / zoomFactor;
-            const elementTop = elementRect.top / zoomFactor;
-            const elementRight = elementLeft + elementRect.width / zoomFactor;
-            const elementBottom = elementTop + elementRect.height / zoomFactor;
+              const elementLeft = elementRect.left / zoomFactor;
+              const elementTop = elementRect.top / zoomFactor;
+              const elementRight = elementLeft + elementRect.width / zoomFactor;
+              const elementBottom =
+                elementTop + elementRect.height / zoomFactor;
 
-            if (
-              elementLeft <= clientX / zoomFactor &&
-              clientX / zoomFactor <= elementRight &&
-              elementTop <= clientY / zoomFactor &&
-              clientY / zoomFactor <= elementBottom
-            ) {
-              return false;
-            }
-            return true;
-          }),
-        );
+              if (
+                elementLeft <= clientX / zoomFactor &&
+                clientX / zoomFactor <= elementRight &&
+                elementTop <= clientY / zoomFactor &&
+                clientY / zoomFactor <= elementBottom
+              ) {
+                return false;
+              }
+              return true;
+            }),
+          );
+        }
       }
+    } else if (e.button === 2) {
     }
   };
 
@@ -222,27 +227,29 @@ const CanvasSelectContainer = memo(function ({
   };
 
   return (
-    <div
-      ref={canvasSelectContainerRef}
-      style={{
-        transform: `translate(${rect.left}px, ${rect.top}px)`,
-        width: rect.width,
-        height: rect.height,
-        boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
-      }}
-      className={cn(
-        'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
-        // Prevent interfering with pan mode
-        toolbox.action === 'PAN' && '*:pointer-events-none',
-        // Make it possible to select element that are blow the selection rectangle
-        isCrossLayerSelectionAllowed && 'pointer-events-none',
-      )}
-      onMouseDown={handleMouseDown}
-      onDoubleClick={handleDoubleClick}
-      onMouseMove={handleMouseMove}
-    >
-      <CanvasSelectResize />
-    </div>
+    <EditContextMenu>
+      <div
+        ref={canvasSelectContainerRef}
+        style={{
+          transform: `translate(${rect.left}px, ${rect.top}px)`,
+          width: rect.width,
+          height: rect.height,
+          boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
+        }}
+        className={cn(
+          'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
+          // Prevent interfering with pan mode
+          toolbox.action === 'PAN' && '*:pointer-events-none',
+          // Make it possible to select element that are blow the selection rectangle
+          isCrossLayerSelectionAllowed && 'pointer-events-none',
+        )}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={handleDoubleClick}
+        onMouseMove={handleMouseMove}
+      >
+        <CanvasSelectResize />
+      </div>
+    </EditContextMenu>
   );
 });
 

@@ -18,6 +18,7 @@ import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import type { Placement } from '@/type/general-types';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import type { CanvasElementType } from '@/type/element-property-types';
+import EditContextMenu from '../edit-context-menu';
 
 type DropStatus = {
   targetId: string;
@@ -53,7 +54,14 @@ const ElementList = memo(function () {
   const isMouseDownRef = useRef(false);
 
   // Clear selection when clicked on empty space of tree view
-  const handleClearSelection = () => {
+  const handleClearSelection: React.MouseEventHandler = (e) => {
+    const contextMenu = document.getElementById('edit-context-menu');
+    // Only clear selection if the context menu is not the target
+    if (contextMenu) {
+      if (contextMenu.contains(e.target as Node)) {
+        return;
+      }
+    }
     setSelectedElementIdList([], false);
   };
 
@@ -176,12 +184,19 @@ const ElementListItem = memo(function ({
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    if (isSelected) {
-      selectOnReleaseRef.current = true;
-    } else {
-      handleSelect(id, layer, e.ctrlKey);
+    if (e.button === 0) {
+      if (isSelected) {
+        selectOnReleaseRef.current = true;
+      } else {
+        handleSelect(id, layer, e.ctrlKey);
+      }
+      handleReorder();
+    } else if (e.button === 2) {
+      // Disable mutliple selection on right click
+      if (!isSelected) {
+        handleSelect(id, layer, false);
+      }
     }
-    handleReorder();
   };
 
   const handleMouseUp: React.MouseEventHandler = (e) => {
@@ -217,96 +232,98 @@ const ElementListItem = memo(function ({
   };
 
   return (
-    <div
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleDrag}
-      style={
-        {
-          '--offset': `calc((${layer} * 1.8rem) + ${layer === 0 ? '0' : '0.5rem'})`,
-        } as React.CSSProperties
-      }
-      className={cn(
-        'relative before:absolute before:-inset-[0.3125rem] before:block before:border-solid before:border-primary',
-        isDropTarget &&
-          dropStatus.dropLocation === 'INSIDE' &&
-          !isSelected &&
-          type === 'FRAME' &&
-          'before:inset-0 before:rounded before:border-2',
-        isDropTarget &&
-          dropStatus.dropLocation === 'BEFORE' &&
-          'before:translate-x-[var(--offset)] before:border-t-2',
-        isDropTarget &&
-          dropStatus.dropLocation === 'BEFORE' &&
-          index === 0 &&
-          layer === 0 &&
-          'before:inset-0',
-        isDropTarget &&
-          dropStatus.dropLocation === 'AFTER' &&
-          'before:translate-x-[var(--offset)] before:border-b-2',
-      )}
-    >
+    <EditContextMenu>
       <div
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleDrag}
+        style={
+          {
+            '--offset': `calc((${layer} * 1.8rem) + ${layer === 0 ? '0' : '0.5rem'})`,
+          } as React.CSSProperties
+        }
         className={cn(
-          'relative h-10 rounded',
-          // Change styles based on current state
-          isSelected && 'bg-primary text-primary-foreground',
-          isSelected &&
-            dropStatus.targetId &&
-            'bg-primary/50 text-primary-foreground',
-          isSelectedAncestor && 'text-primary',
-          isExpanded && 'rounded-bl-none rounded-br-none',
+          'relative before:absolute before:-inset-[0.3125rem] before:block before:border-solid before:border-primary',
+          isDropTarget &&
+            dropStatus.dropLocation === 'INSIDE' &&
+            !isSelected &&
+            type === 'FRAME' &&
+            'before:inset-0 before:rounded before:border-2',
+          isDropTarget &&
+            dropStatus.dropLocation === 'BEFORE' &&
+            'before:translate-x-[var(--offset)] before:border-t-2',
+          isDropTarget &&
+            dropStatus.dropLocation === 'BEFORE' &&
+            index === 0 &&
+            layer === 0 &&
+            'before:inset-0',
+          isDropTarget &&
+            dropStatus.dropLocation === 'AFTER' &&
+            'before:translate-x-[var(--offset)] before:border-b-2',
         )}
       >
-        {/* Showing the expand icon only if there are children to render */}
-        {hasChildren && (
-          <div
-            style={{ left: `calc(0.5rem + (${layer} * 1.8rem))` }}
-            className={cn(
-              'absolute flex h-full items-center transition-transform before:absolute before:left-1/2 before:block before:h-full before:w-8 before:-translate-x-1/2',
-              isExpanded && 'rotate-90',
-            )}
-            onMouseDown={handleExpand}
-          >
-            <ChevronRightIcon size={16} />
-          </div>
-        )}
-        {/* Item icon */}
-        <div
-          style={{ left: `calc(2rem + (${layer} * 1.8rem))` }}
-          className={cn(
-            'pointer-events-none absolute top-1/2 -translate-y-1/2',
-          )}
-        >
-          {iconMap[type]}
-        </div>
-        {/* Input to use for renaming */}
-        <input
-          style={{
-            paddingLeft: `calc(3.8rem + (${layer} * 1.8rem))`,
-            boxShadow: `0 0 0 0.1rem var(--tw-shadow-color)`,
-          }}
-          className='pointer-events-none h-full w-full rounded bg-transparent shadow-transparent outline-none transition-shadow focus-visible:shadow-primary'
-          type='text'
-          defaultValue={displayName}
-        />
-      </div>
-      {/* Showing children only if item is expanded */}
-      {isExpanded && (
         <div
           className={cn(
-            'space-y-2',
-            isSelected &&
-              'rounded-bl rounded-br bg-primary/5 outline outline-[1px] -outline-offset-1 outline-primary',
+            'relative h-10 rounded',
+            // Change styles based on current state
+            isSelected && 'bg-primary text-primary-foreground',
             isSelected &&
               dropStatus.targetId &&
-              'text-primary-foreground outline-none outline-0',
+              'bg-primary/50 text-primary-foreground',
+            isSelectedAncestor && 'text-primary',
+            isExpanded && 'rounded-bl-none rounded-br-none',
           )}
         >
-          <ElementListRender elementId={id} elementLayer={layer + 1} />
+          {/* Showing the expand icon only if there are children to render */}
+          {hasChildren && (
+            <div
+              style={{ left: `calc(0.5rem + (${layer} * 1.8rem))` }}
+              className={cn(
+                'absolute flex h-full items-center transition-transform before:absolute before:left-1/2 before:block before:h-full before:w-8 before:-translate-x-1/2',
+                isExpanded && 'rotate-90',
+              )}
+              onMouseDown={handleExpand}
+            >
+              <ChevronRightIcon size={16} />
+            </div>
+          )}
+          {/* Item icon */}
+          <div
+            style={{ left: `calc(2rem + (${layer} * 1.8rem))` }}
+            className={cn(
+              'pointer-events-none absolute top-1/2 -translate-y-1/2',
+            )}
+          >
+            {iconMap[type]}
+          </div>
+          {/* Input to use for renaming */}
+          <input
+            style={{
+              paddingLeft: `calc(3.8rem + (${layer} * 1.8rem))`,
+              boxShadow: `0 0 0 0.1rem var(--tw-shadow-color)`,
+            }}
+            className='pointer-events-none h-full w-full rounded bg-transparent shadow-transparent outline-none transition-shadow focus-visible:shadow-primary'
+            type='text'
+            defaultValue={displayName}
+          />
         </div>
-      )}
-    </div>
+        {/* Showing children only if item is expanded */}
+        {isExpanded && (
+          <div
+            className={cn(
+              'space-y-2',
+              isSelected &&
+                'rounded-bl rounded-br bg-primary/5 outline outline-[1px] -outline-offset-1 outline-primary',
+              isSelected &&
+                dropStatus.targetId &&
+                'text-primary-foreground outline-none outline-0',
+            )}
+          >
+            <ElementListRender elementId={id} elementLayer={layer + 1} />
+          </div>
+        )}
+      </div>
+    </EditContextMenu>
   );
 });
 

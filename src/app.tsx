@@ -8,9 +8,11 @@ import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoo
 import usePanningWithSpaceKey from './hook/canvas/use-panning-with-space-key';
 import useDeleteSelectedElement from './hook/canvas/use-delete-selected-element';
 import useCrossLayerSelection from './hook/canvas/use-cross-layer-selection';
+import usePreventDefaultContextMenu from './hook/use-prevent-default-context-menu';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
+  usePreventDefaultContextMenu();
   usePanningWithSpaceKey();
   useDeleteSelectedElement();
   useCrossLayerSelection();

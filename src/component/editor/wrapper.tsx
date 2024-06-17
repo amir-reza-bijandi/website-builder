@@ -5,6 +5,7 @@ import generateStyle from '@/utility/canvas/generate-style';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
+import EditContextMenu from '../edit-context-menu';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -48,7 +49,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
       if (!isElementSelected) {
         if (element.layer === layer || isCrossLayerSelectionAllowed) {
           // Select mutiple elements
-          if (e.shiftKey) {
+          if (e.shiftKey && e.button === 0) {
             const selectedElementList = selectedElementIdList.map(
               (elementId) => getElementById(elementId)!,
             );
@@ -99,35 +100,37 @@ export default function Wrapper({ element, children }: WrapperProps) {
   };
 
   return (
-    <div
-      id={element.id}
-      style={
-        {
-          ...generateStyle(element),
-          boxShadow: `0 0 0 calc(2px / ${view.zoomFactor}) var(--tw-shadow-color)`,
-        } as React.CSSProperties
-      }
-      onMouseDown={handleMouseDown}
-      onMouseOver={handleMouseOver}
-      onMouseLeave={handleMouseLeave}
-      className={cn(
-        'pointer-events-none shadow-transparent transition-[box-shadow]',
-        // Fade effect when moving elements
-        isElementSelected && !isMoving && 'shadow-primary',
-        isElementSelected && isResizing && 'shadow-primary/50',
-        // Make non-relevant elements non-interactive
-        element.layer <= layer && 'pointer-events-auto',
-        // Make every element interactive when cross layer selection mode is active
-        isCrossLayerSelectionAllowed && 'pointer-events-auto',
-        // Highlight effect when hovering over selectable element
-        !isElementSelected &&
-          !isMoving &&
-          !isResizing &&
-          hoverTargetId === element.id &&
-          'shadow-primary',
-      )}
-    >
-      {children}
-    </div>
+    <EditContextMenu>
+      <div
+        id={element.id}
+        style={
+          {
+            ...generateStyle(element),
+            boxShadow: `0 0 0 calc(2px / ${view.zoomFactor}) var(--tw-shadow-color)`,
+          } as React.CSSProperties
+        }
+        onMouseDown={handleMouseDown}
+        onMouseOver={handleMouseOver}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          'pointer-events-none shadow-transparent transition-[box-shadow]',
+          // Fade effect when moving elements
+          isElementSelected && !isMoving && 'shadow-primary',
+          isElementSelected && isResizing && 'shadow-primary/50',
+          // Make non-relevant elements non-interactive
+          element.layer <= layer && 'pointer-events-auto',
+          // Make every element interactive when cross layer selection mode is active
+          isCrossLayerSelectionAllowed && 'pointer-events-auto',
+          // Highlight effect when hovering over selectable element
+          !isElementSelected &&
+            !isMoving &&
+            !isResizing &&
+            hoverTargetId === element.id &&
+            'shadow-primary',
+        )}
+      >
+        {children}
+      </div>
+    </EditContextMenu>
   );
 }
