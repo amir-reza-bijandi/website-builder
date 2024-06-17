@@ -82,8 +82,10 @@ export default function Wrapper({ element, children }: WrapperProps) {
           }
         }
       }
-      // Moving element
-      handleMove({ x: e.clientX, y: e.clientY });
+      if (e.button === 0) {
+        // Move element
+        handleMove({ x: e.clientX, y: e.clientY });
+      }
     }
   };
 

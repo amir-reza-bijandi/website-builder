@@ -265,11 +265,13 @@ function CanvasSelectResize() {
   const handleResize = useResize(selectedElementIdList);
 
   const handleMouseDown = (
-    { clientX, clientY }: React.MouseEvent,
+    { clientX, clientY, button }: React.MouseEvent,
     direction: Direction,
   ) => {
-    // Resize elements
-    handleResize({ x: clientX, y: clientY }, direction);
+    if (button === 0) {
+      // Resize elements
+      handleResize({ x: clientX, y: clientY }, direction);
+    }
   };
 
   return (
