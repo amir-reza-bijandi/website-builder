@@ -1,6 +1,6 @@
 import { cn } from '@/utility/general-utilities';
 import Toolbox from './toolbox';
-import ElementList from './element-list';
+import ElementList from './element-list/element-list';
 
 type LeftPanelProps = {
   hidden?: boolean;

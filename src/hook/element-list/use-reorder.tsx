@@ -1,4 +1,4 @@
-import { ElementListContext } from '@/component/panel/element-list';
+import { ElementListContext } from '@/component/panel/element-list/element-list';
 import useCanvasStore from '@/store/canvas-store';
 import { Placement } from '@/type/general-types';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
