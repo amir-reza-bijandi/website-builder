@@ -6,6 +6,7 @@ import type {
 import type { Placement } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
+import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { create } from 'zustand';
 
@@ -122,22 +123,21 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     }));
   },
   deleteElement(...elementIdList) {
+    const descendentIdList = elementIdList
+      .map((elementId) => getDescendentIdList(elementId))
+      .flat();
+
     set((store) => ({
       elementList: store.elementList.filter(
         (element) =>
-          !elementIdList.some(
-            (elementToRemoveId) =>
-              element.id === elementToRemoveId ||
-              // Remove child child elements as well
-              element.parentId === elementToRemoveId,
-          ),
+          !descendentIdList.includes(element.id) &&
+          !elementIdList.includes(element.id),
       ),
       // Remove elements from selection
       selectedElementIdList: store.selectedElementIdList.filter(
         (selectedElementId) =>
-          !elementIdList.some(
-            (elementToRemoveId) => elementToRemoveId === selectedElementId,
-          ),
+          !descendentIdList.includes(selectedElementId) &&
+          !elementIdList.includes(selectedElementId),
       ),
       // Reseting the layer
       layer: 0,
