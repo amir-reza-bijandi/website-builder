@@ -1,11 +1,8 @@
 import useCanvasStore from '@/store/canvas-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
-import getElementById from '@/utility/canvas/get-element-by-id';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-
-// useCanvasStore.subscribe(console.log);
 
 export default function useResizeOnCreate() {
   const {
@@ -19,6 +16,7 @@ export default function useResizeOnCreate() {
     selectedElementIdList,
     setSelectedElementIdList,
     setLayer,
+    elementList,
   } = useCanvasStore(
     useShallow((store) => ({
       toolbox: store.toolbox,
@@ -31,6 +29,7 @@ export default function useResizeOnCreate() {
       selectedElementIdList: store.selectedElementIdList,
       setSelectedElementIdList: store.setSelectedElementIdList,
       setLayer: store.setLayer,
+      elementList: store.elementList,
     })),
   );
   const initialMousePositionRef = useRef<Position>();
@@ -45,13 +44,14 @@ export default function useResizeOnCreate() {
         .getElementById('canvas')!
         .getBoundingClientRect();
       if (initialMousePositionRef.current) {
+        const { x: initialClientX, y: initialClientY } =
+          initialMousePositionRef.current;
+
         const scaledClientX = clientX / view.zoomFactor;
         const scaledClientY = clientY / view.zoomFactor;
 
-        const scaledInitialClientX =
-          initialMousePositionRef.current.x / view.zoomFactor;
-        const scaledInitialClientY =
-          initialMousePositionRef.current.y / view.zoomFactor;
+        const scaledInitialClientX = initialClientX / view.zoomFactor;
+        const scaledInitialClientY = initialClientY / view.zoomFactor;
 
         let originTop = canvasRect.top / view.zoomFactor;
         let originLeft = canvasRect.left / view.zoomFactor;
@@ -61,34 +61,83 @@ export default function useResizeOnCreate() {
         let parentId = '';
         let layer = 0;
 
-        // Create the element as a child of an other element
-        if (selectedElementIdList.length === 1) {
-          const elementCanvas = getElementById(selectedElementIdList[0])!;
-          // Parent element has to be frame
-          if (elementCanvas.type === 'FRAME') {
-            const elementDOM = document.getElementById(
-              selectedElementIdList[0],
-            )!;
-            const elementRect = elementDOM.getBoundingClientRect();
+        if (elementList.length > 0) {
+          // Get the bounding rect of all elements
+          const targetElementRectList = elementList
+            .map((element, index) => ({
+              index,
+              element,
+              elementRect: document
+                .getElementById(element.id)!
+                .getBoundingClientRect(),
+            }))
+            // Filter possible target candidates based on the initial mouse position
+            .filter(
+              ({ elementRect, element }) =>
+                element.type === 'FRAME' &&
+                initialClientX >= elementRect.left &&
+                initialClientX <= elementRect.left + elementRect.width &&
+                initialClientY >= elementRect.top &&
+                initialClientY <= elementRect.top + elementRect.height,
+            )
+            // Sort the list based on their index values
+            .sort((a, b) => b.index - a.index);
 
-            // Check whether the new element is being created within the boundaries of it's parent
-            if (
-              initialMousePositionRef.current.x >= elementRect.left &&
-              initialMousePositionRef.current.x <=
-                elementRect.left + elementRect.width &&
-              initialMousePositionRef.current.y >= elementRect.top &&
-              initialMousePositionRef.current.y <=
-                elementRect.top + elementRect.height
-            ) {
-              parentId = selectedElementIdList[0];
-              layer = elementCanvas.layer + 1;
-              originLeft = elementRect.left / view.zoomFactor;
-              originTop = elementRect.top / view.zoomFactor;
-              originBottom = elementRect.bottom / view.zoomFactor;
-              originRight = elementRect.right / view.zoomFactor;
+          // Check whether target list is empty or not
+          if (targetElementRectList.length) {
+            let { elementRect: targetElementRect, index: targetIndex } =
+              targetElementRectList[0];
+            // Choose element with the highest index as the target
+            let targetElement = elementList.at(targetIndex);
+
+            // Check whether a selected element is in the target list
+            const selectedTarget = targetElementRectList.find(({ element }) =>
+              selectedElementIdList.includes(element.id),
+            );
+
+            // Use the selected element as the target
+            if (selectedTarget) {
+              targetElement = selectedTarget.element;
+              targetElementRect = selectedTarget.elementRect;
+            }
+
+            if (targetElement) {
+              parentId = targetElement.id;
+              layer = targetElement.layer + 1;
+              originLeft = targetElementRect.left / view.zoomFactor;
+              originTop = targetElementRect.top / view.zoomFactor;
+              originBottom = targetElementRect.bottom / view.zoomFactor;
+              originRight = targetElementRect.right / view.zoomFactor;
             }
           }
         }
+
+        // // Create the element as a child of an other element
+        // if (selectedElementIdList.length === 1) {
+        //   const elementCanvas = getElementById(selectedElementIdList[0])!;
+        //   // Parent element has to be frame
+        //   if (elementCanvas.type === 'FRAME') {
+        //     const elementDOM = document.getElementById(
+        //       selectedElementIdList[0],
+        //     )!;
+        //     const elementRect = elementDOM.getBoundingClientRect();
+
+        //     // Check whether the new element is being created within the boundaries of it's parent
+        //     if (
+        //       initialClientX >= elementRect.left &&
+        //       initialClientX <= elementRect.left + elementRect.width &&
+        //       initialClientY >= elementRect.top &&
+        //       initialClientY <= elementRect.top + elementRect.height
+        //     ) {
+        //       parentId = selectedElementIdList[0];
+        //       layer = elementCanvas.layer + 1;
+        //       originLeft = elementRect.left / view.zoomFactor;
+        //       originTop = elementRect.top / view.zoomFactor;
+        //       originBottom = elementRect.bottom / view.zoomFactor;
+        //       originRight = elementRect.right / view.zoomFactor;
+        //     }
+        //   }
+        // }
 
         // Calculate the position of the element
         const left =
