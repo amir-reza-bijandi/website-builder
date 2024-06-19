@@ -7,12 +7,15 @@ import {
   ContextMenuShortcut,
 } from '@/component/ui/context-menu';
 
-type EditContextMenuProps = React.PropsWithChildren;
+type EditContextMenuProps = React.PropsWithChildren<{ className?: string }>;
 
-export default function EditContextMenu({ children }: EditContextMenuProps) {
+export default function EditContextMenu({
+  children,
+  className,
+}: EditContextMenuProps) {
   return (
     <ContextMenu modal={false}>
-      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuTrigger className={className}>{children}</ContextMenuTrigger>
       <ContextMenuContent className='w-48'>
         <ContextMenuItem>
           Bring To Front <ContextMenuShortcut>Ctrl+&#125;</ContextMenuShortcut>

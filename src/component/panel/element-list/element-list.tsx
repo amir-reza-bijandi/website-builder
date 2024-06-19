@@ -65,7 +65,7 @@ const ElementList = memo(function () {
       onMouseDown={handleClearSelection}
       onMouseLeave={handleClearDropTarget}
     >
-      <div className='space-y-2'>
+      <div className='space-y-1'>
         <ElementListContext.Provider
           value={{
             dropStatus,

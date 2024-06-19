@@ -100,7 +100,7 @@ const ElementListItem = memo(function ({
   };
 
   return (
-    <EditContextMenu>
+    <EditContextMenu className='block'>
       <div
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
