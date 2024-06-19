@@ -31,7 +31,7 @@ type CanvasStore = {
   setResizing: (isResizing: boolean) => void;
   setFocus: (isFocused: boolean) => void;
   setCrossLayerSelection: (isCrossLayerSelectionAllowed: boolean) => void;
-  addElement: (element: CanvasStoreElement) => void;
+  addElement: (...elementList: CanvasStoreElement[]) => void;
   updateElement: (...updatedElements: CanvasStoreElement[]) => void;
   deleteElement: (...elementIdList: string[]) => void;
   changeElementOrder: (
@@ -104,9 +104,9 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   setCrossLayerSelection(isCrossLayerSelectionAllowed) {
     set({ isCrossLayerSelectionAllowed });
   },
-  addElement(element) {
+  addElement(...elementList) {
     set((store) => ({
-      elementList: [...store.elementList, element],
+      elementList: [...store.elementList, ...elementList],
     }));
   },
   updateElement(...updatedElements) {

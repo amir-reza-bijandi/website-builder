@@ -66,7 +66,11 @@ export default function GlobalMenubar() {
     setView(createZoomView(canvas, 1));
   };
 
-  const handleDelete = useDelete();
+  const onDelete = useDelete();
+
+  const handleDelete = () => {
+    onDelete();
+  };
 
   return (
     <Menubar className='rounded-none border-none'>

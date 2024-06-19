@@ -1,7 +1,7 @@
 import useCanvasStore from '@/store/canvas-store';
 import { useShallow } from 'zustand/react/shallow';
 
-export default function useDelete(...elementIdList: string[]) {
+export default function useDelete() {
   const { selectedElementIdList, deleteElement } = useCanvasStore(
     useShallow((store) => ({
       selectedElementIdList: store.selectedElementIdList,
@@ -9,7 +9,7 @@ export default function useDelete(...elementIdList: string[]) {
     })),
   );
 
-  const handleDelete = () => {
+  const handleDelete = (...elementIdList: string[]) => {
     if (elementIdList.length > 0) {
       deleteElement(...elementIdList);
     } else {

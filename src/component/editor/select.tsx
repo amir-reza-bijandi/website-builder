@@ -8,6 +8,7 @@ import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import EditContextMenu from '../edit-context-menu';
+import useRerender from '@/hook/use-rerender';
 
 export default memo(function CanvasSelect() {
   const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
@@ -20,8 +21,17 @@ export default memo(function CanvasSelect() {
   // We need the zoom factor but we dont want it to cause rerenders
   const zoomFactor = useCanvasStore.getState().view.zoomFactor;
 
+  const doesElementExist = selectedElementIdList.every((selectedElementId) =>
+    document.getElementById(selectedElementId),
+  );
+
+  useRerender(!doesElementExist);
+
   // Not showing anything when no element is selected
   if (selectedElementIdList.length === 0 || !isSelectionVisible) return null;
+
+  // Check if elements exist on the DOM
+  if (!doesElementExist) return;
 
   const elementRectList = selectedElementIdList.map((elementId) =>
     document.getElementById(elementId)!.getBoundingClientRect(),
