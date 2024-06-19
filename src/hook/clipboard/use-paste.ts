@@ -7,6 +7,7 @@ import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import scaleWithZoomFactor from '@/utility/canvas/scale-with-zoom-factor';
+import { nanoid } from 'nanoid';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function usePaste() {
@@ -148,15 +149,15 @@ function createPasteInSelectionElementList(
             }
           }
           if (clipboardItemChildren) {
-            const newChildren = clipboardItemChildren.map((child) => ({
-              ...child,
-              parentId:
-                child.parentId === clipboardItem.id
-                  ? newElement.id
-                  : child.parentId,
-              layer: child.layer + deltaLayer,
-            }));
-            return [newElement, ...newChildren];
+            return [
+              newElement,
+              ...createChildren(
+                clipboardItem,
+                clipboardItemChildren,
+                deltaLayer,
+                newElement.id,
+              ),
+            ];
           }
           return [newElement];
         },
@@ -208,17 +209,38 @@ function createPasteInCanvasElementList(
       })!;
 
       if (clipboardItemChildren) {
-        const newChildren = clipboardItemChildren.map((child) => ({
-          ...child,
-          parentId:
-            child.parentId === clipboardItem.id
-              ? newElement.id
-              : child.parentId,
-          layer: child.layer + deltaLayer,
-        }));
-        return [newElement, ...newChildren];
+        return [
+          newElement,
+          ...createChildren(
+            clipboardItem,
+            clipboardItemChildren,
+            deltaLayer,
+            newElement.id,
+          ),
+        ];
       }
       return [newElement];
     })
     .flat(1);
+}
+
+function createChildren(
+  clipboardItem: CanvasStoreElement,
+  clipboardItemChildren: CanvasStoreElement[],
+  deltaLayer: number,
+  parentId: string,
+) {
+  const uniqueId = nanoid(4);
+  return clipboardItemChildren.map(
+    (child) =>
+      createElement(child.type, {
+        ...child,
+        id: child.id + uniqueId,
+        parentId:
+          child.parentId === clipboardItem.id
+            ? parentId
+            : child.parentId + uniqueId,
+        layer: child.layer + deltaLayer,
+      })!,
+  );
 }
