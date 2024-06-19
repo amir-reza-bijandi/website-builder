@@ -6,15 +6,15 @@ import TopPanel from './component/panel/top-panel';
 import useUIScale from './hook/use-ui-scale';
 import usePreventDefaultBrowserZoom from './hook/use-prevent-default-browser-zoom';
 import usePanningWithSpaceKey from './hook/canvas/use-panning-with-space-key';
-import useDeleteSelectedElement from './hook/canvas/use-delete-selected-element';
 import useCrossLayerSelection from './hook/canvas/use-cross-layer-selection';
 import usePreventDefaultContextMenu from './hook/use-prevent-default-context-menu';
+import useDeleteWithDelKey from './hook/canvas/use-delete-with-del-key';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
   usePreventDefaultContextMenu();
   usePanningWithSpaceKey();
-  useDeleteSelectedElement();
+  useDeleteWithDelKey();
   useCrossLayerSelection();
 
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();

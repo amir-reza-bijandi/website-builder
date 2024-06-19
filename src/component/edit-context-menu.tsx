@@ -6,6 +6,8 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
 } from '@/component/ui/context-menu';
+import useDelete from '@/hook/canvas/use-delete';
+import React from 'react';
 
 type EditContextMenuProps = React.PropsWithChildren<{ className?: string }>;
 
@@ -13,6 +15,7 @@ export default function EditContextMenu({
   children,
   className,
 }: EditContextMenuProps) {
+  const handleDelete = useDelete();
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger className={className}>{children}</ContextMenuTrigger>
@@ -33,7 +36,7 @@ export default function EditContextMenu({
         <ContextMenuItem>
           Paste <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem>
+        <ContextMenuItem onClick={handleDelete}>
           Delete <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>

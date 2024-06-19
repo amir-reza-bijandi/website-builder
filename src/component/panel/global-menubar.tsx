@@ -13,6 +13,7 @@ import useUIStore from '@/store/ui-store';
 import useCanvasStore from '@/store/canvas-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import { useShallow } from 'zustand/react/shallow';
+import useDelete from '@/hook/canvas/use-delete';
 
 export default function GlobalMenubar() {
   const {
@@ -24,15 +25,13 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
-  const { view, setView, selectedElementIdList, deleteElement } =
-    useCanvasStore(
-      useShallow((store) => ({
-        view: store.view,
-        setView: store.setView,
-        selectedElementIdList: store.selectedElementIdList,
-        deleteElement: store.deleteElement,
-      })),
-    );
+  const { view, setView, selectedElementIdList } = useCanvasStore(
+    useShallow((store) => ({
+      view: store.view,
+      setView: store.setView,
+      selectedElementIdList: store.selectedElementIdList,
+    })),
+  );
 
   const isAnyElementSelected = selectedElementIdList.length > 0;
 
@@ -67,11 +66,7 @@ export default function GlobalMenubar() {
     setView(createZoomView(canvas, 1));
   };
 
-  const handleDelete = () => {
-    if (isAnyElementSelected) {
-      deleteElement(...selectedElementIdList);
-    }
-  };
+  const handleDelete = useDelete();
 
   return (
     <Menubar className='rounded-none border-none'>
