@@ -25,19 +25,23 @@ export default function EditContextMenu({
   const onCopy = useClipboardOperation('COPY');
   const onPaste = usePaste();
 
-  const handleDelete = () => {
+  const handleDelete: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
     onDelete();
   };
 
-  const handleCut = () => {
+  const handleCut: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
     onCut();
   };
 
-  const handleCopy = () => {
+  const handleCopy: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
     onCopy();
   };
 
-  const handlePaste = () => {
+  const handlePaste: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
     onPaste();
   };
 
@@ -65,16 +69,16 @@ export default function EditContextMenu({
           Send To Back <ContextMenuShortcut>Ctrl+&#123;</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onClick={handleCut}>
+        <ContextMenuItem onMouseDown={handleCut}>
           Cut <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handleCopy}>
+        <ContextMenuItem onMouseDown={handleCopy}>
           Copy <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handlePaste}>
+        <ContextMenuItem onMouseDown={handlePaste}>
           Paste <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onClick={handleDelete}>
+        <ContextMenuItem onMouseDown={handleDelete}>
           Delete <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>
