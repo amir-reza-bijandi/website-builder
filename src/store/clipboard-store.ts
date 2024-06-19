@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
+import { Position } from '@/type/general-types';
 
 export type ClipboardStoreStatus = {
   operation: ClipboardStoreOperation;
@@ -15,7 +16,9 @@ export type ClipboardStoreItem = [
 
 type ClipboardStore = {
   status: ClipboardStoreStatus;
+  pastePosition: Position;
   setStatus: (status: ClipboardStoreStatus) => void;
+  setPastePosition: (position: Position) => void;
 };
 
 const useClipboardStore = create<ClipboardStore>((set) => ({
@@ -23,10 +26,14 @@ const useClipboardStore = create<ClipboardStore>((set) => ({
     operation: null,
     itemList: [],
   },
+  pastePosition: { x: 0, y: 0 },
   setStatus(status) {
     set({ status });
+  },
+  setPastePosition(position) {
+    set({ pastePosition: position });
   },
 }));
 
 export default useClipboardStore;
-// useClipboardStore.subscribe((store) => console.log(store.status));
+// useClipboardStore.subscribe((store) => console.log(store.pastePosition));

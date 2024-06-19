@@ -10,7 +10,12 @@ import scaleWithZoomFactor from '@/utility/canvas/scale-with-zoom-factor';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function usePaste() {
-  const status = useClipboardStore((store) => store.status);
+  const { status, pastePosition } = useClipboardStore(
+    useShallow((store) => ({
+      status: store.status,
+      pastePosition: store.pastePosition,
+    })),
+  );
   const {
     selectedElementIdList,
     setSelectedElementIdList,
@@ -29,7 +34,7 @@ export default function usePaste() {
     })),
   );
 
-  const handlePaste = (mousePosition?: Position) => {
+  const handlePaste = (useMousePosition: boolean = false) => {
     if (!status.operation) return;
     let newElementList: CanvasStoreElement[] = [];
 
@@ -43,10 +48,10 @@ export default function usePaste() {
     }
     // Paste outside a selection
     else {
-      if (mousePosition) {
+      if (useMousePosition) {
         newElementList = createPasteInCanvasElementList(
           status,
-          mousePosition,
+          pastePosition,
           view.zoomFactor,
         );
       }
