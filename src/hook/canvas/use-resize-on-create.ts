@@ -223,7 +223,7 @@ export default function useResizeOnCreate() {
           if (!createdElementIdRef.current) {
             addElement(element);
             const currentLayer = useCanvasStore.getState().layer;
-            if (element.layer > currentLayer) {
+            if (element.layer !== currentLayer) {
               setLayer(element.layer);
             }
             createdElementIdRef.current = element.id;
