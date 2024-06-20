@@ -9,12 +9,14 @@ import usePanningWithSpaceKey from './hook/canvas/use-panning-with-space-key';
 import useCrossLayerSelection from './hook/canvas/use-cross-layer-selection';
 import usePreventDefaultContextMenu from './hook/use-prevent-default-context-menu';
 import useDeleteWithDelKey from './hook/canvas/use-delete-with-del-key';
+import useClipboardWithShortcut from './hook/clipboard/use-clipboard-with-shortcut';
 
 export default function App() {
   usePreventDefaultBrowserZoom();
   usePreventDefaultContextMenu();
   usePanningWithSpaceKey();
   useDeleteWithDelKey();
+  useClipboardWithShortcut();
   useCrossLayerSelection();
 
   const { isLeftPanelVisible, isRightPanelVisible } = useUIScale();

@@ -41,7 +41,7 @@ export default function usePaste() {
 
     // Paste inside a selection
     if (selectedElementIdList.length) {
-      newElementList = createPasteInSelectionElementList(
+      newElementList = createKeyboardPasteInSelectionElementList(
         selectedElementIdList,
         status,
         view.zoomFactor,
@@ -50,7 +50,7 @@ export default function usePaste() {
     // Paste outside a selection
     else {
       if (useMousePosition) {
-        newElementList = createPasteInCanvasElementList(
+        newElementList = createMousePasteInCanvasElementList(
           status,
           pastePosition,
           view.zoomFactor,
@@ -79,7 +79,7 @@ export default function usePaste() {
   return handlePaste;
 }
 
-function createPasteInSelectionElementList(
+function createKeyboardPasteInSelectionElementList(
   selectedElementIdList: string[],
   clipboardStatus: ClipboardStoreStatus,
   zoomFactor: number,
@@ -166,7 +166,7 @@ function createPasteInSelectionElementList(
     .flat(2);
 }
 
-function createPasteInCanvasElementList(
+function createMousePasteInCanvasElementList(
   clipboardStatus: ClipboardStoreStatus,
   mousePosition: Position,
   zoomFactor: number,
