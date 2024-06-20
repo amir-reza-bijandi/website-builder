@@ -12,11 +12,15 @@ import usePaste from '@/hook/clipboard/use-paste';
 import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
 import useClipboardStore from '@/store/clipboard-store';
 
-type EditContextMenuProps = React.PropsWithChildren<{ className?: string }>;
+type EditContextMenuProps = React.PropsWithChildren<{
+  className?: string;
+  useMousePositionForPaste?: boolean;
+}>;
 
 export default function EditContextMenu({
   children,
   className,
+  useMousePositionForPaste = true,
 }: EditContextMenuProps) {
   const setPastePosition = useClipboardStore((store) => store.setPastePosition);
 
@@ -42,7 +46,7 @@ export default function EditContextMenu({
 
   const handlePaste: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    onPaste(true);
+    onPaste(useMousePositionForPaste);
   };
 
   // Set paste position whenever context menu appears
