@@ -3,7 +3,6 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-  ContextMenuShortcut,
 } from '@/component/ui/context-menu';
 import usePaste from '@/hook/clipboard/use-paste';
 import useClipboardStore from '@/store/clipboard-store';
@@ -36,9 +35,7 @@ export default function CanvasContextMenu({
         {children}
       </ContextMenuTrigger>
       <ContextMenuContent className='w-48'>
-        <ContextMenuItem onClick={handlePaste}>
-          Paste <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
-        </ContextMenuItem>
+        <ContextMenuItem onClick={handlePaste}>Paste</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
