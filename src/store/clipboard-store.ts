@@ -36,4 +36,3 @@ const useClipboardStore = create<ClipboardStore>((set) => ({
 }));
 
 export default useClipboardStore;
-// useClipboardStore.subscribe((store) => console.log(store.pastePosition));

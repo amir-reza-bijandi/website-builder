@@ -41,10 +41,12 @@ export default function usePaste() {
 
     // Paste inside a selection
     if (selectedElementIdList.length) {
-      newElementList = createKeyboardPasteInSelectionElementList(
+      newElementList = createPasteInSelectionElementList(
         selectedElementIdList,
         status,
         view.zoomFactor,
+        useMousePosition,
+        pastePosition,
       );
     }
     // Paste outside a selection
@@ -79,10 +81,12 @@ export default function usePaste() {
   return handlePaste;
 }
 
-function createKeyboardPasteInSelectionElementList(
+function createPasteInSelectionElementList(
   selectedElementIdList: string[],
   clipboardStatus: ClipboardStoreStatus,
   zoomFactor: number,
+  useMousePosition: boolean,
+  pastePosition: Position,
 ) {
   return selectedElementIdList
     .map((selectedElementId) => {
@@ -99,55 +103,84 @@ function createKeyboardPasteInSelectionElementList(
           );
           let deltaLayer = selectedElement.layer + 1 - clipboardItem.layer;
 
-          // Check whether the element has a parent
-          if (clipboardItem.parentId) {
-            if (clipboardItem.position.mode === 'ABSOLUTE') {
-              const newElementRight =
-                parentRect.width / zoomFactor -
-                (+clipboardItem.position.left +
-                  clipboardItemRect.width / zoomFactor);
+          if (useMousePosition) {
+            const { x: mouseX, y: mouseY } = pastePosition;
+            const newElementLeft =
+              (mouseX - parentRect.left * zoomFactor) / zoomFactor -
+              clipboardItemRect.width / 2;
+            const newElementTop =
+              (mouseY - parentRect.top * zoomFactor) / zoomFactor -
+              clipboardItemRect.height / 2;
+            const newElementRight =
+              parentRect.width - (newElementLeft + clipboardItemRect.width);
+            const newElementBottom =
+              parentRect.height - (newElementTop + clipboardItemRect.height);
 
-              const newElementBottom =
-                parentRect.height / zoomFactor -
-                (+clipboardItem.position.left +
-                  clipboardItemRect.height / zoomFactor);
-
-              newElement = createElement(clipboardItem.type, {
-                ...clipboardItem,
-                // Pass undefined to create a new id
-                id: undefined,
-                layer: selectedElement.layer + 1,
-                parentId: selectedElement.id,
-                position: {
-                  ...clipboardItem.position,
-                  right: newElementRight,
-                  bottom: newElementBottom,
-                },
-              })!;
-            }
+            newElement = createElement(clipboardItem.type, {
+              ...clipboardItem,
+              id: undefined,
+              layer: selectedElement.layer + 1,
+              parentId: selectedElement.id,
+              position: {
+                mode: 'ABSOLUTE',
+                left: newElementLeft,
+                right: newElementRight,
+                top: newElementTop,
+                bottom: newElementBottom,
+              },
+            })!;
           } else {
-            if (clipboardItem.position.mode === 'ABSOLUTE') {
-              const newElementX =
-                (parentRect.width - clipboardItemRect.width) / 2;
-              const newElementY =
-                (parentRect.height - clipboardItemRect.height) / 2;
+            // Check whether the element has a parent
+            if (clipboardItem.parentId) {
+              if (clipboardItem.position.mode === 'ABSOLUTE') {
+                const newElementRight =
+                  parentRect.width / zoomFactor -
+                  (+clipboardItem.position.left +
+                    clipboardItemRect.width / zoomFactor);
 
-              newElement = createElement(clipboardItem.type, {
-                ...clipboardItem,
-                // Pass undefined to create a new id
-                id: undefined,
-                layer: selectedElement.layer + 1,
-                parentId: selectedElement.id,
-                position: {
-                  mode: 'ABSOLUTE',
-                  left: newElementX,
-                  right: newElementX,
-                  top: newElementY,
-                  bottom: newElementY,
-                },
-              })!;
+                const newElementBottom =
+                  parentRect.height / zoomFactor -
+                  (+clipboardItem.position.left +
+                    clipboardItemRect.height / zoomFactor);
+
+                newElement = createElement(clipboardItem.type, {
+                  ...clipboardItem,
+                  // Pass undefined to create a new id
+                  id: undefined,
+                  layer: selectedElement.layer + 1,
+                  parentId: selectedElement.id,
+                  position: {
+                    ...clipboardItem.position,
+                    right: newElementRight,
+                    bottom: newElementBottom,
+                  },
+                })!;
+              }
+            } else {
+              if (clipboardItem.position.mode === 'ABSOLUTE') {
+                const newElementX =
+                  (parentRect.width - clipboardItemRect.width) / 2;
+                const newElementY =
+                  (parentRect.height - clipboardItemRect.height) / 2;
+
+                newElement = createElement(clipboardItem.type, {
+                  ...clipboardItem,
+                  // Pass undefined to create a new id
+                  id: undefined,
+                  layer: selectedElement.layer + 1,
+                  parentId: selectedElement.id,
+                  position: {
+                    mode: 'ABSOLUTE',
+                    left: newElementX,
+                    right: newElementX,
+                    top: newElementY,
+                    bottom: newElementY,
+                  },
+                })!;
+              }
             }
           }
+
           if (clipboardItemChildren) {
             return [
               newElement,

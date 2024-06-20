@@ -42,7 +42,7 @@ export default function EditContextMenu({
 
   const handlePaste: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    onPaste();
+    onPaste(true);
   };
 
   // Set paste position whenever context menu appears

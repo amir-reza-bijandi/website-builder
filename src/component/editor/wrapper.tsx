@@ -6,6 +6,7 @@ import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import EditContextMenu from '../edit-context-menu';
+import useClipboardStore from '@/store/clipboard-store';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -40,6 +41,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
       isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
     })),
   );
+  const setPastePosition = useClipboardStore((store) => store.setPastePosition);
   const handleMove = useMove([element.id]);
   const isElementSelected = selectedElementIdList.includes(element.id);
 
@@ -86,6 +88,11 @@ export default function Wrapper({ element, children }: WrapperProps) {
         // Move element
         handleMove({ x: e.clientX, y: e.clientY });
       }
+    }
+    /* Since this event prevents it's parent event from triggering
+       We have to set the paste position here */
+    if (e.button === 2) {
+      setPastePosition({ x: e.clientX, y: e.clientY });
     }
   };
 
