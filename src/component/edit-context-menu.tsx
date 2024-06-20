@@ -11,6 +11,7 @@ import React from 'react';
 import usePaste from '@/hook/clipboard/use-paste';
 import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
 import useClipboardStore from '@/store/clipboard-store';
+import { useShallow } from 'zustand/react/shallow';
 
 type EditContextMenuProps = React.PropsWithChildren<{
   className?: string;
@@ -22,7 +23,12 @@ export default function EditContextMenu({
   className,
   useMousePositionForPaste = true,
 }: EditContextMenuProps) {
-  const setPastePosition = useClipboardStore((store) => store.setPastePosition);
+  const { setPastePosition, status } = useClipboardStore(
+    useShallow((store) => ({
+      setPastePosition: store.setPastePosition,
+      status: store.status,
+    })),
+  );
 
   const onDelete = useDelete();
   const onCut = useClipboardOperation('CUT');
@@ -60,6 +66,8 @@ export default function EditContextMenu({
     }
   };
 
+  const isPastingAllowed = status.operation;
+
   return (
     <ContextMenu modal={false}>
       <ContextMenuTrigger className={className} onMouseDown={handleMouseDown}>
@@ -79,7 +87,7 @@ export default function EditContextMenu({
         <ContextMenuItem onMouseDown={handleCopy}>
           Copy <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onMouseDown={handlePaste}>
+        <ContextMenuItem onMouseDown={handlePaste} disabled={!isPastingAllowed}>
           Paste <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onMouseDown={handleDelete}>
