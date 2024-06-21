@@ -12,6 +12,7 @@ import usePaste from '@/hook/clipboard/use-paste';
 import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
 import useClipboardStore from '@/store/clipboard-store';
 import { useShallow } from 'zustand/react/shallow';
+import useChangeOrder from '@/hook/canvas/use-change-order';
 
 type EditContextMenuProps = React.PropsWithChildren<{
   className?: string;
@@ -34,25 +35,26 @@ export default function EditContextMenu({
   const onCut = useClipboardOperation('CUT');
   const onCopy = useClipboardOperation('COPY');
   const onPaste = usePaste();
+  const onBringToFront = useChangeOrder('BRING_TO_FRONT');
+  const onSendToBack = useChangeOrder('SEND_TO_BACK');
 
-  const handleDelete: React.MouseEventHandler = (e) => {
+  const handleEditContextMenuSelect = (
+    e: React.MouseEvent,
+    action:
+      | 'CUT'
+      | 'COPY'
+      | 'DELETE'
+      | 'PASTE'
+      | 'BRING_TO_FRONT'
+      | 'SEND_TO_BACK',
+  ) => {
     e.stopPropagation();
-    onDelete();
-  };
-
-  const handleCut: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
-    onCut();
-  };
-
-  const handleCopy: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
-    onCopy();
-  };
-
-  const handlePaste: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
-    onPaste(useMousePositionForPaste);
+    if (action === 'CUT') onCut();
+    else if (action === 'COPY') onCopy();
+    else if (action === 'PASTE') onPaste(useMousePositionForPaste);
+    else if (action === 'DELETE') onDelete();
+    else if (action === 'SEND_TO_BACK') onSendToBack();
+    else if (action === 'BRING_TO_FRONT') onBringToFront();
   };
 
   // Set paste position whenever context menu appears
@@ -74,23 +76,36 @@ export default function EditContextMenu({
         {children}
       </ContextMenuTrigger>
       <ContextMenuContent className='w-48'>
-        <ContextMenuItem>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'BRING_TO_FRONT')}
+        >
           Bring To Front <ContextMenuShortcut>Ctrl+&#125;</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'SEND_TO_BACK')}
+        >
           Send To Back <ContextMenuShortcut>Ctrl+&#123;</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onMouseDown={handleCut}>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'CUT')}
+        >
           Cut <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onMouseDown={handleCopy}>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'COPY')}
+        >
           Copy <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onMouseDown={handlePaste} disabled={!isPastingAllowed}>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'PASTE')}
+          disabled={!isPastingAllowed}
+        >
           Paste <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
         </ContextMenuItem>
-        <ContextMenuItem onMouseDown={handleDelete}>
+        <ContextMenuItem
+          onMouseDown={(e) => handleEditContextMenuSelect(e, 'DELETE')}
+        >
           Delete <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>

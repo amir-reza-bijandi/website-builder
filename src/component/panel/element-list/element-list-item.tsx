@@ -71,6 +71,7 @@ const ElementListItem = memo(function ({
   const isDropTarget = dropStatus.targetId === id;
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
+    console.log(123);
     e.stopPropagation();
     // Click
     if (e.button === 0) {
