@@ -106,5 +106,3 @@ export default function useChangeOrder(
 
   return handleSendToBack;
 }
-
-// useCanvasStore.subscribe((store) => console.log(store.elementList));
