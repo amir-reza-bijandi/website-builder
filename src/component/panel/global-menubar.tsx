@@ -14,6 +14,9 @@ import useCanvasStore from '@/store/canvas-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import { useShallow } from 'zustand/react/shallow';
 import useDelete from '@/hook/canvas/use-delete';
+import useChangeOrder from '@/hook/canvas/use-change-order';
+import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
+import usePaste from '@/hook/clipboard/use-paste';
 
 export default function GlobalMenubar() {
   const {
@@ -67,9 +70,27 @@ export default function GlobalMenubar() {
   };
 
   const onDelete = useDelete();
+  const onCut = useClipboardOperation('CUT');
+  const onCopy = useClipboardOperation('COPY');
+  const onPaste = usePaste();
+  const onBringToFront = useChangeOrder('BRING_TO_FRONT');
+  const onSendToBack = useChangeOrder('SEND_TO_BACK');
 
-  const handleDelete = () => {
-    onDelete();
+  const handleEditContextMenuSelect = (
+    action:
+      | 'CUT'
+      | 'COPY'
+      | 'DELETE'
+      | 'PASTE'
+      | 'BRING_TO_FRONT'
+      | 'SEND_TO_BACK',
+  ) => {
+    if (action === 'CUT') onCut();
+    else if (action === 'COPY') onCopy();
+    else if (action === 'PASTE') onPaste(false);
+    else if (action === 'DELETE') onDelete();
+    else if (action === 'SEND_TO_BACK') onSendToBack();
+    else if (action === 'BRING_TO_FRONT') onBringToFront();
   };
 
   return (
@@ -98,23 +119,41 @@ export default function GlobalMenubar() {
             Redo <MenubarShortcut>Ctrl+Shift+Z</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem disabled={!isAnyElementSelected}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('BRING_TO_FRONT')}
+          >
             Bring To Front <MenubarShortcut>Ctrl+&#125;</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem disabled={!isAnyElementSelected}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('SEND_TO_BACK')}
+          >
             Send To Back <MenubarShortcut>Ctrl+&#123;</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem disabled={!isAnyElementSelected}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('CUT')}
+          >
             Cut <MenubarShortcut>Ctrl+X</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem disabled={!isAnyElementSelected}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('COPY')}
+          >
             Copy <MenubarShortcut>Ctrl+C</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem disabled={!isAnyElementSelected}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('PASTE')}
+          >
             Paste <MenubarShortcut>Ctrl+V</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem disabled={!isAnyElementSelected} onClick={handleDelete}>
+          <MenubarItem
+            disabled={!isAnyElementSelected}
+            onMouseDown={() => handleEditContextMenuSelect('DELETE')}
+          >
             Delete <MenubarShortcut>Del</MenubarShortcut>
           </MenubarItem>
         </MenubarContent>
@@ -124,50 +163,50 @@ export default function GlobalMenubar() {
         <MenubarContent className='w-64'>
           <MenubarCheckboxItem
             checked={isLeftPanelVisible}
-            onClick={toggleLeftPanel}
+            onMouseDown={toggleLeftPanel}
           >
             Show Left Penel
           </MenubarCheckboxItem>
           <MenubarCheckboxItem
             checked={isRightPanelVisible}
-            onClick={toggleRightPanel}
+            onMouseDown={toggleRightPanel}
           >
             Show Right Panel
           </MenubarCheckboxItem>
           <MenubarSeparator />
           <MenubarItem
             inset
-            onClick={handleZoomIn}
+            onMouseDown={handleZoomIn}
             disabled={view.zoomState === 'MAX'}
           >
             Zoom + <MenubarShortcut>Ctrl++</MenubarShortcut>
           </MenubarItem>
           <MenubarItem
             inset
-            onClick={handleZoomOut}
+            onMouseDown={handleZoomOut}
             disabled={view.zoomState === 'MIN'}
           >
             Zoom - <MenubarShortcut>Ctrl+-</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset onClick={handleZoomReset}>
+          <MenubarItem inset onMouseDown={handleZoomReset}>
             Reset Zoom <MenubarShortcut>Ctrl+0</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
           <MenubarItem
             inset
             disabled={uiScale === CONFIG.MAX_UI_SCALE}
-            onClick={handleUIScaleUp}
+            onMouseDown={handleUIScaleUp}
           >
             UI Scale +<MenubarShortcut>Shift+Ctrl++</MenubarShortcut>
           </MenubarItem>
           <MenubarItem
             inset
             disabled={uiScale === CONFIG.MIN_UI_SCALE}
-            onClick={handleUIScaleDown}
+            onMouseDown={handleUIScaleDown}
           >
             UI Scale -<MenubarShortcut>Shift+Ctrl+-</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem inset onClick={handleUIScaleRest}>
+          <MenubarItem inset onMouseDown={handleUIScaleRest}>
             Reset UI Scale
             <MenubarShortcut>Shift+Ctrl+0</MenubarShortcut>
           </MenubarItem>
