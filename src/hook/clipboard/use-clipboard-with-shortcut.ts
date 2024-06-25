@@ -23,5 +23,5 @@ export default function useClipboardWithShortcut() {
     document.addEventListener('keydown', handlePasteWithShortcut, false);
     return () =>
       document.removeEventListener('keydown', handlePasteWithShortcut);
-  }, [handlePaste]);
+  }, [handlePaste, handleCopy, handleCut]);
 }

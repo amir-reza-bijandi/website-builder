@@ -52,6 +52,7 @@ export default function usePaste() {
     // Paste outside a selection
     else {
       if (useMousePosition) {
+        console.log('Paste outside a selection with mouse position');
         newElementList = createMousePasteInCanvasElementList(
           status,
           pastePosition,
@@ -60,24 +61,27 @@ export default function usePaste() {
       }
     }
 
-    addElement(...newElementList);
+    if (newElementList.length) {
+      addElement(...newElementList);
 
-    // Change the selection
-    setSelectedElementIdList(
-      newElementList
+      // Change the selection
+      setSelectedElementIdList(
+        newElementList
+          .sort((a, b) => a.layer - b.layer)
+          .filter((element, _, array) => element.layer === array[0].layer)
+          .map((element) => element.id),
+      );
+
+      // Change the layer to the min layer
+      const minLayer = newElementList
         .sort((a, b) => a.layer - b.layer)
-        .filter((element, _, array) => element.layer === array[0].layer)
-        .map((element) => element.id),
-    );
-
-    // Change the layer to the min layer
-    const minLayer = newElementList
-      .sort((a, b) => a.layer - b.layer)
-      .at(0)!.layer;
-    if (layer !== minLayer) {
-      setLayer(minLayer);
+        .at(0)!.layer;
+      if (layer !== minLayer) {
+        setLayer(minLayer);
+      }
     }
   };
+
   return handlePaste;
 }
 
@@ -101,7 +105,7 @@ function createPasteInSelectionElementList(
               .getElementById(selectedElement.id)!
               .getBoundingClientRect(),
           );
-          let deltaLayer = selectedElement.layer + 1 - clipboardItem.layer;
+          const deltaLayer = selectedElement.layer + 1 - clipboardItem.layer;
 
           if (useMousePosition) {
             const { x: mouseX, y: mouseY } = pastePosition;
