@@ -2,13 +2,19 @@ import useResize from '@/hook/canvas/use-resize';
 import useCanvasStore from '@/store/canvas-store';
 import { Direction } from '@/type/general-types';
 import { cn } from '@/utility/general-utilities';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import EditContextMenu from '../edit-context-menu';
-import useRerender from '@/hook/use-rerender';
+
+type Rect = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
 
 export default memo(function CanvasSelect() {
   const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
@@ -18,72 +24,80 @@ export default memo(function CanvasSelect() {
       elementList: store.elementList,
     })),
   );
+
+  const [rect, setRect] = useState<Rect>();
+
   // We need the zoom factor but we dont want it to cause rerenders
   const zoomFactor = useCanvasStore.getState().view.zoomFactor;
 
-  const doesElementExist = selectedElementIdList.every((selectedElementId) =>
-    document.getElementById(selectedElementId),
-  );
+  const showSelection = selectedElementIdList.length > 0 && isSelectionVisible;
 
-  useRerender(!doesElementExist);
+  useEffect(() => {
+    if (showSelection) {
+      const elementRectList = selectedElementIdList.map((elementId) =>
+        document.getElementById(elementId)!.getBoundingClientRect(),
+      );
+      const canvasRect = document
+        .getElementById('canvas')!
+        .getBoundingClientRect();
 
-  // Not showing anything when no element is selected
-  if (selectedElementIdList.length === 0 || !isSelectionVisible) return null;
-
-  // Check if elements exist on the DOM
-  if (!doesElementExist) return;
-
-  const elementRectList = selectedElementIdList.map((elementId) =>
-    document.getElementById(elementId)!.getBoundingClientRect(),
-  );
-  const canvasRect = document.getElementById('canvas')!.getBoundingClientRect();
-
-  // Finding the lowest value for every direction to use for rendering select rectange
-  const left = elementRectList.reduce((min, rect) => {
-    const left = Math.abs(canvasRect.left - rect.left) / zoomFactor;
-    if (min > left) {
-      return left;
-    } else {
-      return min;
-    }
-  }, Number.MAX_SAFE_INTEGER);
-
-  const top = elementRectList.reduce((min, rect) => {
-    const result = Math.abs(canvasRect.top - rect.top) / zoomFactor;
-    if (min > result) {
-      return result;
-    } else {
-      return min;
-    }
-  }, Number.MAX_SAFE_INTEGER);
-
-  const width =
-    canvasRect.width / zoomFactor -
-    (elementRectList.reduce((min, rect) => {
-      const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
-      if (min > right) {
-        return right;
-      } else {
-        return min;
-      }
-    }, Number.MAX_SAFE_INTEGER) +
-      left);
-
-  const height =
-    canvasRect.height / zoomFactor -
-    (Math.abs(
-      elementRectList.reduce((min, rect) => {
-        const bottom = Math.abs(rect.bottom - canvasRect.bottom) / zoomFactor;
-        if (min > bottom) {
-          return bottom;
+      // Finding the lowest value for every direction to use for rendering select rectange
+      const left = elementRectList.reduce((min, rect) => {
+        const left = Math.abs(canvasRect.left - rect.left) / zoomFactor;
+        if (min > left) {
+          return left;
         } else {
           return min;
         }
-      }, Number.MAX_SAFE_INTEGER),
-    ) +
-      top);
+      }, Number.MAX_SAFE_INTEGER);
 
-  return <CanvasSelectContainer rect={{ left, top, width, height }} />;
+      const top = elementRectList.reduce((min, rect) => {
+        const result = Math.abs(canvasRect.top - rect.top) / zoomFactor;
+        if (min > result) {
+          return result;
+        } else {
+          return min;
+        }
+      }, Number.MAX_SAFE_INTEGER);
+
+      const width =
+        canvasRect.width / zoomFactor -
+        (elementRectList.reduce((min, rect) => {
+          const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
+          if (min > right) {
+            return right;
+          } else {
+            return min;
+          }
+        }, Number.MAX_SAFE_INTEGER) +
+          left);
+
+      const height =
+        canvasRect.height / zoomFactor -
+        (Math.abs(
+          elementRectList.reduce((min, rect) => {
+            const bottom =
+              Math.abs(rect.bottom - canvasRect.bottom) / zoomFactor;
+            if (min > bottom) {
+              return bottom;
+            } else {
+              return min;
+            }
+          }, Number.MAX_SAFE_INTEGER),
+        ) +
+          top);
+
+      setRect({ left, top, width, height });
+    } else {
+      setRect(undefined);
+    }
+  }, [selectedElementIdList, zoomFactor, isSelectionVisible, showSelection]);
+
+  if (rect && showSelection) {
+    return <CanvasSelectContainer rect={rect} />;
+  } else {
+    return null;
+  }
 });
 
 type CanvasSelectContainerProps = {
@@ -175,7 +189,6 @@ const CanvasSelectContainer = memo(function ({
           );
         }
       }
-    } else if (e.button === 2) {
     }
   };
 
