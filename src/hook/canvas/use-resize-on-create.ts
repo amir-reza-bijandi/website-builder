@@ -1,10 +1,10 @@
 import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
-import getElementIndexWithinLayer from '@/utility/canvas/get-element-index-within-layer';
+import getElementById from '@/utility/canvas/get-element-by-id';
+import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -67,39 +67,26 @@ export default function useResizeOnCreate() {
         let parentId = '';
         let layer = 0;
 
-        type Target = {
-          index: number;
-          element: CanvasStoreElement;
-          elementRect: DOMRect;
-        };
-
         if (elementList.length > 0) {
           // Get the bounding rect of all elements
-          let targetList = elementList
-            .map<Target>((element, index) => ({
-              index,
-              element,
-              elementRect: document
-                .getElementById(element.id)!
-                .getBoundingClientRect(),
-            }))
-            // Filter possible target candidates based on the initial mouse position
-            .filter(
-              ({ elementRect, element }) =>
-                element.type === 'FRAME' &&
-                initialClientX >= elementRect.left &&
-                initialClientX <= elementRect.left + elementRect.width &&
-                initialClientY >= elementRect.top &&
-                initialClientY <= elementRect.top + elementRect.height,
-            )
-            // Sort the list based on the element layer
-            .sort((a, b) => b.element.layer - a.element.layer);
+          let targetList = elementList.filter((element) => {
+            const elementRect = document
+              .getElementById(element.id)!
+              .getBoundingClientRect();
+            return (
+              element.type === 'FRAME' &&
+              initialClientX >= elementRect.left &&
+              initialClientX <= elementRect.left + elementRect.width &&
+              initialClientY >= elementRect.top &&
+              initialClientY <= elementRect.top + elementRect.height
+            );
+          });
 
           // Prevent creating elements outside of selection
           if (selectedElementIdList.length === 1) {
             // Filter targets that are inside selection
             const targetInSelectionList = targetList.filter(
-              ({ element }) =>
+              (element) =>
                 getAncestorIdList(element.id)?.some(
                   (ancestorId) => ancestorId === selectedElementIdList[0],
                 ) || element.id === selectedElementIdList[0],
@@ -109,84 +96,22 @@ export default function useResizeOnCreate() {
             }
           }
 
-          // Check whether target list is empty or not
-          if (targetList.length) {
-            // select the element with the highest layer value as target
-            let { elementRect: targetElementRect, element: targetElement } =
-              targetList[0];
+          const targetId = getOverlapTargetId(
+            targetList.map((target) => target.id),
+          );
 
-            // Find targets that overlap each other
-            const overlappingElements = targetList.reduce<
-              { layer: number; elementList: typeof targetList }[]
-            >((result, target, index) => {
-              // Skip the first iteration
-              if (index - 1 < 0) return result;
+          if (targetId) {
+            const targetElement = getElementById(targetId)!;
+            const targetElementRect = document
+              .getElementById(targetId)!
+              .getBoundingClientRect();
 
-              // Check if the layer of the current element mathes the previous one
-              if (
-                target.element.layer === targetList[index - 1].element.layer
-              ) {
-                // Look for items that are already added to the result
-                const resultItemIndex = result.findIndex(
-                  ({ layer }) => layer === target.element.layer,
-                );
-                // If the item already exists add the current element to item
-                if (resultItemIndex !== -1) {
-                  result[resultItemIndex].elementList.push(target);
-                }
-                // Create a new item if item with the same layer does not exist
-                else {
-                  result.push({
-                    layer: target.element.layer,
-                    elementList: [targetList[index - 1], target],
-                  });
-                }
-              }
-              return result;
-            }, []);
-
-            if (overlappingElements.length) {
-              // Check whether there is any element with higher layer value
-              const maxOverlappingLayer = overlappingElements.at(0)!.layer;
-              const maxLayer = targetList.at(0)!.element.layer;
-
-              if (maxOverlappingLayer === maxLayer) {
-                const maxOverlappingLayerElementList =
-                  overlappingElements.at(0)!.elementList;
-                const { element: target } = maxOverlappingLayerElementList
-                  .map((target) => {
-                    const ancestorIdList = getAncestorIdList(target.element.id);
-                    if (ancestorIdList) {
-                      const ancestorIndexSum = ancestorIdList.reduce<number>(
-                        (ancestorIndexSumResult, ancestorId) => {
-                          const ancestorIndex =
-                            getElementIndexWithinLayer(ancestorId);
-                          if (ancestorIndex !== -1)
-                            return ancestorIndexSumResult + ancestorIndex;
-                          else return ancestorIndexSumResult;
-                        },
-                        0,
-                      );
-                      return { indexSum: ancestorIndexSum, element: target };
-                    } else {
-                      return { indexSum: 0, element: target };
-                    }
-                  })
-                  .sort((a, b) => b.indexSum - a.indexSum)
-                  .at(0)!;
-                targetElement = target.element;
-                targetElementRect = target.elementRect;
-              }
-            }
-
-            if (targetElement) {
-              parentId = targetElement.id;
-              layer = targetElement.layer + 1;
-              originLeft = targetElementRect.left / view.zoomFactor;
-              originTop = targetElementRect.top / view.zoomFactor;
-              originBottom = targetElementRect.bottom / view.zoomFactor;
-              originRight = targetElementRect.right / view.zoomFactor;
-            }
+            parentId = targetElement.id;
+            layer = targetElement.layer + 1;
+            originLeft = targetElementRect.left / view.zoomFactor;
+            originTop = targetElementRect.top / view.zoomFactor;
+            originBottom = targetElementRect.bottom / view.zoomFactor;
+            originRight = targetElementRect.right / view.zoomFactor;
           }
         }
 
