@@ -7,11 +7,11 @@ import { CanvasElementType } from '@/type/element-property-types';
 import { cn } from '@/utility/general-utilities';
 import { FrameIcon, TypeIcon, ImageIcon, ChevronRightIcon } from 'lucide-react';
 import { memo, useContext, useRef } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { ElementListContext } from './element-list';
 import ElementListRender from './element-list-render';
 import useExpand from '@/hook/element-list/use-expand';
 import useRename from '@/hook/element-list/use-rename';
+import useSelectionStore from '@/store/selection-store';
 
 const iconMap: Record<CanvasElementType, JSX.Element> = {
   FRAME: <FrameIcon size={16} />,
@@ -32,13 +32,9 @@ const ElementListItem = memo(function ({
 
   const { dropStatus, renameTargetId } = useContext(ElementListContext);
 
-  const { elementList, selectedElementIdList } = useCanvasStore(
-    useShallow((store) => ({
-      elementList: store.elementList,
-      selectedElementIdList: store.selectedElementIdList,
-      changeElementOrder: store.changeElementOrder,
-      updateElement: store.updateElement,
-    })),
+  const elementList = useCanvasStore((store) => store.elementList);
+  const selectedElementIdList = useSelectionStore(
+    (store) => store.selectedElementIdList,
   );
 
   // Select hook

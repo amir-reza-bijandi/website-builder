@@ -1,4 +1,5 @@
 import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { useShallow } from 'zustand/react/shallow';
@@ -11,14 +12,15 @@ type GroupedElementList = {
 export default function useChangeOrder(
   order: 'SEND_TO_BACK' | 'BRING_TO_FRONT',
 ) {
-  const { elementList, selectedElementIdList, changeElementOrder } =
-    useCanvasStore(
-      useShallow((store) => ({
-        elementList: store.elementList,
-        selectedElementIdList: store.selectedElementIdList,
-        changeElementOrder: store.changeElementOrder,
-      })),
-    );
+  const { elementList, changeElementOrder } = useCanvasStore(
+    useShallow((store) => ({
+      elementList: store.elementList,
+      changeElementOrder: store.changeElementOrder,
+    })),
+  );
+  const selectedElementIdList = useSelectionStore(
+    (store) => store.selectedElementIdList,
+  );
 
   const handleSendToBack = () => {
     // Map selected element IDs to their respective element

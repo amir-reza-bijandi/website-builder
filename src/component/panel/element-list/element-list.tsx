@@ -1,9 +1,9 @@
 import { memo, useState, useRef, createContext } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import useCanvasStore from '@/store/canvas-store';
 import { ScrollArea } from '@/component/ui/scroll-area';
 import ElementListRender from './element-list-render';
 import type { Placement } from '@/type/general-types';
+import useSelectionStore from '@/store/selection-store';
 
 type DropStatus = {
   targetId: string;
@@ -24,10 +24,9 @@ export const ElementListContext = createContext<ElementListContextValue>(
 );
 
 const ElementList = memo(function () {
-  const { setSelectedElementIdList } = useCanvasStore(
+  const { setSelectedElementIdList } = useSelectionStore(
     useShallow((store) => ({
       setSelectedElementIdList: store.setSelectedElementIdList,
-      updateElement: store.updateElement,
     })),
   );
   const [dropStatus, setDropStatus] = useState<DropStatus>({
@@ -47,7 +46,7 @@ const ElementList = memo(function () {
         return;
       }
     }
-    setSelectedElementIdList([], false);
+    setSelectedElementIdList([], { isSelectionVisible: false });
   };
 
   // Clear drop target when mouse pointer leaves the element list

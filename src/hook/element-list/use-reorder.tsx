@@ -1,5 +1,6 @@
 import { ElementListContext } from '@/component/panel/element-list/element-list';
 import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import { Placement } from '@/type/general-types';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
@@ -26,7 +27,7 @@ export default function useReorder(
         if (lastState.dropLocation) {
           // We need the latest changes in selected elements
           const selectedElementIdList =
-            useCanvasStore.getState().selectedElementIdList;
+            useSelectionStore.getState().selectedElementIdList;
 
           // Prevent dropping the element on itself
           if (
@@ -40,7 +41,7 @@ export default function useReorder(
             ) {
               // Prevent droping the element inside an non-frame parent
               changeElementOrder(
-                useCanvasStore.getState().selectedElementIdList,
+                useSelectionStore.getState().selectedElementIdList,
                 lastState.targetId,
                 lastState.dropLocation,
               );
@@ -59,7 +60,7 @@ export default function useReorder(
   const handleDrag: React.MouseEventHandler = (e) => {
     const EDGE_CENTER_HITBOX = 10;
     const selectedElementIdList =
-      useCanvasStore.getState().selectedElementIdList;
+      useSelectionStore.getState().selectedElementIdList;
     if (isMouseDownRef.current) {
       isDraggingRef.current = true;
     }

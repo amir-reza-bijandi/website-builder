@@ -1,11 +1,11 @@
-import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useSelect() {
   const { selectedElementIdList, setSelectedElementIdList, setLayer } =
-    useCanvasStore(
+    useSelectionStore(
       useShallow((store) => ({
         selectedElementIdList: store.selectedElementIdList,
         setSelectedElementIdList: store.setSelectedElementIdList,
@@ -31,7 +31,7 @@ export default function useSelect() {
             selectedElementIdList.filter(
               (selectedElementId) => selectedElementId !== elementId,
             ),
-            true,
+            { isSelectionVisible: true },
           );
         } else {
           // Select multiple elements
@@ -62,17 +62,16 @@ export default function useSelect() {
                 ),
                 elementId,
               ],
-              true,
+              { isSelectionVisible: true },
             );
           }
           // Check if selected element is a child of some already selected element
           else if (isAncestorSelected) {
             return;
           } else {
-            setSelectedElementIdList(
-              [...selectedElementIdList, elementId],
-              true,
-            );
+            setSelectedElementIdList([...selectedElementIdList, elementId], {
+              isSelectionVisible: true,
+            });
           }
         }
         // Change the layer to the selected element's layer
@@ -85,11 +84,13 @@ export default function useSelect() {
         // Prevent selecting the element if it's already selected
         if (isElementSelected && selectedElementIdList.length === 1) return;
 
-        setSelectedElementIdList([elementId], true);
-        setLayer(layer);
+        setSelectedElementIdList([elementId], {
+          isSelectionVisible: true,
+          layer,
+        });
       }
     } else {
-      setSelectedElementIdList([], false);
+      setSelectedElementIdList([], { isSelectionVisible: false });
     }
   };
   return handleSelect;

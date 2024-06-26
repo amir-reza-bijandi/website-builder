@@ -1,4 +1,5 @@
 import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
@@ -16,9 +17,6 @@ export default function useResizeOnCreate() {
     view,
     addElement,
     updateElement,
-    selectedElementIdList,
-    setSelectedElementIdList,
-    setLayer,
     elementList,
   } = useCanvasStore(
     useShallow((store) => ({
@@ -29,12 +27,17 @@ export default function useResizeOnCreate() {
       view: store.view,
       addElement: store.addElement,
       updateElement: store.updateElement,
-      selectedElementIdList: store.selectedElementIdList,
-      setSelectedElementIdList: store.setSelectedElementIdList,
-      setLayer: store.setLayer,
       elementList: store.elementList,
     })),
   );
+  const { selectedElementIdList, setSelectedElementIdList, setLayer } =
+    useSelectionStore(
+      useShallow((store) => ({
+        selectedElementIdList: store.selectedElementIdList,
+        setSelectedElementIdList: store.setSelectedElementIdList,
+        setLayer: store.setLayer,
+      })),
+    );
   const initialMousePositionRef = useRef<Position>();
   const createdElementIdRef = useRef('');
 
@@ -222,7 +225,7 @@ export default function useResizeOnCreate() {
           // Create element for the first time
           if (!createdElementIdRef.current) {
             addElement(element);
-            const currentLayer = useCanvasStore.getState().layer;
+            const currentLayer = useSelectionStore.getState().layer;
             if (element.layer !== currentLayer) {
               setLayer(element.layer);
             }
@@ -241,7 +244,9 @@ export default function useResizeOnCreate() {
 
     // Select the newly created element
     if (createdElementIdRef.current) {
-      setSelectedElementIdList([createdElementIdRef.current], true);
+      setSelectedElementIdList([createdElementIdRef.current], {
+        isSelectionVisible: true,
+      });
       setToolbox({ action: 'SELECT' });
       createdElementIdRef.current = '';
     }

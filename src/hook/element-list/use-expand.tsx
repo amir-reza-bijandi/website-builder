@@ -1,16 +1,15 @@
 import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import { useEffect, useMemo, useState } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 
 export default function useExpand(elementId: string) {
   const [isExpanded, setExpand] = useState(false);
 
-  const { selectedElementIdList, elementList } = useCanvasStore(
-    useShallow((store) => ({
-      selectedElementIdList: store.selectedElementIdList,
-      elementList: store.elementList,
-    })),
+  const elementList = useCanvasStore((store) => store.elementList);
+
+  const selectedElementIdList = useSelectionStore(
+    (store) => store.selectedElementIdList,
   );
 
   // Check whether the current item is an ancestor of an selected item

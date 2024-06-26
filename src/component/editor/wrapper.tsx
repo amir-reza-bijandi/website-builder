@@ -4,9 +4,9 @@ import { cn } from '@/utility/general-utilities';
 import generateStyle from '@/utility/canvas/generate-style';
 import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import useMove from '@/hook/canvas/use-move';
-import getElementById from '@/utility/canvas/get-element-by-id';
 import EditContextMenu from '../edit-context-menu';
 import useClipboardStore from '@/store/clipboard-store';
+import useSelectionStore from '@/store/selection-store';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -14,33 +14,31 @@ type WrapperProps = {
 };
 
 export default function Wrapper({ element, children }: WrapperProps) {
-  const {
-    setSelectedElementIdList,
-    selectedElementIdList,
-    toolbox,
-    view,
-    isResizing,
-    isMoving,
-    layer,
-    setLayer,
-    hoverTargetId,
-    setHoverTargetId,
-    isCrossLayerSelectionAllowed,
-  } = useCanvasStore(
+  const { toolbox, view, isResizing, isMoving } = useCanvasStore(
     useShallow((store) => ({
-      setSelectedElementIdList: store.setSelectedElementIdList,
-      selectedElementIdList: store.selectedElementIdList,
       toolbox: store.toolbox,
       view: store.view,
       isResizing: store.isResizing,
       isMoving: store.isMoving,
-      layer: store.layer,
-      setLayer: store.setLayer,
-      hoverTargetId: store.hoverTargetId,
-      setHoverTargetId: store.setHoverTargetId,
-      isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
     })),
   );
+  const {
+    hoverTargetId,
+    isCrossLayerSelectionAllowed,
+    layer,
+    selectedElementIdList,
+    setHoverTargetId,
+    setSelectedElementIdList,
+  } = useSelectionStore((store) => ({
+    setSelectedElementIdList: store.setSelectedElementIdList,
+    selectedElementIdList: store.selectedElementIdList,
+    layer: store.layer,
+    setLayer: store.setLayer,
+    hoverTargetId: store.hoverTargetId,
+    setHoverTargetId: store.setHoverTargetId,
+    isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
+  }));
+
   const setPastePosition = useClipboardStore((store) => store.setPastePosition);
   const handleMove = useMove([element.id]);
   const isElementSelected = selectedElementIdList.includes(element.id);
@@ -48,43 +46,23 @@ export default function Wrapper({ element, children }: WrapperProps) {
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
       e.stopPropagation();
-      if (!isElementSelected) {
-        if (element.layer === layer || isCrossLayerSelectionAllowed) {
-          // Select mutiple elements
-          if (e.shiftKey && e.button === 0) {
-            const selectedElementList = selectedElementIdList.map(
-              (elementId) => getElementById(elementId)!,
-            );
-            const selectedChildIndex = selectedElementList.findIndex(
-              (element) => element.parentId === element.id,
-            );
-            // Prevent selecting children and parent at the same time
-            if (selectedChildIndex !== -1) {
-              selectedElementList.splice(selectedChildIndex, 1);
-              setSelectedElementIdList(
-                selectedElementList.map((element) => element.id),
-                true,
-              );
-            } else {
-              setSelectedElementIdList(
-                [...selectedElementIdList, element.id],
-                true,
-              );
-            }
-          } else {
-            setSelectedElementIdList([element.id], true);
-            setLayer(element.layer);
-          }
-        }
-        // Prevent selecting parent and children at the same time
-        else {
-          if (element.layer < layer) {
-            setSelectedElementIdList([element.id], true);
-            setLayer(element.layer);
-          }
-        }
-      }
       if (e.button === 0) {
+        if (!isElementSelected) {
+          // Select multiple elements
+          if (e.shiftKey) {
+            setSelectedElementIdList([element.id], {
+              behaviour: 'ADD',
+              isSelectionVisible: true,
+            });
+          }
+          // Select a single element
+          else {
+            setSelectedElementIdList([element.id], {
+              behaviour: 'REPLACE',
+              isSelectionVisible: true,
+            });
+          }
+        }
         // Move element
         handleMove({ x: e.clientX, y: e.clientY });
       }

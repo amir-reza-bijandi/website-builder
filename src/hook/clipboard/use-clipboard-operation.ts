@@ -1,4 +1,3 @@
-import useCanvasStore from '@/store/canvas-store';
 import useClipboardStore, {
   ClipboardStoreItem,
   ClipboardStoreOperation,
@@ -8,11 +7,12 @@ import getElementById from '@/utility/canvas/get-element-by-id';
 import useDelete from '../canvas/use-delete';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import scaleWithZoomFactor from '@/utility/canvas/scale-with-zoom-factor';
+import useSelectionStore from '@/store/selection-store';
 
 export default function useClipboardOperation(
   operation: ClipboardStoreOperation,
 ) {
-  const selectedElementIdList = useCanvasStore(
+  const selectedElementIdList = useSelectionStore(
     (store) => store.selectedElementIdList,
   );
   const setStatus = useClipboardStore((store) => store.setStatus);

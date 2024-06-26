@@ -3,29 +3,26 @@ import useCanvasStore from '@/store/canvas-store';
 import type { Position } from '@/type/general-types';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { useShallow } from 'zustand/react/shallow';
+import useSelectionStore from '@/store/selection-store';
 
 export default function useMove(elementIdList: string[]) {
-  const {
-    view,
-    toolbox,
-    isMoving,
-    setMoving,
-    updateElement,
-    isSelectionVisible,
-    setSelectionVisible,
-  } = useCanvasStore(
+  const { view, toolbox, isMoving, setMoving, updateElement } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
       toolbox: store.toolbox,
       isMoving: store.isMoving,
       setMoving: store.setMoving,
       updateElement: store.updateElement,
+    })),
+  );
+  const { isSelectionVisible, setSelectionVisible } = useSelectionStore(
+    useShallow((store) => ({
       isSelectionVisible: store.isSelectionVisible,
       setSelectionVisible: store.setSelectionVisible,
     })),
   );
-  const initialMousePositionRef = useRef<Position>();
 
+  const initialMousePositionRef = useRef<Position>();
   const elementList = elementIdList.map(
     (elementId) => getElementById(elementId)!,
   );

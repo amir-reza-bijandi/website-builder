@@ -17,6 +17,7 @@ import useDelete from '@/hook/canvas/use-delete';
 import useChangeOrder from '@/hook/canvas/use-change-order';
 import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
 import usePaste from '@/hook/clipboard/use-paste';
+import useSelectionStore from '@/store/selection-store';
 
 export default function GlobalMenubar() {
   const {
@@ -28,12 +29,14 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
-  const { view, setView, selectedElementIdList } = useCanvasStore(
+  const { view, setView } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
       setView: store.setView,
-      selectedElementIdList: store.selectedElementIdList,
     })),
+  );
+  const selectedElementIdList = useSelectionStore(
+    (store) => store.selectedElementIdList,
   );
 
   const isAnyElementSelected = selectedElementIdList.length > 0;

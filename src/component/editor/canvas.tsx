@@ -7,25 +7,24 @@ import useResizeOnCreate from '@/hook/canvas/use-resize-on-create';
 import useZoom from '@/hook/canvas/use-zoom';
 import { useShallow } from 'zustand/react/shallow';
 import CanvasContextMenu from '../canvas-context-menu';
+import useSelectionStore from '@/store/selection-store';
 
 export default function Canvas() {
-  const {
-    view,
-    toolbox,
-    setSelectedElementIdList,
-    selectedElementIdList,
-    setFocus,
-    setLayer,
-  } = useCanvasStore(
+  const { view, toolbox, setFocus } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
       toolbox: store.toolbox,
-      setSelectedElementIdList: store.setSelectedElementIdList,
-      selectedElementIdList: store.selectedElementIdList,
       setFocus: store.setFocus,
-      setLayer: store.setLayer,
     })),
   );
+  const { selectedElementIdList, setLayer, setSelectedElementIdList } =
+    useSelectionStore(
+      useShallow((store) => ({
+        setSelectedElementIdList: store.setSelectedElementIdList,
+        selectedElementIdList: store.selectedElementIdList,
+        setLayer: store.setLayer,
+      })),
+    );
 
   const handlePan = usePan();
   const handleResizeOnCreate = useResizeOnCreate();
@@ -43,7 +42,10 @@ export default function Canvas() {
     const canvas = currentTarget.children[0];
     if (target === canvas && toolbox.action === 'SELECT') {
       if (selectedElementIdList.length) {
-        setSelectedElementIdList([], false);
+        setSelectedElementIdList([], {
+          isSelectionVisible: false,
+          layer: 0,
+        });
         setLayer(0);
       }
     }

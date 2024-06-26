@@ -2,6 +2,7 @@ import useCanvasStore from '@/store/canvas-store';
 import useClipboardStore, {
   ClipboardStoreStatus,
 } from '@/store/clipboard-store';
+import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
@@ -17,23 +18,21 @@ export default function usePaste() {
       pastePosition: store.pastePosition,
     })),
   );
-  const {
-    selectedElementIdList,
-    setSelectedElementIdList,
-    addElement,
-    setLayer,
-    layer,
-    view,
-  } = useCanvasStore(
+  const { addElement, view } = useCanvasStore(
     useShallow((store) => ({
-      selectedElementIdList: store.selectedElementIdList,
-      setSelectedElementIdList: store.setSelectedElementIdList,
       addElement: store.addElement,
-      setLayer: store.setLayer,
-      layer: store.layer,
       view: store.view,
     })),
   );
+  const { layer, setLayer, selectedElementIdList, setSelectedElementIdList } =
+    useSelectionStore(
+      useShallow((store) => ({
+        selectedElementIdList: store.selectedElementIdList,
+        setSelectedElementIdList: store.setSelectedElementIdList,
+        setLayer: store.setLayer,
+        layer: store.layer,
+      })),
+    );
 
   const handlePaste = (useMousePosition: boolean = false) => {
     if (!status.operation) return;

@@ -12,25 +12,19 @@ import { create } from 'zustand';
 
 type CanvasStore = {
   view: CanvasStoreView;
-  layer: number;
   toolbox: CanvasStoreToolbox;
   isPanning: boolean;
   isMoving: boolean;
   isResizing: boolean;
   isFocused: boolean;
-  isCrossLayerSelectionAllowed: boolean;
   elementList: CanvasStoreElement[];
-  selectedElementIdList: string[];
-  hoverTargetId: string;
-  isSelectionVisible: boolean;
+
   setView: (view: Partial<CanvasStoreView>) => void;
-  setLayer: (layerIndex: number) => void;
   setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
   setPanning: (isPanning: boolean) => void;
   setMoving: (isMoving: boolean) => void;
   setResizing: (isResizing: boolean) => void;
   setFocus: (isFocused: boolean) => void;
-  setCrossLayerSelection: (isCrossLayerSelectionAllowed: boolean) => void;
   addElement: (...elementList: CanvasStoreElement[]) => void;
   updateElement: (...updatedElements: CanvasStoreElement[]) => void;
   deleteElement: (...elementIdList: string[]) => void;
@@ -39,12 +33,6 @@ type CanvasStore = {
     targetElementId: string,
     placement: Placement,
   ) => void;
-  setSelectedElementIdList: (
-    idList: string[],
-    isSelectionVisible?: boolean,
-  ) => void;
-  setHoverTargetId: (targetId: string) => void;
-  setSelectionVisible: (visible: boolean) => void;
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
@@ -54,14 +42,11 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     offsetX: 0,
     offsetY: 0,
   },
-  layer: 0,
   toolbox: {
     action: 'SELECT',
     tool: null,
   },
   elementList: [],
-  selectedElementIdList: [],
-  isSelectionVisible: false,
   isPanning: false,
   isResizing: false,
   isMoving: false,
@@ -77,9 +62,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
         offsetY: offsetY ?? store.view.offsetY,
       },
     }));
-  },
-  setLayer(layerIndex) {
-    set({ layer: layerIndex });
   },
   setToolbox({ action, tool }) {
     set((store) => ({
@@ -100,9 +82,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   },
   setFocus(isFocused) {
     set({ isFocused });
-  },
-  setCrossLayerSelection(isCrossLayerSelectionAllowed) {
-    set({ isCrossLayerSelectionAllowed });
   },
   addElement(...elementList) {
     set((store) => ({
@@ -133,14 +112,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
           !descendentIdList.includes(element.id) &&
           !elementIdList.includes(element.id),
       ),
-      // Remove elements from selection
-      selectedElementIdList: store.selectedElementIdList.filter(
-        (selectedElementId) =>
-          !descendentIdList.includes(selectedElementId) &&
-          !elementIdList.includes(selectedElementId),
-      ),
-      // Reseting the layer
-      layer: 0,
     }));
   },
   changeElementOrder(elementIdList, targetElementId, placement) {
@@ -304,18 +275,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
     } catch (error) {
       console.error(error);
     }
-  },
-  setSelectedElementIdList(idList, isSelectionVisible) {
-    set((store) => ({
-      selectedElementIdList: idList,
-      isSelectionVisible: isSelectionVisible || store.isSelectionVisible,
-    }));
-  },
-  setHoverTargetId(targetId) {
-    set({ hoverTargetId: targetId });
-  },
-  setSelectionVisible(visible) {
-    set({ isSelectionVisible: visible });
   },
 }));
 

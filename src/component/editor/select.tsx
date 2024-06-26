@@ -8,6 +8,7 @@ import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import EditContextMenu from '../edit-context-menu';
+import useSelectionStore from '@/store/selection-store';
 
 type Rect = {
   left: number;
@@ -17,11 +18,10 @@ type Rect = {
 };
 
 export default memo(function CanvasSelect() {
-  const { isSelectionVisible, selectedElementIdList } = useCanvasStore(
+  const { isSelectionVisible, selectedElementIdList } = useSelectionStore(
     useShallow((store) => ({
       isSelectionVisible: store.isSelectionVisible,
       selectedElementIdList: store.selectedElementIdList,
-      elementList: store.elementList,
     })),
   );
 
@@ -117,18 +117,19 @@ const CanvasSelectContainer = memo(function ({
   rect: { left, top, width, height },
 }: CanvasSelectContainerProps) {
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
-  const {
-    zoomFactor,
-    toolbox,
-    setSelectedElementIdList,
-    setLayer,
-    hoverTargetId,
-    setHoverTargetId,
-    isCrossLayerSelectionAllowed,
-  } = useCanvasStore(
+  const { zoomFactor, toolbox } = useCanvasStore(
     useShallow((store) => ({
       zoomFactor: store.view.zoomFactor,
       toolbox: store.toolbox,
+    })),
+  );
+  const {
+    hoverTargetId,
+    isCrossLayerSelectionAllowed,
+    setHoverTargetId,
+    setSelectedElementIdList,
+  } = useSelectionStore(
+    useShallow((store) => ({
       setSelectedElementIdList: store.setSelectedElementIdList,
       setLayer: store.setLayer,
       hoverTargetId: store.hoverTargetId,
@@ -136,6 +137,7 @@ const CanvasSelectContainer = memo(function ({
       isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
     })),
   );
+
   // Retrigger reflow to apply animation
   useEffect(() => {
     // Prevent filckering when resizing
@@ -150,7 +152,8 @@ const CanvasSelectContainer = memo(function ({
     }
   }, [left, top, width, height]);
 
-  const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
+  const selectedElementIdList =
+    useSelectionStore.getState().selectedElementIdList;
   const handleMove = useMove(selectedElementIdList);
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
@@ -163,7 +166,7 @@ const CanvasSelectContainer = memo(function ({
         // Deselect element when shift key is pressed
         if (e.shiftKey) {
           const selectedElementIdList =
-            useCanvasStore.getState().selectedElementIdList;
+            useSelectionStore.getState().selectedElementIdList;
           setSelectedElementIdList(
             selectedElementIdList.filter((selectedElementId) => {
               const elementRect = document
@@ -232,8 +235,10 @@ const CanvasSelectContainer = memo(function ({
           }, {} as CanvasStoreElement);
 
           if (target.id) {
-            setSelectedElementIdList([target.id], true);
-            setLayer(target.layer);
+            setSelectedElementIdList([target.id], {
+              isSelectionVisible: true,
+              layer: target.layer,
+            });
           }
         }
       }
@@ -283,7 +288,8 @@ function CanvasSelectResize() {
     })),
   );
 
-  const selectedElementIdList = useCanvasStore.getState().selectedElementIdList;
+  const selectedElementIdList =
+    useSelectionStore.getState().selectedElementIdList;
 
   const handleResize = useResize(selectedElementIdList);
 

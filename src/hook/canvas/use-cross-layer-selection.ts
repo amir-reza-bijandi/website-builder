@@ -1,10 +1,10 @@
-import useCanvasStore from '@/store/canvas-store';
+import useSelectionStore from '@/store/selection-store';
 import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useCrossLayerSelection() {
   const { isCrossLayerSelectionAllowed, setCrossLayerSelection } =
-    useCanvasStore(
+    useSelectionStore(
       useShallow((store) => ({
         isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
         setCrossLayerSelection: store.setCrossLayerSelection,
