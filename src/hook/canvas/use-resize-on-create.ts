@@ -30,14 +30,19 @@ export default function useResizeOnCreate() {
       elementList: store.elementList,
     })),
   );
-  const { selectedElementIdList, setSelectedElementIdList, setLayer } =
-    useSelectionStore(
-      useShallow((store) => ({
-        selectedElementIdList: store.selectedElementIdList,
-        setSelectedElementIdList: store.setSelectedElementIdList,
-        setLayer: store.setLayer,
-      })),
-    );
+  const {
+    selectedElementIdList,
+    setSelectedElementIdList,
+    setLayer,
+    setSelectionVisible,
+  } = useSelectionStore(
+    useShallow((store) => ({
+      selectedElementIdList: store.selectedElementIdList,
+      setSelectedElementIdList: store.setSelectedElementIdList,
+      setLayer: store.setLayer,
+      setSelectionVisible: store.setSelectionVisible,
+    })),
+  );
   const initialMousePositionRef = useRef<Position>();
   const createdElementIdRef = useRef('');
 
@@ -155,6 +160,9 @@ export default function useResizeOnCreate() {
               setLayer(element.layer);
             }
             createdElementIdRef.current = element.id;
+            setSelectedElementIdList([createdElementIdRef.current], {
+              isSelectionVisible: false,
+            });
           } else {
             // Update the created element
             updateElement(element);
@@ -169,9 +177,7 @@ export default function useResizeOnCreate() {
 
     // Select the newly created element
     if (createdElementIdRef.current) {
-      setSelectedElementIdList([createdElementIdRef.current], {
-        isSelectionVisible: true,
-      });
+      setSelectionVisible(true);
       setToolbox({ action: 'SELECT' });
       createdElementIdRef.current = '';
     }
