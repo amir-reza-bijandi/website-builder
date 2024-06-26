@@ -130,7 +130,8 @@ const useCanvasStore = create<CanvasStore>((set) => ({
               .getElementById(element.id)!
               .getBoundingClientRect();
 
-            let { left, right, top, bottom, mode } = element.position;
+            let { left, right, top, bottom } = element.position;
+            const { mode } = element.position;
             let layer = targetElement.layer;
             let parentId = targetElement.parentId;
             let deltaLayer = targetElement.layer - element.layer;
@@ -257,7 +258,7 @@ const useCanvasStore = create<CanvasStore>((set) => ({
               ancestorIdList.includes(updatedElement.id),
             );
             if (result) {
-              const [_, deltaLayer] = result;
+              const [, deltaLayer] = result;
               const updatedElement = createElement(element.type, {
                 ...element,
                 layer: element.layer + deltaLayer,

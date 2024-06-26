@@ -1,12 +1,9 @@
-import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import { useEffect, useMemo, useState } from 'react';
 
 export default function useExpand(elementId: string) {
   const [isExpanded, setExpand] = useState(false);
-
-  const elementList = useCanvasStore((store) => store.elementList);
 
   const selectedElementIdList = useSelectionStore(
     (store) => store.selectedElementIdList,
@@ -18,7 +15,7 @@ export default function useExpand(elementId: string) {
       selectedElementIdList
         .map((selectedElementId) => getAncestorIdList(selectedElementId))
         .some((list) => list?.some((ancestorId) => ancestorId === elementId)),
-    [selectedElementIdList, elementId, elementList],
+    [selectedElementIdList, elementId],
   );
 
   useEffect(() => {

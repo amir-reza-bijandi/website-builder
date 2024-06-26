@@ -29,10 +29,9 @@ export default function useRename(element: CanvasStoreElement) {
   const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = ({
     currentTarget: input,
   }) => {
-    let displayName = input.value;
     const updatedElement = createElement(type, {
       ...element,
-      displayName,
+      displayName: input.value,
     })!;
     updateElement(updatedElement);
   };

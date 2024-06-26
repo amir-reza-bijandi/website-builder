@@ -47,7 +47,7 @@ export default function useResize(elementIdList: string[]) {
       initialElementRectListRef.current!,
     );
 
-    let resizedElementRectList: (AbsoluteRect & { id: string })[] =
+    const resizedElementRectList: (AbsoluteRect & { id: string })[] =
       initialElementRectListRef.current!.map(
         ({
           id,
