@@ -14,22 +14,23 @@ export default function getOverlapTargetId(elementIdList: string[]) {
 
   const indexPointList = elementList.map((element) => {
     if (!element) return 0;
-    const elementIndex = getElementIndexWithinLayer(element.id);
+    const elementIndex = getElementIndexWithinLayer(element.id) + 1;
     const elementIndexMultiplier = maxLayer + 1 - element.layer;
+    const elementIndexPoint = elementIndexMultiplier * elementIndex;
+
     const ancestorList = getAncestorIdList(element.id)?.map(
       (elementId) => getElementById(elementId)!,
     );
-    if (!ancestorList) return elementIndexMultiplier * (elementIndex + 1);
+    if (!ancestorList) return elementIndexPoint;
 
-    const indexPoint = ancestorList
+    const ancestorIndexPoint = ancestorList
       .map((ancestor) => {
-        const ancestorIndex = getElementIndexWithinLayer(ancestor.id);
+        const ancestorIndex = getElementIndexWithinLayer(ancestor.id) + 1;
         const ancestorIndexMultiplier = maxLayer + 1 - ancestor.layer;
-
-        return ancestorIndexMultiplier * (ancestorIndex + 1);
+        return ancestorIndexMultiplier * ancestorIndex;
       })
       .reduce((acc, cur) => acc + cur, 0);
-    return indexPoint;
+    return ancestorIndexPoint + elementIndexPoint;
   });
 
   const maxIndexPoint = Math.max(...indexPointList);
