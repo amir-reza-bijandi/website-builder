@@ -67,6 +67,13 @@ const useSelectionStore = create<SelectionStore>((set) => ({
       newSelectedElementIdList = newSelectedElementIdList.filter(
         (elementId) => !ancestorIdList.includes(elementId),
       );
+
+      const maxLayer = Math.max(
+        ...newSelectedElementIdList.map(
+          (elementId) => getElementById(elementId)!.layer,
+        ),
+      );
+
       return {
         selectedElementIdList: newSelectedElementIdList,
         isSelectionVisible:
@@ -74,11 +81,9 @@ const useSelectionStore = create<SelectionStore>((set) => ({
         layer:
           config?.layer ??
           // Change layer the max layer
-          Math.max(
-            ...newSelectedElementIdList.map(
-              (elementId) => getElementById(elementId)!.layer,
-            ),
-          ),
+          Number.isFinite(maxLayer)
+            ? maxLayer
+            : 0,
       };
     });
   },
