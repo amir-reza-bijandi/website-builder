@@ -117,6 +117,8 @@ const CanvasSelectContainer = memo(function ({
   rect: { left, top, width, height },
 }: CanvasSelectContainerProps) {
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
+  const isClickedOnSelection = useRef(false);
+  const isSelecting = useRef(false);
   const { zoomFactor, toolbox } = useCanvasStore(
     useShallow((store) => ({
       zoomFactor: store.view.zoomFactor,
@@ -165,32 +167,9 @@ const CanvasSelectContainer = memo(function ({
 
         // Deselect element when shift key is pressed
         if (e.shiftKey) {
-          const selectedElementIdList =
-            useSelectionStore.getState().selectedElementIdList;
-          setSelectedElementIdList(
-            selectedElementIdList.filter((selectedElementId) => {
-              const elementRect = document
-                .getElementById(selectedElementId)!
-                .getBoundingClientRect();
-
-              const elementLeft = elementRect.left / zoomFactor;
-              const elementTop = elementRect.top / zoomFactor;
-              const elementRight = elementLeft + elementRect.width / zoomFactor;
-              const elementBottom =
-                elementTop + elementRect.height / zoomFactor;
-
-              if (
-                elementLeft <= clientX / zoomFactor &&
-                clientX / zoomFactor <= elementRight &&
-                elementTop <= clientY / zoomFactor &&
-                clientY / zoomFactor <= elementBottom
-              ) {
-                return false;
-              }
-              return true;
-            }),
-          );
+          isClickedOnSelection.current = true;
         }
+        isSelecting.current = true;
       }
     }
   };
@@ -246,11 +225,53 @@ const CanvasSelectContainer = memo(function ({
   };
 
   // Prevent highlighting already selected elements
-  const handleMouseMove = () => {
+  const handleMouseMove: React.MouseEventHandler = ({ button }) => {
     if (toolbox.action === 'SELECT') {
       if (hoverTargetId) {
         setHoverTargetId('');
       }
+      if (button === 0) {
+        isSelecting.current = false;
+      } else {
+        isSelecting.current = true;
+      }
+    }
+  };
+
+  const handleMouseUp: React.MouseEventHandler = ({
+    clientX,
+    clientY,
+    button,
+  }) => {
+    if (button === 0) {
+      if (isSelecting.current && isClickedOnSelection.current) {
+        const selectedElementIdList =
+          useSelectionStore.getState().selectedElementIdList;
+        setSelectedElementIdList(
+          selectedElementIdList.filter((selectedElementId) => {
+            const elementRect = document
+              .getElementById(selectedElementId)!
+              .getBoundingClientRect();
+
+            const elementLeft = elementRect.left / zoomFactor;
+            const elementTop = elementRect.top / zoomFactor;
+            const elementRight = elementLeft + elementRect.width / zoomFactor;
+            const elementBottom = elementTop + elementRect.height / zoomFactor;
+
+            if (
+              elementLeft <= clientX / zoomFactor &&
+              clientX / zoomFactor <= elementRight &&
+              elementTop <= clientY / zoomFactor &&
+              clientY / zoomFactor <= elementBottom
+            ) {
+              return false;
+            }
+            return true;
+          }),
+        );
+      }
+      isSelecting.current = true;
+      isClickedOnSelection.current = false;
     }
   };
 
@@ -272,6 +293,7 @@ const CanvasSelectContainer = memo(function ({
           isCrossLayerSelectionAllowed && 'pointer-events-none',
         )}
         onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
         onDoubleClick={handleDoubleClick}
         onMouseMove={handleMouseMove}
       >
