@@ -43,30 +43,38 @@ const useSelectionStore = create<SelectionStore>((set) => ({
           ...store.selectedElementIdList,
           ...elementIdList,
         ];
+      } else if (behaviour === 'REMOVE') {
+        newSelectedElementIdList = store.selectedElementIdList;
       }
 
       // Remove duplicates
       newSelectedElementIdList = [...new Set(newSelectedElementIdList)];
 
-      // Descendents that are passed to be selected
-      const descendentIdList = newSelectedElementIdList
-        .map((elementId) => getDescendentIdList(elementId))
-        .flat();
+      if (behaviour === 'ADD' || behaviour === 'REPLACE') {
+        // Descendents that are passed to be selected
+        const descendentIdList = newSelectedElementIdList
+          .map((elementId) => getDescendentIdList(elementId))
+          .flat();
 
-      // Filter out descendent elements
-      newSelectedElementIdList = newSelectedElementIdList.filter(
-        (elementId) => !descendentIdList.includes(elementId),
-      );
+        // Filter out descendent elements
+        newSelectedElementIdList = newSelectedElementIdList.filter(
+          (elementId) => !descendentIdList.includes(elementId),
+        );
 
-      // Ancestors that are passed to be selected
-      const ancestorIdList = newSelectedElementIdList
-        .map((elementId) => getAncestorIdList(elementId))
-        .flat();
+        // Ancestors that are passed to be selected
+        const ancestorIdList = newSelectedElementIdList
+          .map((elementId) => getAncestorIdList(elementId))
+          .flat();
 
-      // Filter out ancestor elements
-      newSelectedElementIdList = newSelectedElementIdList.filter(
-        (elementId) => !ancestorIdList.includes(elementId),
-      );
+        // Filter out ancestor elements
+        newSelectedElementIdList = newSelectedElementIdList.filter(
+          (elementId) => !ancestorIdList.includes(elementId),
+        );
+      } else if (behaviour === 'REMOVE') {
+        newSelectedElementIdList = newSelectedElementIdList.filter(
+          (elementId) => !elementIdList.includes(elementId),
+        );
+      }
 
       const maxLayer = Math.max(
         ...newSelectedElementIdList.map(

@@ -12,17 +12,14 @@ export default function getAncestorIdList(elementId: string): string[] | null {
       .filter((element) => element.layer < targetElement.layer)
       .sort((a, b) => b.layer - a.layer);
 
-    const result = filteredElementList.reduce(
-      (result, element) => {
-        if (element.id === result.at(-1)) {
-          if (element.parentId) {
-            result.push(element.parentId);
-          }
+    const result = filteredElementList.reduce<string[]>((result, element) => {
+      if (element.id === result.at(-1)) {
+        if (element.parentId) {
+          result.push(element.parentId);
         }
-        return result;
-      },
-      [targetElement.parentId],
-    );
+      }
+      return result;
+    }, []);
 
     return result.length > 0 ? result : null;
   } catch (error) {

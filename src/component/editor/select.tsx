@@ -9,6 +9,7 @@ import getElementById from '@/utility/canvas/get-element-by-id';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import EditContextMenu from '../edit-context-menu';
 import useSelectionStore from '@/store/selection-store';
+import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 
 type Rect = {
   left: number;
@@ -247,8 +248,8 @@ const CanvasSelectContainer = memo(function ({
       if (isSelecting.current && isClickedOnSelection.current) {
         const selectedElementIdList =
           useSelectionStore.getState().selectedElementIdList;
-        setSelectedElementIdList(
-          selectedElementIdList.filter((selectedElementId) => {
+        const overlappingElementIdList = selectedElementIdList.filter(
+          (selectedElementId) => {
             const elementRect = document
               .getElementById(selectedElementId)!
               .getBoundingClientRect();
@@ -264,11 +265,20 @@ const CanvasSelectContainer = memo(function ({
               elementTop <= clientY / zoomFactor &&
               clientY / zoomFactor <= elementBottom
             ) {
-              return false;
+              return true;
             }
-            return true;
-          }),
+            return false;
+          },
         );
+
+        const targetId = getOverlapTargetId(overlappingElementIdList);
+
+        if (targetId) {
+          setSelectedElementIdList([targetId], {
+            behaviour: 'REMOVE',
+            isSelectionVisible: true,
+          });
+        }
       }
       isSelecting.current = true;
       isClickedOnSelection.current = false;
