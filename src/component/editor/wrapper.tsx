@@ -7,6 +7,7 @@ import useMove from '@/hook/canvas/use-move';
 import EditContextMenu from '../edit-context-menu';
 import useClipboardStore from '@/store/clipboard-store';
 import useSelectionStore from '@/store/selection-store';
+import { useEffect, useState } from 'react';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -38,10 +39,36 @@ export default function Wrapper({ element, children }: WrapperProps) {
     setHoverTargetId: store.setHoverTargetId,
     isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
   }));
+  const [highlightClass, setHighlightClass] = useState('');
 
   const setPastePosition = useClipboardStore((store) => store.setPastePosition);
   const handleMove = useMove([element.id]);
   const isElementSelected = selectedElementIdList.includes(element.id);
+
+  // Prevent flashing of highlight by using it as a side effect
+  useEffect(() => {
+    if (
+      !isMoving &&
+      !isResizing &&
+      (isElementSelected || hoverTargetId === element.id)
+    ) {
+      if (!highlightClass) {
+        setHighlightClass('shadow-primary');
+      }
+    } else {
+      if (highlightClass) {
+        setHighlightClass('');
+      }
+    }
+  }, [
+    isMoving,
+    isResizing,
+    isElementSelected,
+    hoverTargetId,
+    highlightClass,
+    setHighlightClass,
+    element.id,
+  ]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (toolbox.action === 'SELECT') {
@@ -101,19 +128,13 @@ export default function Wrapper({ element, children }: WrapperProps) {
         onMouseLeave={handleMouseLeave}
         className={cn(
           'pointer-events-none shadow-transparent transition-[box-shadow]',
-          // Fade effect when moving elements
-          isElementSelected && !isMoving && 'shadow-primary',
+          highlightClass,
           isElementSelected && isResizing && 'shadow-primary/50',
           // Make non-relevant elements non-interactive
           element.layer <= layer && 'pointer-events-auto',
           // Make every element interactive when cross layer selection mode is active
           isCrossLayerSelectionAllowed && 'pointer-events-auto',
           // Highlight effect when hovering over selectable element
-          !isElementSelected &&
-            !isMoving &&
-            !isResizing &&
-            hoverTargetId === element.id &&
-            'shadow-primary',
         )}
       >
         {children}
@@ -121,3 +142,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
     </EditContextMenu>
   );
 }
+
+useSelectionStore.subscribe(({ hoverTargetId }) =>
+  console.log({ hoverTargetId }),
+);
