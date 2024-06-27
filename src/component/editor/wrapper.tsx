@@ -39,25 +39,51 @@ export default function Wrapper({ element, children }: WrapperProps) {
     setHoverTargetId: store.setHoverTargetId,
     isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
   }));
-  const [highlightClass, setHighlightClass] = useState('');
+  const [showHighlight, setHighlight] = useState(false);
+  const [isElementOutsideOfParentElement, setOutsideOfParentElement] =
+    useState(false);
 
   const setPastePosition = useClipboardStore((store) => store.setPastePosition);
   const handleMove = useMove();
   const isElementSelected = selectedElementIdList.includes(element.id);
 
-  // Prevent flashing of highlight by using it as a side effect
   useEffect(() => {
+    // Prevent flashing of highlight by using it as a side effect
     if (
       !isMoving &&
       !isResizing &&
       (isElementSelected || hoverTargetId === element.id)
     ) {
-      if (!highlightClass) {
-        setHighlightClass('shadow-primary');
+      if (!showHighlight) {
+        setHighlight(true);
       }
     } else {
-      if (highlightClass) {
-        setHighlightClass('');
+      if (showHighlight) {
+        setHighlight(false);
+      }
+    }
+
+    if (element.parentId) {
+      const parentElementRect = document
+        .getElementById(element.parentId)!
+        .getBoundingClientRect();
+      const elementRect = document
+        .getElementById(element.id)!
+        .getBoundingClientRect();
+
+      if (
+        elementRect.left < parentElementRect.left ||
+        elementRect.right > parentElementRect.right ||
+        elementRect.top < parentElementRect.top ||
+        elementRect.bottom > parentElementRect.bottom
+      ) {
+        if (!isElementOutsideOfParentElement) {
+          setOutsideOfParentElement(true);
+        }
+      } else {
+        if (isElementOutsideOfParentElement) {
+          setOutsideOfParentElement(false);
+        }
       }
     }
   }, [
@@ -65,9 +91,11 @@ export default function Wrapper({ element, children }: WrapperProps) {
     isResizing,
     isElementSelected,
     hoverTargetId,
-    highlightClass,
-    setHighlightClass,
+    showHighlight,
+    setHighlight,
     element.id,
+    element.parentId,
+    isElementOutsideOfParentElement,
   ]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -133,13 +161,14 @@ export default function Wrapper({ element, children }: WrapperProps) {
         onMouseLeave={handleMouseLeave}
         className={cn(
           'pointer-events-none shadow-transparent transition-[box-shadow]',
-          highlightClass,
+          showHighlight && 'shadow-primary',
           isElementSelected && isResizing && 'shadow-primary/50',
           // Make non-relevant elements non-interactive
           element.layer <= layer && 'pointer-events-auto',
           // Make every element interactive when cross layer selection mode is active
           isCrossLayerSelectionAllowed && 'pointer-events-auto',
-          // Highlight effect when hovering over selectable element
+          // Make it possible to select elements that are outside of parent element
+          isElementOutsideOfParentElement && 'pointer-events-auto',
         )}
       >
         {children}
