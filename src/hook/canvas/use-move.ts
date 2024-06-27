@@ -7,7 +7,7 @@ import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 
 export default function useMove() {
-  const { view, toolbox, isMoving, setMoving, updateElement } = useCanvasStore(
+  const { view, toolbox, setMoving, updateElement } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
       toolbox: store.toolbox,
@@ -16,11 +16,8 @@ export default function useMove() {
       updateElement: store.updateElement,
     })),
   );
-  const { isSelectionVisible, setSelectionVisible } = useSelectionStore(
-    useShallow((store) => ({
-      isSelectionVisible: store.isSelectionVisible,
-      setSelectionVisible: store.setSelectionVisible,
-    })),
+  const setSelectionVisible = useSelectionStore(
+    (store) => store.setSelectionVisible,
   );
   const elementListRef = useRef<CanvasStoreElement[]>([]);
 
@@ -33,6 +30,7 @@ export default function useMove() {
         (element) => element.position.mode === 'ABSOLUTE',
       )
     ) {
+      const isMoving = useCanvasStore.getState().isMoving;
       if (!isMoving) {
         setMoving(true);
       }
@@ -76,6 +74,8 @@ export default function useMove() {
           return element;
         }),
       );
+      const isSelectionVisible =
+        useSelectionStore.getState().isSelectionVisible;
 
       // Hide selection when moving the element
       if (isSelectionVisible) {
@@ -84,9 +84,14 @@ export default function useMove() {
     }
   };
   const handleMoveEnd = () => {
-    setMoving(false);
+    const isSelectionVisible = useSelectionStore.getState().isSelectionVisible;
+    const isMoving = useCanvasStore.getState().isMoving;
+
+    if (isMoving) {
+      setMoving(false);
+    }
     // Show the selection after moving is finished
-    if (isSelectionVisible) {
+    if (!isSelectionVisible) {
       setSelectionVisible(true);
     }
     document.body.removeEventListener('mousemove', handleMoving);
