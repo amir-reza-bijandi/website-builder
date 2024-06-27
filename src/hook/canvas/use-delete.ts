@@ -19,10 +19,10 @@ export default function useDelete() {
     } else {
       if (selectedElementIdList.length > 0) {
         deleteElement(...selectedElementIdList);
-        setSelectedElementIdList([], { isSelectionVisible: false });
-        setLayer(0);
       }
     }
+    setSelectedElementIdList([], { isSelectionVisible: false });
+    setLayer(0);
   };
   return handleDelete;
 }
