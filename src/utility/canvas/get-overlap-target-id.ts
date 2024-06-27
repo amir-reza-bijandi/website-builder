@@ -15,7 +15,7 @@ export default function getOverlapTargetId(elementIdList: string[]) {
   const indexPointList = elementList.map((element) => {
     if (!element) return 0;
     const elementIndex = getElementIndexWithinLayer(element.id) + 1;
-    const elementIndexMultiplier = maxLayer + 1 - element.layer;
+    const elementIndexMultiplier = 10 ** (maxLayer + 1 - element.layer);
     const elementIndexPoint = elementIndexMultiplier * elementIndex;
 
     const ancestorList = getAncestorIdList(element.id)?.map(
@@ -26,12 +26,14 @@ export default function getOverlapTargetId(elementIdList: string[]) {
     const ancestorIndexPoint = ancestorList
       .map((ancestor) => {
         const ancestorIndex = getElementIndexWithinLayer(ancestor.id) + 1;
-        const ancestorIndexMultiplier = maxLayer + 1 - ancestor.layer;
+        const ancestorIndexMultiplier = 10 ** (maxLayer + 1 - ancestor.layer);
         return ancestorIndexMultiplier * ancestorIndex;
       })
       .reduce((acc, cur) => acc + cur, 0);
     return ancestorIndexPoint + elementIndexPoint;
   });
+
+  console.log(indexPointList);
 
   const maxIndexPoint = Math.max(...indexPointList);
   const elementIndexWithHighestIndexPoint =
