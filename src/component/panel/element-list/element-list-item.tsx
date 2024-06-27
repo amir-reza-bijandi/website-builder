@@ -149,6 +149,8 @@ const ElementListItem = memo(function ({
                 isExpanded && 'rotate-90',
               )}
               onMouseDown={handleExpand}
+              // Prevent from triggering rename
+              onDoubleClick={(e) => e.stopPropagation()}
             >
               <ChevronRightIcon size={16} />
             </div>
