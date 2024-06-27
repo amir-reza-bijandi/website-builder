@@ -42,7 +42,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
   const [highlightClass, setHighlightClass] = useState('');
 
   const setPastePosition = useClipboardStore((store) => store.setPastePosition);
-  const handleMove = useMove([element.id]);
+  const handleMove = useMove();
   const isElementSelected = selectedElementIdList.includes(element.id);
 
   // Prevent flashing of highlight by using it as a side effect
@@ -91,7 +91,12 @@ export default function Wrapper({ element, children }: WrapperProps) {
           }
         }
         // Move element
-        handleMove({ x: e.clientX, y: e.clientY });
+        handleMove(
+          e.shiftKey
+            ? useSelectionStore.getState().selectedElementIdList
+            : [element.id],
+          { x: e.clientX, y: e.clientY },
+        );
       }
     }
     /* Since this event prevents it's parent event from triggering
@@ -142,7 +147,3 @@ export default function Wrapper({ element, children }: WrapperProps) {
     </EditContextMenu>
   );
 }
-
-useSelectionStore.subscribe(({ hoverTargetId }) =>
-  console.log({ hoverTargetId }),
-);

@@ -4,8 +4,9 @@ import type { Position } from '@/type/general-types';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { useShallow } from 'zustand/react/shallow';
 import useSelectionStore from '@/store/selection-store';
+import { CanvasStoreElement } from '@/type/canvas-store-types';
 
-export default function useMove(elementIdList: string[]) {
+export default function useMove() {
   const { view, toolbox, isMoving, setMoving, updateElement } = useCanvasStore(
     useShallow((store) => ({
       view: store.view,
@@ -21,15 +22,17 @@ export default function useMove(elementIdList: string[]) {
       setSelectionVisible: store.setSelectionVisible,
     })),
   );
+  const elementListRef = useRef<CanvasStoreElement[]>([]);
 
   const initialMousePositionRef = useRef<Position>();
-  const elementList = elementIdList.map(
-    (elementId) => getElementById(elementId)!,
-  );
 
   const handleMoving = ({ clientX, clientY }: MouseEvent) => {
     // Only freely move elements that are positioned absolute
-    if (elementList.every((element) => element.position.mode === 'ABSOLUTE')) {
+    if (
+      elementListRef.current.every(
+        (element) => element.position.mode === 'ABSOLUTE',
+      )
+    ) {
       if (!isMoving) {
         setMoving(true);
       }
@@ -46,7 +49,7 @@ export default function useMove(elementIdList: string[]) {
 
       // Use the mouse movement to calculate the new position
       updateElement(
-        ...elementList.map((element) => {
+        ...elementListRef.current.map((element) => {
           if (element.position.mode === 'ABSOLUTE') {
             if (
               typeof element.position.left === 'number' &&
@@ -91,10 +94,19 @@ export default function useMove(elementIdList: string[]) {
     document.body.removeEventListener('mouseup', handleMoveEnd);
   };
 
-  const handleMove = (initialMousePosition: Position) => {
+  const handleMove = (
+    elementIdList: string[],
+    initialMousePosition: Position,
+  ) => {
+    elementListRef.current = elementIdList.map(
+      (elementId) => getElementById(elementId)!,
+    );
+
     if (toolbox.action === 'SELECT') {
       if (
-        elementList.every((element) => element.position.mode === 'ABSOLUTE')
+        elementListRef.current.every(
+          (element) => element.position.mode === 'ABSOLUTE',
+        )
       ) {
         initialMousePositionRef.current = {
           x: initialMousePosition.x / view.zoomFactor,

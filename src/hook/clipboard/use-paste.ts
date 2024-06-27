@@ -51,7 +51,6 @@ export default function usePaste() {
     // Paste outside a selection
     else {
       if (useMousePosition) {
-        console.log('Paste outside a selection with mouse position');
         newElementList = createMousePasteInCanvasElementList(
           status,
           pastePosition,

@@ -157,14 +157,14 @@ const CanvasSelectContainer = memo(function ({
 
   const selectedElementIdList =
     useSelectionStore.getState().selectedElementIdList;
-  const handleMove = useMove(selectedElementIdList);
+  const handleMove = useMove();
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
     if (e.button === 0) {
       if (toolbox.action === 'SELECT') {
         const { clientX, clientY } = e;
         // Moving element when it's selected
-        handleMove({ x: clientX, y: clientY });
+        handleMove(selectedElementIdList, { x: clientX, y: clientY });
 
         // Deselect element when shift key is pressed
         if (e.shiftKey) {
