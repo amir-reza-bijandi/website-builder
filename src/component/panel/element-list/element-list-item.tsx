@@ -186,7 +186,7 @@ const ElementListItem = memo(function ({
         {isExpanded && (
           <div
             className={cn(
-              'space-y-2',
+              'space-y-1',
               isSelected &&
                 'rounded-bl rounded-br bg-primary/5 outline outline-[1px] -outline-offset-1 outline-primary',
               isSelected &&
