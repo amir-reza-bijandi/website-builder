@@ -1,5 +1,4 @@
 import type {
-  CanvasStoreView,
   CanvasStoreToolbox,
   CanvasStoreElement,
 } from '@/type/canvas-store-types';
@@ -8,10 +7,10 @@ import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
+import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import { create } from 'zustand';
 
 type CanvasStore = {
-  view: CanvasStoreView;
   toolbox: CanvasStoreToolbox;
   isPanning: boolean;
   isMoving: boolean;
@@ -19,7 +18,6 @@ type CanvasStore = {
   isFocused: boolean;
   elementList: CanvasStoreElement[];
 
-  setView: (view: Partial<CanvasStoreView>) => void;
   setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
   setPanning: (isPanning: boolean) => void;
   setMoving: (isMoving: boolean) => void;
@@ -36,12 +34,6 @@ type CanvasStore = {
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
-  view: {
-    zoomLevel: 1,
-    zoomState: 'NORMAL',
-    offsetX: 0,
-    offsetY: 0,
-  },
   toolbox: {
     action: 'SELECT',
     tool: null,
@@ -53,16 +45,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isFocused: true,
   isCrossLayerSelectionAllowed: false,
   hoverTargetId: '',
-  setView({ zoomLevel: zoomLevel, zoomState, offsetX, offsetY }) {
-    set((store) => ({
-      view: {
-        zoomLevel: zoomLevel ?? store.view.zoomLevel,
-        zoomState: zoomState ?? store.view.zoomState,
-        offsetX: offsetX ?? store.view.offsetX,
-        offsetY: offsetY ?? store.view.offsetY,
-      },
-    }));
-  },
   setToolbox({ action, tool }) {
     set((store) => ({
       toolbox: {
@@ -143,28 +125,20 @@ const useCanvasStore = create<CanvasStore>((set) => ({
                   .getElementById(targetElement.parentId)!
                   .getBoundingClientRect();
 
-                left =
-                  (elementRect.left - targetParentElementRect.left) /
-                  store.view.zoomLevel;
-                top =
-                  (elementRect.top - targetParentElementRect.top) /
-                  store.view.zoomLevel;
-                right =
-                  (targetParentElementRect.right - elementRect.right) /
-                  store.view.zoomLevel;
-                bottom =
-                  (targetParentElementRect.bottom - elementRect.bottom) /
-                  store.view.zoomLevel;
+                ({ left, right, top, bottom } = scaleWithzoomLevel({
+                  left: elementRect.left - targetParentElementRect.left,
+                  right: targetParentElementRect.right - elementRect.right,
+                  top: elementRect.top - targetParentElementRect.top,
+                  bottom: targetParentElementRect.bottom - elementRect.bottom,
+                }));
               } else {
                 // Calculate position based on canvas
-                left =
-                  (elementRect.left - canvasRect.left) / store.view.zoomLevel;
-                top = (elementRect.top - canvasRect.top) / store.view.zoomLevel;
-                right =
-                  (canvasRect.right - elementRect.right) / store.view.zoomLevel;
-                bottom =
-                  (canvasRect.bottom - elementRect.bottom) /
-                  store.view.zoomLevel;
+                ({ left, right, top, bottom } = scaleWithzoomLevel({
+                  left: elementRect.left - canvasRect.left,
+                  right: canvasRect.right - elementRect.right,
+                  top: elementRect.top - canvasRect.top,
+                  bottom: canvasRect.bottom - elementRect.bottom,
+                }));
               }
             } else {
               deltaLayer = targetElement.layer + 1 - element.layer;
@@ -173,18 +147,12 @@ const useCanvasStore = create<CanvasStore>((set) => ({
                 .getElementById(targetElement.id)!
                 .getBoundingClientRect();
 
-              left =
-                (elementRect.left - targetElementRect.left) /
-                store.view.zoomLevel;
-              top =
-                (elementRect.top - targetElementRect.top) /
-                store.view.zoomLevel;
-              right =
-                (targetElementRect.right - elementRect.right) /
-                store.view.zoomLevel;
-              bottom =
-                (targetElementRect.bottom - elementRect.bottom) /
-                store.view.zoomLevel;
+              ({ left, right, top, bottom } = scaleWithzoomLevel({
+                left: elementRect.left - targetElementRect.left,
+                right: targetElementRect.right - elementRect.right,
+                top: elementRect.top - targetElementRect.top,
+                bottom: targetElementRect.bottom - elementRect.bottom,
+              }));
 
               layer = targetElement.layer + 1;
               parentId = targetElement.id;

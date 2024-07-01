@@ -10,6 +10,7 @@ import { CanvasStoreElement } from '@/type/canvas-store-types';
 import EditContextMenu from '../edit-context-menu';
 import useSelectionStore from '@/store/selection-store';
 import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
+import useViewStore from '@/store/view-store';
 
 type Rect = {
   left: number;
@@ -29,7 +30,7 @@ export default memo(function CanvasSelect() {
   const [rect, setRect] = useState<Rect>();
 
   // We need the zoom level but we dont want it to cause rerenders
-  const zoomLevel = useCanvasStore.getState().view.zoomLevel;
+  const zoomLevel = useViewStore.getState().zoomLevel;
 
   const showSelection = selectedElementIdList.length > 0 && isSelectionVisible;
 
@@ -120,12 +121,8 @@ const CanvasSelectContainer = memo(function ({
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
   const isClickedOnSelection = useRef(false);
   const isSelecting = useRef(false);
-  const { zoomLevel, toolbox } = useCanvasStore(
-    useShallow((store) => ({
-      zoomLevel: store.view.zoomLevel,
-      toolbox: store.toolbox,
-    })),
-  );
+  const toolbox = useCanvasStore((store) => store.toolbox);
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     hoverTargetId,
     isCrossLayerSelectionAllowed,
@@ -314,11 +311,7 @@ const CanvasSelectContainer = memo(function ({
 });
 
 function CanvasSelectResize() {
-  const { zoomLevel } = useCanvasStore(
-    useShallow((store) => ({
-      zoomLevel: store.view.zoomLevel,
-    })),
-  );
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
 
   const selectedElementIdList =
     useSelectionStore.getState().selectedElementIdList;

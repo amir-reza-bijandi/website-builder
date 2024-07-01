@@ -3,6 +3,7 @@ import useClipboardStore, {
   ClipboardStoreStatus,
 } from '@/store/clipboard-store';
 import useSelectionStore from '@/store/selection-store';
+import useViewStore from '@/store/view-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
@@ -18,10 +19,10 @@ export default function usePaste() {
       pastePosition: store.pastePosition,
     })),
   );
-  const { addElement, view } = useCanvasStore(
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
+  const { addElement } = useCanvasStore(
     useShallow((store) => ({
       addElement: store.addElement,
-      view: store.view,
     })),
   );
   const { layer, setLayer, selectedElementIdList, setSelectedElementIdList } =
@@ -43,7 +44,7 @@ export default function usePaste() {
       newElementList = createPasteInSelectionElementList(
         selectedElementIdList,
         status,
-        view.zoomLevel,
+        zoomLevel,
         useMousePosition,
         pastePosition,
       );
@@ -54,7 +55,7 @@ export default function usePaste() {
         newElementList = createMousePasteInCanvasElementList(
           status,
           pastePosition,
-          view.zoomLevel,
+          zoomLevel,
         );
       }
     }

@@ -10,7 +10,6 @@ import {
   MenubarTrigger,
 } from '@/component/ui/menubar';
 import useUIStore from '@/store/ui-store';
-import useCanvasStore from '@/store/canvas-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import { useShallow } from 'zustand/react/shallow';
 import useDelete from '@/hook/canvas/use-delete';
@@ -18,6 +17,7 @@ import useChangeOrder from '@/hook/canvas/use-change-order';
 import useClipboardOperation from '@/hook/clipboard/use-clipboard-operation';
 import usePaste from '@/hook/clipboard/use-paste';
 import useSelectionStore from '@/store/selection-store';
+import useViewStore from '@/store/view-store';
 
 export default function GlobalMenubar() {
   const {
@@ -29,12 +29,14 @@ export default function GlobalMenubar() {
     uiScale,
   } = useUIStore();
 
-  const { view, setView } = useCanvasStore(
+  const { setView, zoomLevel, zoomState } = useViewStore(
     useShallow((store) => ({
-      view: store.view,
       setView: store.setView,
+      zoomLevel: store.zoomLevel,
+      zoomState: store.zoomState,
     })),
   );
+
   const selectedElementIdList = useSelectionStore(
     (store) => store.selectedElementIdList,
   );
@@ -55,12 +57,12 @@ export default function GlobalMenubar() {
 
   const handleZoomIn: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
-    setView(createZoomView(canvas, view.zoomLevel * CONFIG.ZOOM_FACTOR));
+    setView(createZoomView(canvas, zoomLevel * CONFIG.ZOOM_FACTOR));
   };
 
   const handleZoomOut: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
-    setView(createZoomView(canvas, view.zoomLevel / CONFIG.ZOOM_FACTOR));
+    setView(createZoomView(canvas, zoomLevel / CONFIG.ZOOM_FACTOR));
   };
 
   const handleZoomReset: React.MouseEventHandler = () => {
@@ -176,14 +178,14 @@ export default function GlobalMenubar() {
           <MenubarItem
             inset
             onMouseDown={handleZoomIn}
-            disabled={view.zoomState === 'MAX'}
+            disabled={zoomState === 'MAX'}
           >
             Zoom + <MenubarShortcut>Ctrl++</MenubarShortcut>
           </MenubarItem>
           <MenubarItem
             inset
             onMouseDown={handleZoomOut}
-            disabled={view.zoomState === 'MIN'}
+            disabled={zoomState === 'MIN'}
           >
             Zoom - <MenubarShortcut>Ctrl+-</MenubarShortcut>
           </MenubarItem>

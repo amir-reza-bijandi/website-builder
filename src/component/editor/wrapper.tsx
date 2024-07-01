@@ -8,6 +8,7 @@ import EditContextMenu from '../edit-context-menu';
 import useClipboardStore from '@/store/clipboard-store';
 import useSelectionStore from '@/store/selection-store';
 import { useEffect, useState } from 'react';
+import useViewStore from '@/store/view-store';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -15,14 +16,14 @@ type WrapperProps = {
 };
 
 export default function Wrapper({ element, children }: WrapperProps) {
-  const { toolbox, view, isResizing, isMoving } = useCanvasStore(
+  const { toolbox, isResizing, isMoving } = useCanvasStore(
     useShallow((store) => ({
       toolbox: store.toolbox,
-      view: store.view,
       isResizing: store.isResizing,
       isMoving: store.isMoving,
     })),
   );
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     hoverTargetId,
     isCrossLayerSelectionAllowed,
@@ -153,7 +154,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
         style={
           {
             ...generateStyle(element),
-            boxShadow: `0 0 0 calc(2px / ${view.zoomLevel}) var(--tw-shadow-color)`,
+            boxShadow: `0 0 0 calc(2px / ${zoomLevel}) var(--tw-shadow-color)`,
           } as React.CSSProperties
         }
         onMouseDown={handleMouseDown}

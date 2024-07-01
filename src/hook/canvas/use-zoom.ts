@@ -1,18 +1,19 @@
 import CONFIG from '@/config';
 import useCanvasStore from '@/store/canvas-store';
+import useViewStore from '@/store/view-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useZoom() {
-  const { isMoving, isPanning, isResizing, view, setView } = useCanvasStore(
+  const { isMoving, isPanning, isResizing } = useCanvasStore(
     useShallow((store) => ({
       isPanning: store.isPanning,
       isMoving: store.isMoving,
       isResizing: store.isResizing,
-      view: store.view,
-      setView: store.setView,
     })),
   );
+
+  const { offsetX, offsetY, zoomLevel, setView } = useViewStore();
 
   const handleZoom: React.WheelEventHandler<HTMLElement> = ({
     deltaY,
@@ -26,9 +27,15 @@ export default function useZoom() {
       if (isMoving || isPanning || isResizing) return;
 
       // Calculate new zoom level
-      let newzoomLevel = view.zoomLevel;
-      if (deltaY > 0) newzoomLevel = view.zoomLevel / CONFIG.ZOOM_FACTOR;
-      else newzoomLevel = view.zoomLevel * CONFIG.ZOOM_FACTOR;
+      let newzoomLevel = zoomLevel;
+      if (deltaY > 0) newzoomLevel = zoomLevel / CONFIG.ZOOM_FACTOR;
+      else newzoomLevel = zoomLevel * CONFIG.ZOOM_FACTOR;
+
+      const view = {
+        offsetX,
+        offsetY,
+        zoomLevel,
+      };
 
       // Check if new zoom level is within the desired range
       if (newzoomLevel > CONFIG.ZOOM_LEVEL_MAX) {

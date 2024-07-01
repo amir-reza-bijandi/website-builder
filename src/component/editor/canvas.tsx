@@ -8,15 +8,16 @@ import useZoom from '@/hook/canvas/use-zoom';
 import { useShallow } from 'zustand/react/shallow';
 import CanvasContextMenu from '../canvas-context-menu';
 import useSelectionStore from '@/store/selection-store';
+import useViewStore from '@/store/view-store';
 
 export default function Canvas() {
-  const { view, toolbox, setFocus } = useCanvasStore(
+  const { toolbox, setFocus } = useCanvasStore(
     useShallow((store) => ({
-      view: store.view,
       toolbox: store.toolbox,
       setFocus: store.setFocus,
     })),
   );
+  const { offsetX, offsetY, zoomLevel } = useViewStore();
   const { selectedElementIdList, setLayer, setSelectedElementIdList } =
     useSelectionStore(
       useShallow((store) => ({
@@ -83,7 +84,7 @@ export default function Canvas() {
           id='canvas'
           style={
             {
-              transform: `translate(calc(${view.offsetX}px), calc(${view.offsetY}px)) scale(${view.zoomLevel})`,
+              transform: `translate(calc(${offsetX}px), calc(${offsetY}px)) scale(${zoomLevel})`,
             } as React.CSSProperties
           }
           className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'

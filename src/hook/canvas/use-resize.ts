@@ -1,19 +1,20 @@
 import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
+import useViewStore from '@/store/view-store';
 import type { AbsoluteRect, Direction, Position } from '@/type/general-types';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useResize(elementIdList: string[]) {
-  const { updateElement, isResizing, setResizing, zoomLevel } = useCanvasStore(
+  const { updateElement, isResizing, setResizing } = useCanvasStore(
     useShallow((store) => ({
-      zoomLevel: store.view.zoomLevel,
       updateElement: store.updateElement,
       setResizing: store.setResizing,
       isResizing: store.isResizing,
     })),
   );
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
   const { isSelectionVisible, setSelectionVisible } = useSelectionStore(
     useShallow((store) => ({
       isSelectionVisible: store.isSelectionVisible,

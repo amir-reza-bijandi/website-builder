@@ -1,15 +1,17 @@
-import useCanvasStore from '@/store/canvas-store';
+import useViewStore from '@/store/view-store';
 
-export default function scaleWithzoomLevel(rect: DOMRect) {
-  const view = useCanvasStore.getState().view;
+type Rect = Partial<Omit<DOMRect, 'toJSON'>> | Partial<DOMRect>;
+
+export default function scaleWithzoomLevel<T extends Rect>(rect: T) {
+  const zoomLevel = useViewStore.getState().zoomLevel;
   return {
-    top: rect.top / view.zoomLevel,
-    left: rect.left / view.zoomLevel,
-    bottom: rect.bottom / view.zoomLevel,
-    right: rect.right / view.zoomLevel,
-    width: rect.width / view.zoomLevel,
-    height: rect.height / view.zoomLevel,
-    x: rect.x / view.zoomLevel,
-    y: rect.y / view.zoomLevel,
-  } as DOMRect;
+    top: rect.top ? rect.top / zoomLevel : undefined,
+    left: rect.left ? rect.left / zoomLevel : undefined,
+    right: rect.right ? rect.right / zoomLevel : undefined,
+    bottom: rect.bottom ? rect.bottom / zoomLevel : undefined,
+    width: rect.width ? rect.width / zoomLevel : undefined,
+    height: rect.height ? rect.height / zoomLevel : undefined,
+    x: rect.x ? rect.x / zoomLevel : undefined,
+    y: rect.y ? rect.y / zoomLevel : undefined,
+  } as T;
 }

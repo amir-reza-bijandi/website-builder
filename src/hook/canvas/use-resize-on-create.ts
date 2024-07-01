@@ -1,5 +1,6 @@
 import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
+import useViewStore from '@/store/view-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
@@ -14,7 +15,6 @@ export default function useResizeOnCreate() {
     setToolbox,
     setResizing,
     isResizing,
-    view,
     addElement,
     updateElement,
     elementList,
@@ -24,12 +24,12 @@ export default function useResizeOnCreate() {
       setToolbox: store.setToolbox,
       setResizing: store.setResizing,
       isResizing: store.isResizing,
-      view: store.view,
       addElement: store.addElement,
       updateElement: store.updateElement,
       elementList: store.elementList,
     })),
   );
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     selectedElementIdList,
     setSelectedElementIdList,
@@ -58,16 +58,16 @@ export default function useResizeOnCreate() {
         const { x: initialClientX, y: initialClientY } =
           initialMousePositionRef.current;
 
-        const scaledClientX = clientX / view.zoomLevel;
-        const scaledClientY = clientY / view.zoomLevel;
+        const scaledClientX = clientX / zoomLevel;
+        const scaledClientY = clientY / zoomLevel;
 
-        const scaledInitialClientX = initialClientX / view.zoomLevel;
-        const scaledInitialClientY = initialClientY / view.zoomLevel;
+        const scaledInitialClientX = initialClientX / zoomLevel;
+        const scaledInitialClientY = initialClientY / zoomLevel;
 
-        let originTop = canvasRect.top / view.zoomLevel;
-        let originLeft = canvasRect.left / view.zoomLevel;
-        let originBottom = canvasRect.bottom / view.zoomLevel;
-        let originRight = canvasRect.right / view.zoomLevel;
+        let originTop = canvasRect.top / zoomLevel;
+        let originLeft = canvasRect.left / zoomLevel;
+        let originBottom = canvasRect.bottom / zoomLevel;
+        let originRight = canvasRect.right / zoomLevel;
 
         let parentId = '';
         let layer = 0;
@@ -113,10 +113,10 @@ export default function useResizeOnCreate() {
 
             parentId = targetElement.id;
             layer = targetElement.layer + 1;
-            originLeft = targetElementRect.left / view.zoomLevel;
-            originTop = targetElementRect.top / view.zoomLevel;
-            originBottom = targetElementRect.bottom / view.zoomLevel;
-            originRight = targetElementRect.right / view.zoomLevel;
+            originLeft = targetElementRect.left / zoomLevel;
+            originTop = targetElementRect.top / zoomLevel;
+            originBottom = targetElementRect.bottom / zoomLevel;
+            originRight = targetElementRect.right / zoomLevel;
           }
         }
 

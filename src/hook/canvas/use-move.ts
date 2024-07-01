@@ -5,17 +5,18 @@ import getElementById from '@/utility/canvas/get-element-by-id';
 import { useShallow } from 'zustand/react/shallow';
 import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useViewStore from '@/store/view-store';
 
 export default function useMove() {
-  const { view, toolbox, setMoving, updateElement } = useCanvasStore(
+  const { toolbox, setMoving, updateElement } = useCanvasStore(
     useShallow((store) => ({
-      view: store.view,
       toolbox: store.toolbox,
       isMoving: store.isMoving,
       setMoving: store.setMoving,
       updateElement: store.updateElement,
     })),
   );
+  const zoomLevel = useViewStore((store) => store.zoomLevel);
   const setSelectionVisible = useSelectionStore(
     (store) => store.setSelectionVisible,
   );
@@ -38,8 +39,8 @@ export default function useMove() {
       const { x: initialClientX, y: initialClientY } =
         initialMousePositionRef.current!;
 
-      const scaledClientX = clientX / view.zoomLevel;
-      const scaledClientY = clientY / view.zoomLevel;
+      const scaledClientX = clientX / zoomLevel;
+      const scaledClientY = clientY / zoomLevel;
 
       // Calculate the amount mouse movement
       const deltaX = scaledClientX - initialClientX;
@@ -114,8 +115,8 @@ export default function useMove() {
         )
       ) {
         initialMousePositionRef.current = {
-          x: initialMousePosition.x / view.zoomLevel,
-          y: initialMousePosition.y / view.zoomLevel,
+          x: initialMousePosition.x / zoomLevel,
+          y: initialMousePosition.y / zoomLevel,
         };
         document.body.addEventListener('mousemove', handleMoving);
         document.body.addEventListener('mouseleave', handleMoveEnd);
