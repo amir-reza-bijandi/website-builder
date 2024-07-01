@@ -6,7 +6,7 @@ import { ElementStoreElement } from '@/store/element-store';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import useDelete from '../canvas/use-delete';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
-import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
+import scaleWithZoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import useSelectionStore from '@/store/selection-store';
 
 export default function useClipboardOperation(
@@ -32,7 +32,7 @@ export default function useClipboardOperation(
     );
 
     const elementRectList = elementList.map((element) =>
-      scaleWithzoomLevel(
+      scaleWithZoomLevel(
         document.getElementById(element.id)!.getBoundingClientRect(),
       ),
     );

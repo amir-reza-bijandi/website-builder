@@ -1,18 +1,18 @@
 import { AbsoluteRect, Position } from '@/type/general-types';
-import scaleWithzoomLevel from './scale-with-zoom-level';
+import scaleWithZoomLevel from './scale-with-zoom-level';
 
 export default function calculateDrawingRect(
   initialPointerPosition: Position,
   currentPointerPosition: Position,
   originRect: AbsoluteRect,
 ): AbsoluteRect {
-  const scaledInitialPointerPosition = scaleWithzoomLevel(
+  const scaledInitialPointerPosition = scaleWithZoomLevel(
     initialPointerPosition,
   );
-  const scaledCurrentPointerPosition = scaleWithzoomLevel(
+  const scaledCurrentPointerPosition = scaleWithZoomLevel(
     currentPointerPosition,
   );
-  const scaledOriginRect = scaleWithzoomLevel(originRect);
+  const scaledOriginRect = scaleWithZoomLevel(originRect);
 
   const left =
     scaledCurrentPointerPosition.x - scaledInitialPointerPosition.x >= 0

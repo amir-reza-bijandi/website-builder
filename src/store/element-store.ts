@@ -2,7 +2,7 @@ import type { Placement } from '@/type/general-types';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
-import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
+import scaleWithZoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import createElement from '@/utility/canvas/create-element';
 import { create } from 'zustand';
 
@@ -90,7 +90,7 @@ const useElementStore = create<ElementStore>((set) => ({
                   .getElementById(targetElement.parentId)!
                   .getBoundingClientRect();
 
-                ({ left, right, top, bottom } = scaleWithzoomLevel({
+                ({ left, right, top, bottom } = scaleWithZoomLevel({
                   left: elementRect.left - targetParentElementRect.left,
                   right: targetParentElementRect.right - elementRect.right,
                   top: elementRect.top - targetParentElementRect.top,
@@ -98,7 +98,7 @@ const useElementStore = create<ElementStore>((set) => ({
                 }));
               } else {
                 // Calculate position based on canvas
-                ({ left, right, top, bottom } = scaleWithzoomLevel({
+                ({ left, right, top, bottom } = scaleWithZoomLevel({
                   left: elementRect.left - canvasRect.left,
                   right: canvasRect.right - elementRect.right,
                   top: elementRect.top - canvasRect.top,
@@ -112,7 +112,7 @@ const useElementStore = create<ElementStore>((set) => ({
                 .getElementById(targetElement.id)!
                 .getBoundingClientRect();
 
-              ({ left, right, top, bottom } = scaleWithzoomLevel({
+              ({ left, right, top, bottom } = scaleWithZoomLevel({
                 left: elementRect.left - targetElementRect.left,
                 right: targetElementRect.right - elementRect.right,
                 top: elementRect.top - targetElementRect.top,

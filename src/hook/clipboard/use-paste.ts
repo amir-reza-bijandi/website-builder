@@ -7,7 +7,7 @@ import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getElementById from '@/utility/canvas/get-element-by-id';
-import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
+import scaleWithZoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import { nanoid } from 'nanoid';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -94,7 +94,7 @@ function createPasteInSelectionElementList(
       return clipboardStatus.itemList.map(
         ([clipboardItem, clipboardItemChildren, clipboardItemRect]) => {
           let newElement = clipboardItem;
-          const parentRect = scaleWithzoomLevel(
+          const parentRect = scaleWithZoomLevel(
             document
               .getElementById(selectedElement.id)!
               .getBoundingClientRect(),

@@ -8,7 +8,7 @@ import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 import getPointerTargetList from '@/utility/canvas/get-pointer-target-list';
-import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
+import scaleWithZoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Position } from '@/type/general-types';
@@ -197,7 +197,7 @@ function getOrigin(initialPointerPosition: Position): Origin {
 
     if (targetId) {
       const targetElement = getElementById(targetId)!;
-      const targetElementRect = scaleWithzoomLevel(
+      const targetElementRect = scaleWithZoomLevel(
         document.getElementById(targetId)!.getBoundingClientRect(),
       );
 
