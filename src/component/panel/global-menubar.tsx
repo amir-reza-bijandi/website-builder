@@ -55,16 +55,12 @@ export default function GlobalMenubar() {
 
   const handleZoomIn: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
-    setView(
-      createZoomView(canvas, view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER),
-    );
+    setView(createZoomView(canvas, view.zoomLevel * CONFIG.ZOOM_FACTOR));
   };
 
   const handleZoomOut: React.MouseEventHandler = () => {
     const canvas = document.getElementById('canvas')!;
-    setView(
-      createZoomView(canvas, view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER),
-    );
+    setView(createZoomView(canvas, view.zoomLevel / CONFIG.ZOOM_FACTOR));
   };
 
   const handleZoomReset: React.MouseEventHandler = () => {

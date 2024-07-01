@@ -83,7 +83,7 @@ export default function Canvas() {
           id='canvas'
           style={
             {
-              transform: `translate(calc(${view.offsetX}px), calc(${view.offsetY}px)) scale(${view.zoomFactor})`,
+              transform: `translate(calc(${view.offsetX}px), calc(${view.offsetY}px)) scale(${view.zoomLevel})`,
             } as React.CSSProperties
           }
           className='absolute flex h-[10000px] w-[10000px] origin-top-left select-none items-center justify-center'

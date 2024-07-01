@@ -37,7 +37,7 @@ type CanvasStore = {
 
 const useCanvasStore = create<CanvasStore>((set) => ({
   view: {
-    zoomFactor: 1,
+    zoomLevel: 1,
     zoomState: 'NORMAL',
     offsetX: 0,
     offsetY: 0,
@@ -53,10 +53,10 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isFocused: true,
   isCrossLayerSelectionAllowed: false,
   hoverTargetId: '',
-  setView({ zoomFactor, zoomState, offsetX, offsetY }) {
+  setView({ zoomLevel: zoomLevel, zoomState, offsetX, offsetY }) {
     set((store) => ({
       view: {
-        zoomFactor: zoomFactor ?? store.view.zoomFactor,
+        zoomLevel: zoomLevel ?? store.view.zoomLevel,
         zoomState: zoomState ?? store.view.zoomState,
         offsetX: offsetX ?? store.view.offsetX,
         offsetY: offsetY ?? store.view.offsetY,
@@ -145,28 +145,26 @@ const useCanvasStore = create<CanvasStore>((set) => ({
 
                 left =
                   (elementRect.left - targetParentElementRect.left) /
-                  store.view.zoomFactor;
+                  store.view.zoomLevel;
                 top =
                   (elementRect.top - targetParentElementRect.top) /
-                  store.view.zoomFactor;
+                  store.view.zoomLevel;
                 right =
                   (targetParentElementRect.right - elementRect.right) /
-                  store.view.zoomFactor;
+                  store.view.zoomLevel;
                 bottom =
                   (targetParentElementRect.bottom - elementRect.bottom) /
-                  store.view.zoomFactor;
+                  store.view.zoomLevel;
               } else {
                 // Calculate position based on canvas
                 left =
-                  (elementRect.left - canvasRect.left) / store.view.zoomFactor;
-                top =
-                  (elementRect.top - canvasRect.top) / store.view.zoomFactor;
+                  (elementRect.left - canvasRect.left) / store.view.zoomLevel;
+                top = (elementRect.top - canvasRect.top) / store.view.zoomLevel;
                 right =
-                  (canvasRect.right - elementRect.right) /
-                  store.view.zoomFactor;
+                  (canvasRect.right - elementRect.right) / store.view.zoomLevel;
                 bottom =
                   (canvasRect.bottom - elementRect.bottom) /
-                  store.view.zoomFactor;
+                  store.view.zoomLevel;
               }
             } else {
               deltaLayer = targetElement.layer + 1 - element.layer;
@@ -177,16 +175,16 @@ const useCanvasStore = create<CanvasStore>((set) => ({
 
               left =
                 (elementRect.left - targetElementRect.left) /
-                store.view.zoomFactor;
+                store.view.zoomLevel;
               top =
                 (elementRect.top - targetElementRect.top) /
-                store.view.zoomFactor;
+                store.view.zoomLevel;
               right =
                 (targetElementRect.right - elementRect.right) /
-                store.view.zoomFactor;
+                store.view.zoomLevel;
               bottom =
                 (targetElementRect.bottom - elementRect.bottom) /
-                store.view.zoomFactor;
+                store.view.zoomLevel;
 
               layer = targetElement.layer + 1;
               parentId = targetElement.id;

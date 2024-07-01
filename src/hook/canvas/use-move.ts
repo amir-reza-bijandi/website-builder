@@ -38,8 +38,8 @@ export default function useMove() {
       const { x: initialClientX, y: initialClientY } =
         initialMousePositionRef.current!;
 
-      const scaledClientX = clientX / view.zoomFactor;
-      const scaledClientY = clientY / view.zoomFactor;
+      const scaledClientX = clientX / view.zoomLevel;
+      const scaledClientY = clientY / view.zoomLevel;
 
       // Calculate the amount mouse movement
       const deltaX = scaledClientX - initialClientX;
@@ -114,8 +114,8 @@ export default function useMove() {
         )
       ) {
         initialMousePositionRef.current = {
-          x: initialMousePosition.x / view.zoomFactor,
-          y: initialMousePosition.y / view.zoomFactor,
+          x: initialMousePosition.x / view.zoomLevel,
+          y: initialMousePosition.y / view.zoomLevel,
         };
         document.body.addEventListener('mousemove', handleMoving);
         document.body.addEventListener('mouseleave', handleMoveEnd);

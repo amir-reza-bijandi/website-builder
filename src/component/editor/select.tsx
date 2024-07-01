@@ -28,8 +28,8 @@ export default memo(function CanvasSelect() {
 
   const [rect, setRect] = useState<Rect>();
 
-  // We need the zoom factor but we dont want it to cause rerenders
-  const zoomFactor = useCanvasStore.getState().view.zoomFactor;
+  // We need the zoom level but we dont want it to cause rerenders
+  const zoomLevel = useCanvasStore.getState().view.zoomLevel;
 
   const showSelection = selectedElementIdList.length > 0 && isSelectionVisible;
 
@@ -44,7 +44,7 @@ export default memo(function CanvasSelect() {
 
       // Finding the lowest value for every direction to use for rendering select rectange
       const left = elementRectList.reduce((min, rect) => {
-        const left = Math.abs(canvasRect.left - rect.left) / zoomFactor;
+        const left = Math.abs(canvasRect.left - rect.left) / zoomLevel;
         if (min > left) {
           return left;
         } else {
@@ -53,7 +53,7 @@ export default memo(function CanvasSelect() {
       }, Number.MAX_SAFE_INTEGER);
 
       const top = elementRectList.reduce((min, rect) => {
-        const result = Math.abs(canvasRect.top - rect.top) / zoomFactor;
+        const result = Math.abs(canvasRect.top - rect.top) / zoomLevel;
         if (min > result) {
           return result;
         } else {
@@ -62,9 +62,9 @@ export default memo(function CanvasSelect() {
       }, Number.MAX_SAFE_INTEGER);
 
       const width =
-        canvasRect.width / zoomFactor -
+        canvasRect.width / zoomLevel -
         (elementRectList.reduce((min, rect) => {
-          const right = Math.abs(rect.right - canvasRect.right) / zoomFactor;
+          const right = Math.abs(rect.right - canvasRect.right) / zoomLevel;
           if (min > right) {
             return right;
           } else {
@@ -74,11 +74,11 @@ export default memo(function CanvasSelect() {
           left);
 
       const height =
-        canvasRect.height / zoomFactor -
+        canvasRect.height / zoomLevel -
         (Math.abs(
           elementRectList.reduce((min, rect) => {
             const bottom =
-              Math.abs(rect.bottom - canvasRect.bottom) / zoomFactor;
+              Math.abs(rect.bottom - canvasRect.bottom) / zoomLevel;
             if (min > bottom) {
               return bottom;
             } else {
@@ -92,7 +92,7 @@ export default memo(function CanvasSelect() {
     } else {
       setRect(undefined);
     }
-  }, [selectedElementIdList, zoomFactor, isSelectionVisible, showSelection]);
+  }, [selectedElementIdList, zoomLevel, isSelectionVisible, showSelection]);
 
   if (rect && showSelection) {
     return <CanvasSelectContainer rect={rect} />;
@@ -110,7 +110,7 @@ type CanvasSelectContainerProps = {
   };
 };
 
-/* We want the zoom factor changes to rerender the click targets of select rectangle
+/* We want the zoom level changes to rerender the click targets of select rectangle
    and to not effect the calculations of rectangle postion, so we create a separate
    component */
 
@@ -120,9 +120,9 @@ const CanvasSelectContainer = memo(function ({
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
   const isClickedOnSelection = useRef(false);
   const isSelecting = useRef(false);
-  const { zoomFactor, toolbox } = useCanvasStore(
+  const { zoomLevel, toolbox } = useCanvasStore(
     useShallow((store) => ({
-      zoomFactor: store.view.zoomFactor,
+      zoomLevel: store.view.zoomLevel,
       toolbox: store.toolbox,
     })),
   );
@@ -198,16 +198,16 @@ const CanvasSelectContainer = memo(function ({
               .getElementById(element.id)!
               .getBoundingClientRect();
 
-            const elementLeft = elementRect.left / zoomFactor;
-            const elementTop = elementRect.top / zoomFactor;
-            const elementRight = elementLeft + elementRect.width / zoomFactor;
-            const elementBottom = elementTop + elementRect.height / zoomFactor;
+            const elementLeft = elementRect.left / zoomLevel;
+            const elementTop = elementRect.top / zoomLevel;
+            const elementRight = elementLeft + elementRect.width / zoomLevel;
+            const elementBottom = elementTop + elementRect.height / zoomLevel;
 
             if (
-              elementLeft <= clientX / zoomFactor &&
-              clientX / zoomFactor <= elementRight &&
-              elementTop <= clientY / zoomFactor &&
-              clientY / zoomFactor <= elementBottom
+              elementLeft <= clientX / zoomLevel &&
+              clientX / zoomLevel <= elementRight &&
+              elementTop <= clientY / zoomLevel &&
+              clientY / zoomLevel <= elementBottom
             ) {
               return element;
             }
@@ -254,16 +254,16 @@ const CanvasSelectContainer = memo(function ({
               .getElementById(selectedElementId)!
               .getBoundingClientRect();
 
-            const elementLeft = elementRect.left / zoomFactor;
-            const elementTop = elementRect.top / zoomFactor;
-            const elementRight = elementLeft + elementRect.width / zoomFactor;
-            const elementBottom = elementTop + elementRect.height / zoomFactor;
+            const elementLeft = elementRect.left / zoomLevel;
+            const elementTop = elementRect.top / zoomLevel;
+            const elementRight = elementLeft + elementRect.width / zoomLevel;
+            const elementBottom = elementTop + elementRect.height / zoomLevel;
 
             if (
-              elementLeft <= clientX / zoomFactor &&
-              clientX / zoomFactor <= elementRight &&
-              elementTop <= clientY / zoomFactor &&
-              clientY / zoomFactor <= elementBottom
+              elementLeft <= clientX / zoomLevel &&
+              clientX / zoomLevel <= elementRight &&
+              elementTop <= clientY / zoomLevel &&
+              clientY / zoomLevel <= elementBottom
             ) {
               return true;
             }
@@ -293,7 +293,7 @@ const CanvasSelectContainer = memo(function ({
           transform: `translate(${left}px, ${top}px)`,
           width: width,
           height: height,
-          boxShadow: `0 0 0 calc(2px / ${zoomFactor}) hsl(var(--primary))`,
+          boxShadow: `0 0 0 calc(2px / ${zoomLevel}) hsl(var(--primary))`,
         }}
         className={cn(
           'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
@@ -314,9 +314,9 @@ const CanvasSelectContainer = memo(function ({
 });
 
 function CanvasSelectResize() {
-  const { zoomFactor } = useCanvasStore(
+  const { zoomLevel } = useCanvasStore(
     useShallow((store) => ({
-      zoomFactor: store.view.zoomFactor,
+      zoomLevel: store.view.zoomLevel,
     })),
   );
 
@@ -339,8 +339,8 @@ function CanvasSelectResize() {
     <>
       {/* Top Left */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute left-0 top-0 z-40 flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 scale-[calc(1/var(--zoom-factor))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-nw-resize before:absolute before:block before:h-6 before:w-6'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute left-0 top-0 z-40 flex h-3 w-3 -translate-x-1/2 -translate-y-1/2 scale-[calc(1/var(--zoom-level))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-nw-resize before:absolute before:block before:h-6 before:w-6'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'NW');
@@ -348,8 +348,8 @@ function CanvasSelectResize() {
       />
       {/* Top Right */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute right-0 top-0 z-40 flex h-3 w-3 -translate-y-1/2 translate-x-1/2 scale-[calc(1/var(--zoom-factor))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-ne-resize before:absolute before:block before:h-6 before:w-6'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute right-0 top-0 z-40 flex h-3 w-3 -translate-y-1/2 translate-x-1/2 scale-[calc(1/var(--zoom-level))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-ne-resize before:absolute before:block before:h-6 before:w-6'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'NE');
@@ -357,8 +357,8 @@ function CanvasSelectResize() {
       />
       {/* Bottom Right */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 right-0 z-40 flex h-3 w-3 translate-x-1/2 translate-y-1/2 scale-[calc(1/var(--zoom-factor))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-se-resize before:absolute before:block before:h-6 before:w-6'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute bottom-0 right-0 z-40 flex h-3 w-3 translate-x-1/2 translate-y-1/2 scale-[calc(1/var(--zoom-level))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-se-resize before:absolute before:block before:h-6 before:w-6'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'SE');
@@ -366,8 +366,8 @@ function CanvasSelectResize() {
       />
       {/* Bottom Left */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 left-0 z-40 flex h-3 w-3 -translate-x-1/2 translate-y-1/2 scale-[calc(1/var(--zoom-factor))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-sw-resize before:absolute before:block before:h-6 before:w-6'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute bottom-0 left-0 z-40 flex h-3 w-3 -translate-x-1/2 translate-y-1/2 scale-[calc(1/var(--zoom-level))] animate-grow items-center justify-center rounded-full border-2 border-primary bg-background cursor-custom-sw-resize before:absolute before:block before:h-6 before:w-6'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'SW');
@@ -375,8 +375,8 @@ function CanvasSelectResize() {
       />
       {/* Top */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute left-0 right-0 top-0 z-30 h-3 -translate-y-full scale-y-[calc(1/var(--zoom-factor))] cursor-custom-n-resize'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute left-0 right-0 top-0 z-30 h-3 -translate-y-full scale-y-[calc(1/var(--zoom-level))] cursor-custom-n-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'N');
@@ -384,8 +384,8 @@ function CanvasSelectResize() {
       />
       {/* Right */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 right-0 top-0 z-30 w-3 translate-x-1/2 scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-e-resize'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute bottom-0 right-0 top-0 z-30 w-3 translate-x-1/2 scale-x-[calc(1/var(--zoom-level))] bg-transparent cursor-custom-e-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'E');
@@ -393,8 +393,8 @@ function CanvasSelectResize() {
       />
       {/* Bottom */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 left-0 right-0 z-30 h-3 translate-y-1/2 scale-y-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-s-resize'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute bottom-0 left-0 right-0 z-30 h-3 translate-y-1/2 scale-y-[calc(1/var(--zoom-level))] bg-transparent cursor-custom-s-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'S');
@@ -402,8 +402,8 @@ function CanvasSelectResize() {
       />
       {/* Left */}
       <div
-        style={{ '--zoom-factor': `${zoomFactor}` } as React.CSSProperties}
-        className='pointer-events-auto absolute bottom-0 left-0 top-0 z-30 w-3 -translate-x-full scale-x-[calc(1/var(--zoom-factor))] bg-transparent cursor-custom-w-resize'
+        style={{ '--zoom-level': `${zoomLevel}` } as React.CSSProperties}
+        className='pointer-events-auto absolute bottom-0 left-0 top-0 z-30 w-3 -translate-x-full scale-x-[calc(1/var(--zoom-level))] bg-transparent cursor-custom-w-resize'
         onMouseDown={(e) => {
           e.stopPropagation();
           handleMouseDown(e, 'W');

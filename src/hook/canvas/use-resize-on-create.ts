@@ -58,16 +58,16 @@ export default function useResizeOnCreate() {
         const { x: initialClientX, y: initialClientY } =
           initialMousePositionRef.current;
 
-        const scaledClientX = clientX / view.zoomFactor;
-        const scaledClientY = clientY / view.zoomFactor;
+        const scaledClientX = clientX / view.zoomLevel;
+        const scaledClientY = clientY / view.zoomLevel;
 
-        const scaledInitialClientX = initialClientX / view.zoomFactor;
-        const scaledInitialClientY = initialClientY / view.zoomFactor;
+        const scaledInitialClientX = initialClientX / view.zoomLevel;
+        const scaledInitialClientY = initialClientY / view.zoomLevel;
 
-        let originTop = canvasRect.top / view.zoomFactor;
-        let originLeft = canvasRect.left / view.zoomFactor;
-        let originBottom = canvasRect.bottom / view.zoomFactor;
-        let originRight = canvasRect.right / view.zoomFactor;
+        let originTop = canvasRect.top / view.zoomLevel;
+        let originLeft = canvasRect.left / view.zoomLevel;
+        let originBottom = canvasRect.bottom / view.zoomLevel;
+        let originRight = canvasRect.right / view.zoomLevel;
 
         let parentId = '';
         let layer = 0;
@@ -113,10 +113,10 @@ export default function useResizeOnCreate() {
 
             parentId = targetElement.id;
             layer = targetElement.layer + 1;
-            originLeft = targetElementRect.left / view.zoomFactor;
-            originTop = targetElementRect.top / view.zoomFactor;
-            originBottom = targetElementRect.bottom / view.zoomFactor;
-            originRight = targetElementRect.right / view.zoomFactor;
+            originLeft = targetElementRect.left / view.zoomLevel;
+            originTop = targetElementRect.top / view.zoomLevel;
+            originBottom = targetElementRect.bottom / view.zoomLevel;
+            originRight = targetElementRect.right / view.zoomLevel;
           }
         }
 

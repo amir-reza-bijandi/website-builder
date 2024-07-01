@@ -6,9 +6,9 @@ import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useResize(elementIdList: string[]) {
-  const { updateElement, isResizing, setResizing, zoomFactor } = useCanvasStore(
+  const { updateElement, isResizing, setResizing, zoomLevel } = useCanvasStore(
     useShallow((store) => ({
-      zoomFactor: store.view.zoomFactor,
+      zoomLevel: store.view.zoomLevel,
       updateElement: store.updateElement,
       setResizing: store.setResizing,
       isResizing: store.isResizing,
@@ -37,8 +37,8 @@ export default function useResize(elementIdList: string[]) {
     const { x: initialClientX, y: initialClientY } =
       initialMousePositionRef.current!;
 
-    const deltaClientX = (clientX - initialClientX) / zoomFactor;
-    const deltaClientY = (clientY - initialClientY) / zoomFactor;
+    const deltaClientX = (clientX - initialClientX) / zoomLevel;
+    const deltaClientY = (clientY - initialClientY) / zoomLevel;
 
     const canvasWidth = parseInt(getComputedStyle(canvas).width);
     const canvasHeight = parseInt(getComputedStyle(canvas).height);
@@ -288,11 +288,11 @@ export default function useResize(elementIdList: string[]) {
           .getBoundingClientRect();
         const canvasRect = canvas.getBoundingClientRect();
 
-        const parentLeft = (parentRect.left - canvasRect.left) / zoomFactor;
-        const parentTop = (parentRect.top - canvasRect.top) / zoomFactor;
-        const parentRight = (canvasRect.right - parentRect.right) / zoomFactor;
+        const parentLeft = (parentRect.left - canvasRect.left) / zoomLevel;
+        const parentTop = (parentRect.top - canvasRect.top) / zoomLevel;
+        const parentRight = (canvasRect.right - parentRect.right) / zoomLevel;
         const parentBottom =
-          (canvasRect.bottom - parentRect.bottom) / zoomFactor;
+          (canvasRect.bottom - parentRect.bottom) / zoomLevel;
 
         left -= parentLeft;
         right -= parentRight;
@@ -343,10 +343,10 @@ export default function useResize(elementIdList: string[]) {
           .getBoundingClientRect();
         return {
           id: element.id,
-          left: (elementRect.left - canvasRect.left) / zoomFactor,
-          right: (canvasRect.right - elementRect.right) / zoomFactor,
-          top: (elementRect.top - canvasRect.top) / zoomFactor,
-          bottom: (canvasRect.bottom - elementRect.bottom) / zoomFactor,
+          left: (elementRect.left - canvasRect.left) / zoomLevel,
+          right: (canvasRect.right - elementRect.right) / zoomLevel,
+          top: (elementRect.top - canvasRect.top) / zoomLevel,
+          bottom: (canvasRect.bottom - elementRect.bottom) / zoomLevel,
         };
       });
       resizeDirectionRef.current = resizeDirection;

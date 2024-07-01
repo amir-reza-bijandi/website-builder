@@ -3,13 +3,13 @@ import useCanvasStore from '@/store/canvas-store';
 
 export default function createZoomView(
   canvas: Element,
-  zoomFactor: number,
+  zoomLevel: number,
   focusPointX?: number,
   focusPointY?: number,
 ): CanvasStoreView {
   const { view } = useCanvasStore.getState();
-  const newZoomFactor = zoomFactor;
-  const currentZoomFactor = view.zoomFactor;
+  const newzoomLevel = zoomLevel;
+  const currentzoomLevel = view.zoomLevel;
   const {
     x: canvasX,
     y: canvasY,
@@ -21,9 +21,9 @@ export default function createZoomView(
   const distantX = focusPointX ? focusPointX - canvasX : canvasWidth / 2;
   const distantY = focusPointY ? focusPointY - canvasY : canvasHeight / 2;
 
-  // Scale the distance with the new zoom factor
-  const scaledDistantX = distantX * (newZoomFactor / currentZoomFactor);
-  const scaledDistantY = distantY * (newZoomFactor / currentZoomFactor);
+  // Scale the distance with the new zoom level
+  const scaledDistantX = distantX * (newzoomLevel / currentzoomLevel);
+  const scaledDistantY = distantY * (newzoomLevel / currentzoomLevel);
 
   // Calculate amount of extra movement needed for the canves
   const deltaDistantX = scaledDistantX - distantX;
@@ -33,5 +33,5 @@ export default function createZoomView(
   const offsetX = view.offsetX - deltaDistantX;
   const offsetY = view.offsetY - deltaDistantY;
 
-  return { zoomFactor: newZoomFactor, zoomState: 'NORMAL', offsetX, offsetY };
+  return { zoomLevel: newzoomLevel, zoomState: 'NORMAL', offsetX, offsetY };
 }

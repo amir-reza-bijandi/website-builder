@@ -25,20 +25,19 @@ export default function useZoom() {
       // Prevent zoom if the user is moving or resizing an element or panning the canvas
       if (isMoving || isPanning || isResizing) return;
 
-      // Calculate new zoom factor
-      let newZoomFactor = view.zoomFactor;
-      if (deltaY > 0)
-        newZoomFactor = view.zoomFactor / CONFIG.ZOOM_FACTOR_MULTIPLIER;
-      else newZoomFactor = view.zoomFactor * CONFIG.ZOOM_FACTOR_MULTIPLIER;
+      // Calculate new zoom level
+      let newzoomLevel = view.zoomLevel;
+      if (deltaY > 0) newzoomLevel = view.zoomLevel / CONFIG.ZOOM_FACTOR;
+      else newzoomLevel = view.zoomLevel * CONFIG.ZOOM_FACTOR;
 
-      // Check if new zoom factor is within the desired range
-      if (newZoomFactor > CONFIG.ZOOM_FACTOR_MAX) {
+      // Check if new zoom level is within the desired range
+      if (newzoomLevel > CONFIG.ZOOM_LEVEL_MAX) {
         setView({ ...view, zoomState: 'MAX' });
-      } else if (newZoomFactor < CONFIG.ZOOM_FACTOR_MIN) {
+      } else if (newzoomLevel < CONFIG.ZOOM_LEVEL_MIN) {
         setView({ ...view, zoomState: 'MIN' });
       } else {
         const canvas = currentTarget.children[0];
-        setView(createZoomView(canvas, newZoomFactor, clientX, clientY));
+        setView(createZoomView(canvas, newzoomLevel, clientX, clientY));
       }
     }
   };

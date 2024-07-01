@@ -7,7 +7,7 @@ import { CanvasStoreElement } from '@/type/canvas-store-types';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getElementById from '@/utility/canvas/get-element-by-id';
-import scaleWithZoomFactor from '@/utility/canvas/scale-with-zoom-factor';
+import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import { nanoid } from 'nanoid';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -43,7 +43,7 @@ export default function usePaste() {
       newElementList = createPasteInSelectionElementList(
         selectedElementIdList,
         status,
-        view.zoomFactor,
+        view.zoomLevel,
         useMousePosition,
         pastePosition,
       );
@@ -54,7 +54,7 @@ export default function usePaste() {
         newElementList = createMousePasteInCanvasElementList(
           status,
           pastePosition,
-          view.zoomFactor,
+          view.zoomLevel,
         );
       }
     }
@@ -86,7 +86,7 @@ export default function usePaste() {
 function createPasteInSelectionElementList(
   selectedElementIdList: string[],
   clipboardStatus: ClipboardStoreStatus,
-  zoomFactor: number,
+  zoomLevel: number,
   useMousePosition: boolean,
   pastePosition: Position,
 ) {
@@ -98,7 +98,7 @@ function createPasteInSelectionElementList(
       return clipboardStatus.itemList.map(
         ([clipboardItem, clipboardItemChildren, clipboardItemRect]) => {
           let newElement = clipboardItem;
-          const parentRect = scaleWithZoomFactor(
+          const parentRect = scaleWithzoomLevel(
             document
               .getElementById(selectedElement.id)!
               .getBoundingClientRect(),
@@ -108,10 +108,10 @@ function createPasteInSelectionElementList(
           if (useMousePosition) {
             const { x: mouseX, y: mouseY } = pastePosition;
             const newElementLeft =
-              (mouseX - parentRect.left * zoomFactor) / zoomFactor -
+              (mouseX - parentRect.left * zoomLevel) / zoomLevel -
               clipboardItemRect.width / 2;
             const newElementTop =
-              (mouseY - parentRect.top * zoomFactor) / zoomFactor -
+              (mouseY - parentRect.top * zoomLevel) / zoomLevel -
               clipboardItemRect.height / 2;
             const newElementRight =
               parentRect.width - (newElementLeft + clipboardItemRect.width);
@@ -136,14 +136,14 @@ function createPasteInSelectionElementList(
             if (clipboardItem.parentId) {
               if (clipboardItem.position.mode === 'ABSOLUTE') {
                 const newElementRight =
-                  parentRect.width / zoomFactor -
+                  parentRect.width / zoomLevel -
                   (+clipboardItem.position.left +
-                    clipboardItemRect.width / zoomFactor);
+                    clipboardItemRect.width / zoomLevel);
 
                 const newElementBottom =
-                  parentRect.height / zoomFactor -
+                  parentRect.height / zoomLevel -
                   (+clipboardItem.position.left +
-                    clipboardItemRect.height / zoomFactor);
+                    clipboardItemRect.height / zoomLevel);
 
                 newElement = createElement(clipboardItem.type, {
                   ...clipboardItem,
@@ -204,7 +204,7 @@ function createPasteInSelectionElementList(
 function createMousePasteInCanvasElementList(
   clipboardStatus: ClipboardStoreStatus,
   mousePosition: Position,
-  zoomFactor: number,
+  zoomLevel: number,
 ) {
   return clipboardStatus.itemList
     .map(([clipboardItem, clipboardItemChildren, clipboardItemRect]) => {
@@ -217,16 +217,16 @@ function createMousePasteInCanvasElementList(
         .getBoundingClientRect();
 
       const newElementLeft =
-        (mousePosition.x - canvasRect.left) / zoomFactor -
+        (mousePosition.x - canvasRect.left) / zoomLevel -
         clipboardItemRect.width / 2;
       const newElementTop =
-        (mousePosition.y - canvasRect.top) / zoomFactor -
+        (mousePosition.y - canvasRect.top) / zoomLevel -
         clipboardItemRect.height / 2;
       const newElementBottom =
-        canvasRect.height / zoomFactor -
+        canvasRect.height / zoomLevel -
         (newElementTop + clipboardItemRect.height);
       const newElementRight =
-        canvasRect.width / zoomFactor -
+        canvasRect.width / zoomLevel -
         (newElementLeft + clipboardItemRect.width);
 
       newElement = createElement(clipboardItem.type, {

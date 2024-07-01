@@ -153,7 +153,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
         style={
           {
             ...generateStyle(element),
-            boxShadow: `0 0 0 calc(2px / ${view.zoomFactor}) var(--tw-shadow-color)`,
+            boxShadow: `0 0 0 calc(2px / ${view.zoomLevel}) var(--tw-shadow-color)`,
           } as React.CSSProperties
         }
         onMouseDown={handleMouseDown}
