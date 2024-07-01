@@ -3,15 +3,17 @@ import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Position } from '@/type/general-types';
 import useViewStore from '@/store/view-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 export default function usePanning() {
-  const { toolbox, isPanning, setPanning } = useCanvasStore(
+  const { isPanning, setPanning } = useCanvasStore(
     useShallow((store) => ({
-      toolbox: store.toolbox,
       isPanning: store.isPanning,
       setPanning: store.setPanning,
     })),
   );
+  const toolboxAction = useToolboxStore((store) => store.action);
+
   const { offsetX, offsetY, setView } = useViewStore(
     useShallow((store) => ({
       offsetX: store.offsetX,
@@ -25,7 +27,7 @@ export default function usePanning() {
 
   const handlePanning = ({ clientX, clientY }: MouseEvent) => {
     const isPanningAllowd =
-      useCanvasStore.getState().toolbox.action === 'PAN' ? true : false;
+      useToolboxStore.getState().action === 'PAN' ? true : false;
 
     if (isPanningAllowd) {
       if (!isPanning) {
@@ -59,7 +61,7 @@ export default function usePanning() {
   };
 
   const handlePan = (mousePosition: { x: number; y: number }) => {
-    if (toolbox.action === 'PAN' && !isPanning) {
+    if (toolboxAction === 'PAN' && !isPanning) {
       initialMousePositionRef.current = mousePosition;
       initialCanvasOffsetRef.current = { x: offsetX, y: offsetY };
 

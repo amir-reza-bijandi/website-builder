@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type View = {
+export type View = {
   zoomLevel: number;
   zoomState: 'MAX' | 'MIN' | 'NORMAL';
   offsetX: number;

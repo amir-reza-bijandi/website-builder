@@ -1,7 +1,4 @@
-import type {
-  CanvasStoreToolbox,
-  CanvasStoreElement,
-} from '@/type/canvas-store-types';
+import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import type { Placement } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
@@ -11,14 +8,12 @@ import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
 import { create } from 'zustand';
 
 type CanvasStore = {
-  toolbox: CanvasStoreToolbox;
   isPanning: boolean;
   isMoving: boolean;
   isResizing: boolean;
   isFocused: boolean;
   elementList: CanvasStoreElement[];
 
-  setToolbox: (toolbox: Partial<CanvasStoreToolbox>) => void;
   setPanning: (isPanning: boolean) => void;
   setMoving: (isMoving: boolean) => void;
   setResizing: (isResizing: boolean) => void;
@@ -34,10 +29,6 @@ type CanvasStore = {
 };
 
 const useCanvasStore = create<CanvasStore>((set) => ({
-  toolbox: {
-    action: 'SELECT',
-    tool: null,
-  },
   elementList: [],
   isPanning: false,
   isResizing: false,
@@ -45,14 +36,6 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   isFocused: true,
   isCrossLayerSelectionAllowed: false,
   hoverTargetId: '',
-  setToolbox({ action, tool }) {
-    set((store) => ({
-      toolbox: {
-        action: action ?? store.toolbox.action,
-        tool: tool ?? null,
-      },
-    }));
-  },
   setPanning(isPanning) {
     set({ isPanning });
   },

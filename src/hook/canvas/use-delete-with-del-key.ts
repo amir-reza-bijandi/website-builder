@@ -2,14 +2,11 @@ import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 export default function useDeleteWithDelKey() {
-  const { deleteElement, toolbox } = useCanvasStore(
-    useShallow((store) => ({
-      deleteElement: store.deleteElement,
-      toolbox: store.toolbox,
-    })),
-  );
+  const deleteElement = useCanvasStore((store) => store.deleteElement);
+  const toolboxAction = useToolboxStore((store) => store.action);
   const { selectedElementIdList, setSelectedElementIdList, setLayer } =
     useSelectionStore(
       useShallow((store) => ({
@@ -21,7 +18,7 @@ export default function useDeleteWithDelKey() {
 
   useEffect(() => {
     const handleDeleteElement = (e: KeyboardEvent) => {
-      if (toolbox.action === 'SELECT') {
+      if (toolboxAction === 'SELECT') {
         if (e.key === 'Delete') {
           if (selectedElementIdList.length > 0) {
             deleteElement(...selectedElementIdList);
@@ -36,7 +33,7 @@ export default function useDeleteWithDelKey() {
     return () => document.removeEventListener('keydown', handleDeleteElement);
   }, [
     selectedElementIdList,
-    toolbox.action,
+    toolboxAction,
     deleteElement,
     setLayer,
     setSelectedElementIdList,

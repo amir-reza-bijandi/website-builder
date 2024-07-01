@@ -9,14 +9,11 @@ import { useShallow } from 'zustand/react/shallow';
 import CanvasContextMenu from '../canvas-context-menu';
 import useSelectionStore from '@/store/selection-store';
 import useViewStore from '@/store/view-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 export default function Canvas() {
-  const { toolbox, setFocus } = useCanvasStore(
-    useShallow((store) => ({
-      toolbox: store.toolbox,
-      setFocus: store.setFocus,
-    })),
-  );
+  const setFocus = useCanvasStore((store) => store.setFocus);
+  const toolboxAction = useToolboxStore((store) => store.action);
   const { offsetX, offsetY, zoomLevel } = useViewStore();
   const { selectedElementIdList, setLayer, setSelectedElementIdList } =
     useSelectionStore(
@@ -31,7 +28,7 @@ export default function Canvas() {
   const handleResizeOnCreate = useResizeOnCreate();
   const handleZoom = useZoom();
 
-  const isPanningAllowed = toolbox.action === 'PAN';
+  const isPanningAllowed = toolboxAction === 'PAN';
 
   const handleMouseDown: React.MouseEventHandler<HTMLElement> = ({
     clientX,
@@ -41,7 +38,7 @@ export default function Canvas() {
   }) => {
     // Clear selection when clicking on an empty part of canvas
     const canvas = currentTarget.children[0];
-    if (target === canvas && toolbox.action === 'SELECT') {
+    if (target === canvas && toolboxAction === 'SELECT') {
       if (selectedElementIdList.length) {
         setSelectedElementIdList([], {
           isSelectionVisible: false,
@@ -73,7 +70,7 @@ export default function Canvas() {
       <main
         className={cn(
           'relative flex h-full items-center justify-center overflow-hidden',
-          toolbox.action === 'ADD' && 'cursor-custom-crosshair',
+          toolboxAction === 'ADD' && 'cursor-custom-crosshair',
           isPanningAllowed &&
             'cursor-custom-grab active:cursor-custom-grabbing',
         )}

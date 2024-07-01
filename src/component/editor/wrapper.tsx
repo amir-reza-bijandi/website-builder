@@ -9,6 +9,7 @@ import useClipboardStore from '@/store/clipboard-store';
 import useSelectionStore from '@/store/selection-store';
 import { useEffect, useState } from 'react';
 import useViewStore from '@/store/view-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 type WrapperProps = {
   element: CanvasStoreElement;
@@ -16,13 +17,13 @@ type WrapperProps = {
 };
 
 export default function Wrapper({ element, children }: WrapperProps) {
-  const { toolbox, isResizing, isMoving } = useCanvasStore(
+  const { isResizing, isMoving } = useCanvasStore(
     useShallow((store) => ({
-      toolbox: store.toolbox,
       isResizing: store.isResizing,
       isMoving: store.isMoving,
     })),
   );
+  const toolboxAction = useToolboxStore((store) => store.action);
   const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     hoverTargetId,
@@ -100,7 +101,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
   ]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (toolbox.action === 'SELECT') {
+    if (toolboxAction === 'SELECT') {
       e.stopPropagation();
       if (e.button === 0) {
         if (!isElementSelected) {
@@ -137,7 +138,7 @@ export default function Wrapper({ element, children }: WrapperProps) {
 
   // setup for the highlight effect of selectable elements
   const handleMouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (toolbox.action === 'SELECT') {
+    if (toolboxAction === 'SELECT') {
       e.stopPropagation();
       setHoverTargetId(element.id);
     }

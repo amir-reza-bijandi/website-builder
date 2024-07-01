@@ -1,5 +1,6 @@
 import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
+import useToolboxStore from '@/store/toolbox-store';
 import useViewStore from '@/store/view-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
@@ -10,25 +11,21 @@ import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useResizeOnCreate() {
+  const { setResizing, isResizing, addElement, updateElement, elementList } =
+    useCanvasStore(
+      useShallow((store) => ({
+        setResizing: store.setResizing,
+        isResizing: store.isResizing,
+        addElement: store.addElement,
+        updateElement: store.updateElement,
+        elementList: store.elementList,
+      })),
+    );
   const {
-    toolbox,
+    action: toolboxAction,
+    tool: toolboxTool,
     setToolbox,
-    setResizing,
-    isResizing,
-    addElement,
-    updateElement,
-    elementList,
-  } = useCanvasStore(
-    useShallow((store) => ({
-      toolbox: store.toolbox,
-      setToolbox: store.setToolbox,
-      setResizing: store.setResizing,
-      isResizing: store.isResizing,
-      addElement: store.addElement,
-      updateElement: store.updateElement,
-      elementList: store.elementList,
-    })),
-  );
+  } = useToolboxStore();
   const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     selectedElementIdList,
@@ -47,7 +44,7 @@ export default function useResizeOnCreate() {
   const createdElementIdRef = useRef('');
 
   const handleResizingOnCreate = ({ clientX, clientY }: MouseEvent) => {
-    if (toolbox.action === 'ADD' && toolbox.tool) {
+    if (toolboxAction === 'ADD' && toolboxTool) {
       if (!isResizing) {
         setResizing(true);
       }
@@ -138,7 +135,7 @@ export default function useResizeOnCreate() {
             ? originBottom - scaledClientY
             : originBottom - scaledInitialClientY;
 
-        const element = createElement(toolbox.tool, {
+        const element = createElement(toolboxTool, {
           id: createdElementIdRef.current || undefined,
           parentId,
           position: {
@@ -188,7 +185,7 @@ export default function useResizeOnCreate() {
   };
 
   const handleResizeOnCreate = (initialMousePositon: Position) => {
-    if (toolbox.action === 'ADD' && !isResizing) {
+    if (toolboxAction === 'ADD' && !isResizing) {
       initialMousePositionRef.current = initialMousePositon;
 
       document.body.addEventListener('mousemove', handleResizingOnCreate);

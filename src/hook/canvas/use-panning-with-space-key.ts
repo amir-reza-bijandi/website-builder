@@ -1,19 +1,33 @@
 import { useEffect, useRef } from 'react';
 import useCanvasStore from '@/store/canvas-store';
-import { CanvasStoreToolbox } from '@/type/canvas-store-types';
+import { useShallow } from 'zustand/react/shallow';
+import useToolboxStore, { type Toolbox } from '@/store/toolbox-store';
 
 export default function usePanningWithSpaceKey() {
-  const { toolbox, setToolbox, isMoving, isResizing } = useCanvasStore();
+  const { isMoving, isResizing } = useCanvasStore(
+    useShallow((store) => ({
+      isMoving: store.isMoving,
+      isResizing: store.isResizing,
+    })),
+  );
+  const {
+    setToolbox,
+    action: toolboxAction,
+    tool: toolboxTool,
+  } = useToolboxStore();
   const isKeyDownRef = useRef(false);
-  const lastToolboxSnapshot = useRef<CanvasStoreToolbox>();
+  const lastToolboxSnapshot = useRef<Toolbox>();
 
   useEffect(() => {
     const handleAllowPanning = (e: KeyboardEvent) => {
       if (e.code === 'Space' && !isKeyDownRef.current) {
-        if (toolbox.action !== 'PAN') {
+        if (toolboxAction !== 'PAN') {
           // Prevent panning when moving or resizing an element
           if (!isResizing && !isMoving) {
-            lastToolboxSnapshot.current = toolbox;
+            lastToolboxSnapshot.current = {
+              action: toolboxAction,
+              tool: toolboxTool,
+            };
             setToolbox({ action: 'PAN' });
           }
         }
@@ -24,7 +38,7 @@ export default function usePanningWithSpaceKey() {
       if (e.code === 'Space') {
         // Only stop panning if the user is not using the toolbox to select the pan tool
         if (lastToolboxSnapshot.current) {
-          if (toolbox.action === 'PAN') {
+          if (toolboxAction === 'PAN') {
             setToolbox(lastToolboxSnapshot.current);
             lastToolboxSnapshot.current = undefined;
           }
@@ -38,5 +52,5 @@ export default function usePanningWithSpaceKey() {
       document.removeEventListener('keydown', handleAllowPanning);
       document.removeEventListener('keyup', handlePreventPanning);
     };
-  }, [setToolbox, toolbox, isMoving, isResizing]);
+  }, [setToolbox, toolboxAction, toolboxTool, isMoving, isResizing]);
 }

@@ -6,11 +6,10 @@ import {
   TypeIcon,
 } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from '@/component/ui/toggle-group';
-import useCanvasStore from '@/store/canvas-store';
-import type { CanvasStoreTool } from '@/type/canvas-store-types';
+import useToolboxStore, { type ToolboxStoreTool } from '@/store/toolbox-store';
 
 type Tool = {
-  type: Exclude<CanvasStoreTool, null | undefined>;
+  type: Exclude<ToolboxStoreTool, null | undefined>;
   icon: React.ReactNode;
   label: string;
 };
@@ -22,17 +21,14 @@ const toolbox: Readonly<Tool[]> = [
 ];
 
 export default function Toolbox() {
-  const {
-    toolbox: { tool, action },
-    setToolbox,
-  } = useCanvasStore();
+  const { action, setToolbox, tool } = useToolboxStore();
 
   const handleToolChange = (value: string) => {
     if (!value) return;
     if (value === 'SELECT' || value === 'PAN') {
       setToolbox({ action: value });
     } else {
-      setToolbox({ action: 'ADD', tool: value as CanvasStoreTool });
+      setToolbox({ action: 'ADD', tool: value as ToolboxStoreTool });
     }
   };
 

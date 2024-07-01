@@ -11,6 +11,7 @@ import EditContextMenu from '../edit-context-menu';
 import useSelectionStore from '@/store/selection-store';
 import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 import useViewStore from '@/store/view-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 type Rect = {
   left: number;
@@ -121,7 +122,7 @@ const CanvasSelectContainer = memo(function ({
   const canvasSelectContainerRef = useRef<HTMLDivElement>(null);
   const isClickedOnSelection = useRef(false);
   const isSelecting = useRef(false);
-  const toolbox = useCanvasStore((store) => store.toolbox);
+  const toolboxAction = useToolboxStore((store) => store.action);
   const zoomLevel = useViewStore((store) => store.zoomLevel);
   const {
     hoverTargetId,
@@ -158,7 +159,7 @@ const CanvasSelectContainer = memo(function ({
 
   const handleMouseDown: React.MouseEventHandler = (e) => {
     if (e.button === 0) {
-      if (toolbox.action === 'SELECT') {
+      if (toolboxAction === 'SELECT') {
         const { clientX, clientY } = e;
         // Moving element when it's selected
         handleMove(selectedElementIdList, { x: clientX, y: clientY });
@@ -174,7 +175,7 @@ const CanvasSelectContainer = memo(function ({
 
   // Changing current layer with double click
   const handleDoubleClick: React.MouseEventHandler = ({ clientX, clientY }) => {
-    if (toolbox.action === 'SELECT') {
+    if (toolboxAction === 'SELECT') {
       // Prevent double click if muliple elements are selected
       if (selectedElementIdList.length === 1) {
         const selectedElement = getElementById(selectedElementIdList[0])!;
@@ -224,7 +225,7 @@ const CanvasSelectContainer = memo(function ({
 
   // Prevent highlighting already selected elements
   const handleMouseMove: React.MouseEventHandler = ({ button }) => {
-    if (toolbox.action === 'SELECT') {
+    if (toolboxAction === 'SELECT') {
       if (hoverTargetId) {
         setHoverTargetId('');
       }
@@ -295,7 +296,7 @@ const CanvasSelectContainer = memo(function ({
         className={cn(
           'absolute left-0 top-0 z-30 flex animate-fade-in items-center justify-center',
           // Prevent interfering with pan mode
-          toolbox.action === 'PAN' && '*:pointer-events-none',
+          toolboxAction === 'PAN' && '*:pointer-events-none',
           // Make it possible to select element that are blow the selection rectangle
           isCrossLayerSelectionAllowed && 'pointer-events-none',
         )}

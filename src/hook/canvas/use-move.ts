@@ -6,16 +6,17 @@ import { useShallow } from 'zustand/react/shallow';
 import useSelectionStore from '@/store/selection-store';
 import { CanvasStoreElement } from '@/type/canvas-store-types';
 import useViewStore from '@/store/view-store';
+import useToolboxStore from '@/store/toolbox-store';
 
 export default function useMove() {
-  const { toolbox, setMoving, updateElement } = useCanvasStore(
+  const { setMoving, updateElement } = useCanvasStore(
     useShallow((store) => ({
-      toolbox: store.toolbox,
       isMoving: store.isMoving,
       setMoving: store.setMoving,
       updateElement: store.updateElement,
     })),
   );
+  const toolboxAction = useToolboxStore((store) => store.action);
   const zoomLevel = useViewStore((store) => store.zoomLevel);
   const setSelectionVisible = useSelectionStore(
     (store) => store.setSelectionVisible,
@@ -108,7 +109,7 @@ export default function useMove() {
       (elementId) => getElementById(elementId)!,
     );
 
-    if (toolbox.action === 'SELECT') {
+    if (toolboxAction === 'SELECT') {
       if (
         elementListRef.current.every(
           (element) => element.position.mode === 'ABSOLUTE',
