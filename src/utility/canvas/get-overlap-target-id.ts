@@ -33,8 +33,6 @@ export default function getOverlapTargetId(elementIdList: string[]) {
     return ancestorIndexPoint + elementIndexPoint;
   });
 
-  console.log(indexPointList);
-
   const maxIndexPoint = Math.max(...indexPointList);
   const elementIndexWithHighestIndexPoint =
     indexPointList.indexOf(maxIndexPoint);
