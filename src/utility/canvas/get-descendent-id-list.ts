@@ -1,11 +1,11 @@
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore from '@/store/element-store';
 import getElementById from './get-element-by-id';
 
 export default function getDescendentIdList(
   elementId: string,
 ): string[] | null {
   try {
-    const elementList = useCanvasStore.getState().elementList;
+    const elementList = useElementStore.getState().elementList;
     const targetElement = getElementById(elementId);
     if (!targetElement) throw new Error('Element not found!');
     const filteredElementList = elementList

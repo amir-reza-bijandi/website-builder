@@ -1,9 +1,8 @@
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import { memo } from 'react';
 import Frame from './element/frame-element';
 import Text from './element/text-element';
 import Image from './element/image-element';
-import useCanvasStore from '@/store/canvas-store';
 
 type RenderProps = {
   elementId?: string;
@@ -11,7 +10,7 @@ type RenderProps = {
 };
 
 export default function Render({ elementId, layer = 0 }: RenderProps) {
-  const elementList = useCanvasStore((store) => store.elementList);
+  const elementList = useElementStore((store) => store.elementList);
   // Filter element that are in the desired layer
   let layerElementList = elementList.filter(
     (element) => element.layer === layer,
@@ -35,7 +34,7 @@ export default function Render({ elementId, layer = 0 }: RenderProps) {
 }
 
 type CanvasElementProps = {
-  element: CanvasStoreElement;
+  element: ElementStoreElement;
 };
 
 const CanvasElement = memo(function ({ element }: CanvasElementProps) {

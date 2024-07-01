@@ -1,17 +1,17 @@
 import useResize from '@/hook/canvas/use-resize';
-import useCanvasStore from '@/store/canvas-store';
 import { Direction } from '@/type/general-types';
 import { cn } from '@/utility/general-utilities';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import useMove from '@/hook/canvas/use-move';
 import getElementById from '@/utility/canvas/get-element-by-id';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import EditContextMenu from '../edit-context-menu';
 import useSelectionStore from '@/store/selection-store';
 import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 type Rect = {
   left: number;
@@ -142,7 +142,7 @@ const CanvasSelectContainer = memo(function ({
   // Retrigger reflow to apply animation
   useEffect(() => {
     // Prevent filckering when resizing
-    const isResizing = useCanvasStore.getState().isResizing;
+    const isResizing = useCurrentActionStore.getState().isResizing;
     if (!isResizing) {
       const canvasSelectContainer = canvasSelectContainerRef.current;
       if (canvasSelectContainer) {
@@ -179,7 +179,7 @@ const CanvasSelectContainer = memo(function ({
       // Prevent double click if muliple elements are selected
       if (selectedElementIdList.length === 1) {
         const selectedElement = getElementById(selectedElementIdList[0])!;
-        const elementList = useCanvasStore.getState().elementList;
+        const elementList = useElementStore.getState().elementList;
 
         const children = elementList.filter((element) => {
           return (
@@ -210,7 +210,7 @@ const CanvasSelectContainer = memo(function ({
               return element;
             }
             return target;
-          }, {} as CanvasStoreElement);
+          }, {} as ElementStoreElement);
 
           if (target.id) {
             setSelectedElementIdList([target.id], {

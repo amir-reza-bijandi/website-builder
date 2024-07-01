@@ -1,5 +1,5 @@
 import { ElementListContext } from '@/component/panel/element-list/element-list';
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore from '@/store/element-store';
 import useSelectionStore from '@/store/selection-store';
 import { Placement } from '@/type/general-types';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
@@ -10,7 +10,7 @@ export default function useReorder(
   id: string,
   selectOnReleaseRef: React.MutableRefObject<boolean>,
 ) {
-  const changeElementOrder = useCanvasStore(
+  const changeElementOrder = useElementStore(
     (store) => store.changeElementOrder,
   );
   const { dropStatus, setDropStatus, isDraggingRef, isMouseDownRef } =

@@ -1,25 +1,25 @@
-import type { CanvasStoreElement } from '@/type/canvas-store-types';
 import type { Placement } from '@/type/general-types';
-import createElement from '@/utility/canvas/create-element';
 import getAncestorIdList from '@/utility/canvas/get-ancestor-id-list';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import scaleWithzoomLevel from '@/utility/canvas/scale-with-zoom-level';
+import createElement from '@/utility/canvas/create-element';
 import { create } from 'zustand';
 
-type CanvasStore = {
-  isPanning: boolean;
-  isMoving: boolean;
-  isResizing: boolean;
-  isFocused: boolean;
-  elementList: CanvasStoreElement[];
+import CanvasFrameModel from '@/model/frame-model';
+import CanvasImageModel from '@/model/image-model';
+import CanvasTextModel from '@/model/text-model';
 
-  setPanning: (isPanning: boolean) => void;
-  setMoving: (isMoving: boolean) => void;
-  setResizing: (isResizing: boolean) => void;
-  setFocus: (isFocused: boolean) => void;
-  addElement: (...elementList: CanvasStoreElement[]) => void;
-  updateElement: (...updatedElements: CanvasStoreElement[]) => void;
+export type ElementStoreElement =
+  | CanvasFrameModel
+  | CanvasTextModel
+  | CanvasImageModel;
+
+type ElementStore = {
+  elementList: ElementStoreElement[];
+
+  addElement: (...elementList: ElementStoreElement[]) => void;
+  updateElement: (...updatedElements: ElementStoreElement[]) => void;
   deleteElement: (...elementIdList: string[]) => void;
   changeElementOrder: (
     elementIdList: string[],
@@ -28,26 +28,8 @@ type CanvasStore = {
   ) => void;
 };
 
-const useCanvasStore = create<CanvasStore>((set) => ({
+const useElementStore = create<ElementStore>((set) => ({
   elementList: [],
-  isPanning: false,
-  isResizing: false,
-  isMoving: false,
-  isFocused: true,
-  isCrossLayerSelectionAllowed: false,
-  hoverTargetId: '',
-  setPanning(isPanning) {
-    set({ isPanning });
-  },
-  setMoving(isMoving) {
-    set({ isMoving });
-  },
-  setResizing(isResizing) {
-    set({ isResizing });
-  },
-  setFocus(isFocused) {
-    set({ isFocused });
-  },
   addElement(...elementList) {
     set((store) => ({
       elementList: [...store.elementList, ...elementList],
@@ -154,9 +136,12 @@ const useCanvasStore = create<CanvasStore>((set) => ({
               },
             })!;
 
-            return [updatedElement, deltaLayer] as [CanvasStoreElement, number];
+            return [updatedElement, deltaLayer] as [
+              ElementStoreElement,
+              number,
+            ];
           } else {
-            return [element, 0] as [CanvasStoreElement, number];
+            return [element, 0] as [ElementStoreElement, number];
           }
         });
 
@@ -228,4 +213,4 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   },
 }));
 
-export default useCanvasStore;
+export default useElementStore;

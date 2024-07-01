@@ -1,9 +1,9 @@
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore from '@/store/element-store';
 import useSelectionStore from '@/store/selection-store';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useDelete() {
-  const deleteElement = useCanvasStore((store) => store.deleteElement);
+  const deleteElement = useElementStore((store) => store.deleteElement);
   const { selectedElementIdList, setSelectedElementIdList, setLayer } =
     useSelectionStore(
       useShallow((store) => ({

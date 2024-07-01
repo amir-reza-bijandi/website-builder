@@ -2,7 +2,7 @@ import useClipboardStore, {
   ClipboardStoreItem,
   ClipboardStoreOperation,
 } from '@/store/clipboard-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import { ElementStoreElement } from '@/store/element-store';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import useDelete from '../canvas/use-delete';
 import getDescendentIdList from '@/utility/canvas/get-descendent-id-list';
@@ -27,7 +27,7 @@ export default function useClipboardOperation(
       elementIdList = selectedElementIdList;
     }
 
-    const elementList: CanvasStoreElement[] = elementIdList.map((elementId) =>
+    const elementList: ElementStoreElement[] = elementIdList.map((elementId) =>
       JSON.parse(JSON.stringify(getElementById(elementId)!)),
     );
 

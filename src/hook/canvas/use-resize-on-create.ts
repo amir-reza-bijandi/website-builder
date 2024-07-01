@@ -1,4 +1,5 @@
-import useCanvasStore from '@/store/canvas-store';
+import useCurrentActionStore from '@/store/current-action-store';
+import useElementStore from '@/store/element-store';
 import useSelectionStore from '@/store/selection-store';
 import useToolboxStore from '@/store/toolbox-store';
 import useViewStore from '@/store/view-store';
@@ -11,16 +12,19 @@ import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useResizeOnCreate() {
-  const { setResizing, isResizing, addElement, updateElement, elementList } =
-    useCanvasStore(
-      useShallow((store) => ({
-        setResizing: store.setResizing,
-        isResizing: store.isResizing,
-        addElement: store.addElement,
-        updateElement: store.updateElement,
-        elementList: store.elementList,
-      })),
-    );
+  const { setResizing, isResizing } = useCurrentActionStore(
+    useShallow((store) => ({
+      setResizing: store.setResizing,
+      isResizing: store.isResizing,
+    })),
+  );
+  const { addElement, updateElement, elementList } = useElementStore(
+    (store) => ({
+      addElement: store.addElement,
+      updateElement: store.updateElement,
+      elementList: store.elementList,
+    }),
+  );
   const {
     action: toolboxAction,
     tool: toolboxTool,

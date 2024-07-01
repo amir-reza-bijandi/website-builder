@@ -1,11 +1,11 @@
 import CONFIG from '@/config';
-import useCanvasStore from '@/store/canvas-store';
+import useCurrentActionStore from '@/store/current-action-store';
 import useViewStore from '@/store/view-store';
 import createZoomView from '@/utility/canvas/create-zoom-view';
 import { useShallow } from 'zustand/react/shallow';
 
 export default function useZoom() {
-  const { isMoving, isPanning, isResizing } = useCanvasStore(
+  const { isMoving, isPanning, isResizing } = useCurrentActionStore(
     useShallow((store) => ({
       isPanning: store.isPanning,
       isMoving: store.isMoving,

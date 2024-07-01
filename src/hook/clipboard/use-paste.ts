@@ -1,10 +1,9 @@
-import useCanvasStore from '@/store/canvas-store';
 import useClipboardStore, {
   ClipboardStoreStatus,
 } from '@/store/clipboard-store';
 import useSelectionStore from '@/store/selection-store';
 import useViewStore from '@/store/view-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import { Position } from '@/type/general-types';
 import createElement from '@/utility/canvas/create-element';
 import getElementById from '@/utility/canvas/get-element-by-id';
@@ -20,11 +19,7 @@ export default function usePaste() {
     })),
   );
   const zoomLevel = useViewStore((store) => store.zoomLevel);
-  const { addElement } = useCanvasStore(
-    useShallow((store) => ({
-      addElement: store.addElement,
-    })),
-  );
+  const addElement = useElementStore((store) => store.addElement);
   const { layer, setLayer, selectedElementIdList, setSelectedElementIdList } =
     useSelectionStore(
       useShallow((store) => ({
@@ -37,7 +32,7 @@ export default function usePaste() {
 
   const handlePaste = (useMousePosition: boolean = false) => {
     if (!status.operation) return;
-    let newElementList: CanvasStoreElement[] = [];
+    let newElementList: ElementStoreElement[] = [];
 
     // Paste inside a selection
     if (selectedElementIdList.length) {
@@ -261,8 +256,8 @@ function createMousePasteInCanvasElementList(
 }
 
 function createChildren(
-  clipboardItem: CanvasStoreElement,
-  clipboardItemChildren: CanvasStoreElement[],
+  clipboardItem: ElementStoreElement,
+  clipboardItemChildren: ElementStoreElement[],
   deltaLayer: number,
   parentId: string,
 ) {

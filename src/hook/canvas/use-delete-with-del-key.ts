@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useElementStore from '@/store/element-store';
 
 export default function useDeleteWithDelKey() {
-  const deleteElement = useCanvasStore((store) => store.deleteElement);
+  const deleteElement = useElementStore((store) => store.deleteElement);
   const toolboxAction = useToolboxStore((store) => store.action);
   const { selectedElementIdList, setSelectedElementIdList, setLayer } =
     useSelectionStore(

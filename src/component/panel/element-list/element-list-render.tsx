@@ -1,6 +1,6 @@
 import { memo } from 'react';
-import useCanvasStore from '@/store/canvas-store';
 import ElementListItem from './element-list-item';
+import useElementStore from '@/store/element-store';
 
 type ElementListRenderProps = {
   elementId?: string;
@@ -11,7 +11,7 @@ const ElementListRender = memo(function ({
   elementId,
   elementLayer = 0,
 }: ElementListRenderProps) {
-  const elementList = useCanvasStore((store) => store.elementList);
+  const elementList = useElementStore((store) => store.elementList);
   // Filter item that are in the desired layer
   let layerElementList = elementList.filter(
     (item) => item.layer === elementLayer,

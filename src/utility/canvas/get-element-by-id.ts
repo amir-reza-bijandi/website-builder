@@ -1,7 +1,7 @@
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore from '@/store/element-store';
 
 export default function getElementById(elementId: string) {
-  return useCanvasStore
+  return useElementStore
     .getState()
     .elementList.find((element) => element.id === elementId);
 }

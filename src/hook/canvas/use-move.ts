@@ -1,27 +1,21 @@
 import { useRef } from 'react';
-import useCanvasStore from '@/store/canvas-store';
 import type { Position } from '@/type/general-types';
 import getElementById from '@/utility/canvas/get-element-by-id';
-import { useShallow } from 'zustand/react/shallow';
 import useSelectionStore from '@/store/selection-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 export default function useMove() {
-  const { setMoving, updateElement } = useCanvasStore(
-    useShallow((store) => ({
-      isMoving: store.isMoving,
-      setMoving: store.setMoving,
-      updateElement: store.updateElement,
-    })),
-  );
+  const setMoving = useCurrentActionStore((store) => store.setMoving);
+  const updateElement = useElementStore((store) => store.updateElement);
   const toolboxAction = useToolboxStore((store) => store.action);
   const zoomLevel = useViewStore((store) => store.zoomLevel);
   const setSelectionVisible = useSelectionStore(
     (store) => store.setSelectionVisible,
   );
-  const elementListRef = useRef<CanvasStoreElement[]>([]);
+  const elementListRef = useRef<ElementStoreElement[]>([]);
 
   const initialMousePositionRef = useRef<Position>();
 
@@ -32,7 +26,7 @@ export default function useMove() {
         (element) => element.position.mode === 'ABSOLUTE',
       )
     ) {
-      const isMoving = useCanvasStore.getState().isMoving;
+      const isMoving = useCurrentActionStore.getState().isMoving;
       if (!isMoving) {
         setMoving(true);
       }
@@ -87,7 +81,7 @@ export default function useMove() {
   };
   const handleMoveEnd = () => {
     const isSelectionVisible = useSelectionStore.getState().isSelectionVisible;
-    const isMoving = useCanvasStore.getState().isMoving;
+    const isMoving = useCurrentActionStore.getState().isMoving;
 
     if (isMoving) {
       setMoving(false);

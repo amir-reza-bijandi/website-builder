@@ -3,12 +3,11 @@ import getElementById from '@/utility/canvas/get-element-by-id';
 import { capitalize } from '@/utility/general-utilities';
 import { useContext } from 'react';
 import createElement from '@/utility/canvas/create-element';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 
-export default function useRename(element: CanvasStoreElement) {
+export default function useRename(element: ElementStoreElement) {
   const { id, type } = element;
-  const updateElement = useCanvasStore((store) => store.updateElement);
+  const updateElement = useElementStore((store) => store.updateElement);
   const { setRenameTargetId, renameTargetId } = useContext(ElementListContext);
 
   const handleItemDoubleClick: React.MouseEventHandler<HTMLDivElement> = (

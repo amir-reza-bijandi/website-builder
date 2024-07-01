@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CanvasStoreElement } from '@/type/canvas-store-types';
+import type { ElementStoreElement } from '@/store/element-store';
 import { Position } from '@/type/general-types';
 
 export type ClipboardStoreStatus = {
@@ -9,8 +9,8 @@ export type ClipboardStoreStatus = {
 
 export type ClipboardStoreOperation = 'COPY' | 'CUT' | null;
 export type ClipboardStoreItem = [
-  CanvasStoreElement,
-  CanvasStoreElement[] | null,
+  ElementStoreElement,
+  ElementStoreElement[] | null,
   DOMRect,
 ];
 

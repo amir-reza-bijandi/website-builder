@@ -1,8 +1,8 @@
-import useCanvasStore from '@/store/canvas-store';
+import useElementStore from '@/store/element-store';
 import getElementById from './get-element-by-id';
 
 export default function getAncestorIdList(elementId: string): string[] | null {
-  const elementList = useCanvasStore.getState().elementList;
+  const elementList = useElementStore.getState().elementList;
   try {
     const targetElement = getElementById(elementId);
     if (!targetElement) throw new Error('Element not found!');

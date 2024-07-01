@@ -1,8 +1,7 @@
 import EditContextMenu from '@/component/edit-context-menu';
 import useReorder from '@/hook/element-list/use-reorder';
 import useSelect from '@/hook/element-list/use-select';
-import useCanvasStore from '@/store/canvas-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import { CanvasElementType } from '@/type/element-property-types';
 import { cn } from '@/utility/general-utilities';
 import { FrameIcon, TypeIcon, ImageIcon, ChevronRightIcon } from 'lucide-react';
@@ -20,7 +19,7 @@ const iconMap: Record<CanvasElementType, JSX.Element> = {
 };
 
 type ElementListItemProps = {
-  element: CanvasStoreElement;
+  element: ElementStoreElement;
   index: number;
 };
 
@@ -32,7 +31,7 @@ const ElementListItem = memo(function ({
 
   const { dropStatus, renameTargetId } = useContext(ElementListContext);
 
-  const elementList = useCanvasStore((store) => store.elementList);
+  const elementList = useElementStore((store) => store.elementList);
   const selectedElementIdList = useSelectionStore(
     (store) => store.selectedElementIdList,
   );

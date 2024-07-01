@@ -1,4 +1,3 @@
-import useCanvasStore from '@/store/canvas-store';
 import { cn } from '@/utility/general-utilities';
 import CanvasRender from './render';
 import CanvasSelect from './select';
@@ -10,9 +9,10 @@ import CanvasContextMenu from '../canvas-context-menu';
 import useSelectionStore from '@/store/selection-store';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 export default function Canvas() {
-  const setFocus = useCanvasStore((store) => store.setFocus);
+  const setFocus = useCurrentActionStore((store) => store.setFocus);
   const toolboxAction = useToolboxStore((store) => store.action);
   const { offsetX, offsetY, zoomLevel } = useViewStore();
   const { selectedElementIdList, setLayer, setSelectedElementIdList } =

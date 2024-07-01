@@ -1,8 +1,7 @@
-import useCanvasStore from '@/store/canvas-store';
 import { useShallow } from 'zustand/react/shallow';
 import { cn } from '@/utility/general-utilities';
 import generateStyle from '@/utility/canvas/generate-style';
-import type { CanvasStoreElement } from '@/type/canvas-store-types';
+import type { ElementStoreElement } from '@/store/element-store';
 import useMove from '@/hook/canvas/use-move';
 import EditContextMenu from '../edit-context-menu';
 import useClipboardStore from '@/store/clipboard-store';
@@ -10,14 +9,15 @@ import useSelectionStore from '@/store/selection-store';
 import { useEffect, useState } from 'react';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 type WrapperProps = {
-  element: CanvasStoreElement;
+  element: ElementStoreElement;
   children: React.ReactNode;
 };
 
 export default function Wrapper({ element, children }: WrapperProps) {
-  const { isResizing, isMoving } = useCanvasStore(
+  const { isResizing, isMoving } = useCurrentActionStore(
     useShallow((store) => ({
       isResizing: store.isResizing,
       isMoving: store.isMoving,

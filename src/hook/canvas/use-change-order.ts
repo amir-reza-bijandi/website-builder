@@ -1,18 +1,17 @@
-import useCanvasStore from '@/store/canvas-store';
 import useSelectionStore from '@/store/selection-store';
-import { CanvasStoreElement } from '@/type/canvas-store-types';
+import useElementStore, { ElementStoreElement } from '@/store/element-store';
 import getElementById from '@/utility/canvas/get-element-by-id';
 import { useShallow } from 'zustand/react/shallow';
 
 type GroupedElementList = {
   parentId: string;
-  filteredElementList: CanvasStoreElement[];
+  filteredElementList: ElementStoreElement[];
 }[];
 
 export default function useChangeOrder(
   order: 'SEND_TO_BACK' | 'BRING_TO_FRONT',
 ) {
-  const { elementList, changeElementOrder } = useCanvasStore(
+  const { elementList, changeElementOrder } = useElementStore(
     useShallow((store) => ({
       elementList: store.elementList,
       changeElementOrder: store.changeElementOrder,
@@ -63,7 +62,7 @@ export default function useChangeOrder(
         targetElementIndex =
           elementList.length -
           1 -
-          (JSON.parse(JSON.stringify(elementList)) as CanvasStoreElement[])
+          (JSON.parse(JSON.stringify(elementList)) as ElementStoreElement[])
             .reverse()
             .findIndex((element) => element.parentId === parentId)!;
       }

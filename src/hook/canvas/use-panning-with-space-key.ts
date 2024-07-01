@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
-import useCanvasStore from '@/store/canvas-store';
 import { useShallow } from 'zustand/react/shallow';
 import useToolboxStore, { type Toolbox } from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 export default function usePanningWithSpaceKey() {
-  const { isMoving, isResizing } = useCanvasStore(
+  const { isMoving, isResizing } = useCurrentActionStore(
     useShallow((store) => ({
       isMoving: store.isMoving,
       isResizing: store.isResizing,

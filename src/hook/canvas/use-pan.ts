@@ -1,12 +1,12 @@
-import useCanvasStore from '@/store/canvas-store';
 import { useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Position } from '@/type/general-types';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
+import useCurrentActionStore from '@/store/current-action-store';
 
 export default function usePanning() {
-  const { isPanning, setPanning } = useCanvasStore(
+  const { isPanning, setPanning } = useCurrentActionStore(
     useShallow((store) => ({
       isPanning: store.isPanning,
       setPanning: store.setPanning,
