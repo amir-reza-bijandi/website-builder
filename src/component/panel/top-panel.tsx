@@ -1,4 +1,4 @@
-import GlobalMenubar from './global-menubar';
+import GlobalMenubar from '../global-menubar';
 
 export default function TopPanel() {
   return (
