@@ -104,12 +104,14 @@ function createPasteInSelectionElementList(
 
           if (useMousePosition) {
             const { x: mouseX, y: mouseY } = pastePosition;
-            const newElementLeft =
+            const newElementLeft = Math.round(
               (mouseX - parentRect.left * zoomLevel) / zoomLevel -
-              clipboardItemRect.width / 2;
-            const newElementTop =
+                clipboardItemRect.width / 2,
+            );
+            const newElementTop = Math.round(
               (mouseY - parentRect.top * zoomLevel) / zoomLevel -
-              clipboardItemRect.height / 2;
+                clipboardItemRect.height / 2,
+            );
             const newElementRight =
               parentRect.width - (newElementLeft + clipboardItemRect.width);
             const newElementBottom =
@@ -132,15 +134,17 @@ function createPasteInSelectionElementList(
             // Check whether the element has a parent
             if (clipboardItem.parentId) {
               if (clipboardItem.position.mode === 'ABSOLUTE') {
-                const newElementRight =
+                const newElementRight = Math.round(
                   parentRect.width / zoomLevel -
-                  (+clipboardItem.position.left +
-                    clipboardItemRect.width / zoomLevel);
+                    (+clipboardItem.position.left +
+                      clipboardItemRect.width / zoomLevel),
+                );
 
-                const newElementBottom =
+                const newElementBottom = Math.round(
                   parentRect.height / zoomLevel -
-                  (+clipboardItem.position.left +
-                    clipboardItemRect.height / zoomLevel);
+                    (+clipboardItem.position.left +
+                      clipboardItemRect.height / zoomLevel),
+                );
 
                 newElement = createElement(clipboardItem.type, {
                   ...clipboardItem,
@@ -213,18 +217,22 @@ function createMousePasteInCanvasElementList(
         .getElementById('canvas')!
         .getBoundingClientRect();
 
-      const newElementLeft =
+      const newElementLeft = Math.round(
         (mousePosition.x - canvasRect.left) / zoomLevel -
-        clipboardItemRect.width / 2;
-      const newElementTop =
+          clipboardItemRect.width / 2,
+      );
+      const newElementTop = Math.round(
         (mousePosition.y - canvasRect.top) / zoomLevel -
-        clipboardItemRect.height / 2;
-      const newElementBottom =
+          clipboardItemRect.height / 2,
+      );
+      const newElementBottom = Math.round(
         canvasRect.height / zoomLevel -
-        (newElementTop + clipboardItemRect.height);
-      const newElementRight =
+          (newElementTop + clipboardItemRect.height),
+      );
+      const newElementRight = Math.round(
         canvasRect.width / zoomLevel -
-        (newElementLeft + clipboardItemRect.width);
+          (newElementLeft + clipboardItemRect.width),
+      );
 
       newElement = createElement(clipboardItem.type, {
         ...clipboardItem,
