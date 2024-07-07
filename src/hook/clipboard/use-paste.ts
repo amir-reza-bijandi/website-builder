@@ -64,6 +64,7 @@ export default function usePaste() {
           .sort((a, b) => a.layer - b.layer)
           .filter((element, _, array) => element.layer === array[0].layer)
           .map((element) => element.id),
+        { isSelectionVisible: true },
       );
 
       // Change the layer to the min layer

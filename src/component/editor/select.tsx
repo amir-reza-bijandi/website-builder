@@ -11,7 +11,6 @@ import useSelectionStore from '@/store/selection-store';
 import getOverlapTargetId from '@/utility/canvas/get-overlap-target-id';
 import useViewStore from '@/store/view-store';
 import useToolboxStore from '@/store/toolbox-store';
-import useCurrentActionStore from '@/store/current-action-store';
 
 type Rect = {
   left: number;
@@ -143,22 +142,9 @@ const CanvasSelectContainer = memo(function ({
       hoverTargetId: store.hoverTargetId,
       setHoverTargetId: store.setHoverTargetId,
       isCrossLayerSelectionAllowed: store.isCrossLayerSelectionAllowed,
+      isSelectionVisible: store.isSelectionVisible,
     })),
   );
-
-  // Retrigger reflow to apply animation
-  useEffect(() => {
-    // Prevent filckering when resizing
-    const isResizing = useCurrentActionStore.getState().isResizing;
-    if (!isResizing) {
-      const canvasSelectContainer = canvasSelectContainerRef.current;
-      if (canvasSelectContainer) {
-        canvasSelectContainer.classList.remove('animate-fade-in');
-        canvasSelectContainer.offsetHeight;
-        canvasSelectContainer.classList.add('animate-fade-in');
-      }
-    }
-  }, [left, top, width, height]);
 
   const selectedElementIdList =
     useSelectionStore.getState().selectedElementIdList;
