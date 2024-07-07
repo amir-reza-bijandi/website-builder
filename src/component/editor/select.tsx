@@ -27,6 +27,7 @@ export default memo(function CanvasSelect() {
       selectedElementIdList: store.selectedElementIdList,
     })),
   );
+  const elementList = useElementStore((store) => store.elementList);
 
   const [rect, setRect] = useState<Rect>();
 
@@ -94,7 +95,13 @@ export default memo(function CanvasSelect() {
     } else {
       setRect(undefined);
     }
-  }, [selectedElementIdList, zoomLevel, isSelectionVisible, showSelection]);
+  }, [
+    selectedElementIdList,
+    zoomLevel,
+    isSelectionVisible,
+    showSelection,
+    elementList,
+  ]);
 
   if (rect && showSelection) {
     return <CanvasSelectContainer rect={rect} />;

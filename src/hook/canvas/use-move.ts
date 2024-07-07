@@ -32,8 +32,8 @@ export default function useMove() {
     const { x: initialPointerX, y: initialPointerY } =
       initialPointerPositionRef.current!;
 
-    const pointerX = clientX / zoomLevel;
-    const pointerY = clientY / zoomLevel;
+    const pointerX = Math.round(clientX / zoomLevel);
+    const pointerY = Math.round(clientY / zoomLevel);
 
     // Calculate the amount mouse movement
     const deltaX = pointerX - initialPointerX;

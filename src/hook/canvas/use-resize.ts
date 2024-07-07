@@ -39,8 +39,8 @@ export default function useResize(elementIdList: string[]) {
     const { x: initialClientX, y: initialClientY } =
       initialMousePositionRef.current!;
 
-    const deltaClientX = (clientX - initialClientX) / zoomLevel;
-    const deltaClientY = (clientY - initialClientY) / zoomLevel;
+    const deltaClientX = Math.round((clientX - initialClientX) / zoomLevel);
+    const deltaClientY = Math.round((clientY - initialClientY) / zoomLevel);
 
     const canvasWidth = parseInt(getComputedStyle(canvas).width);
     const canvasHeight = parseInt(getComputedStyle(canvas).height);
@@ -290,11 +290,18 @@ export default function useResize(elementIdList: string[]) {
           .getBoundingClientRect();
         const canvasRect = canvas.getBoundingClientRect();
 
-        const parentLeft = (parentRect.left - canvasRect.left) / zoomLevel;
-        const parentTop = (parentRect.top - canvasRect.top) / zoomLevel;
-        const parentRight = (canvasRect.right - parentRect.right) / zoomLevel;
-        const parentBottom =
-          (canvasRect.bottom - parentRect.bottom) / zoomLevel;
+        const parentLeft = Math.round(
+          (parentRect.left - canvasRect.left) / zoomLevel,
+        );
+        const parentTop = Math.round(
+          (parentRect.top - canvasRect.top) / zoomLevel,
+        );
+        const parentRight = Math.round(
+          (canvasRect.right - parentRect.right) / zoomLevel,
+        );
+        const parentBottom = Math.round(
+          (canvasRect.bottom - parentRect.bottom) / zoomLevel,
+        );
 
         left -= parentLeft;
         right -= parentRight;
@@ -345,10 +352,12 @@ export default function useResize(elementIdList: string[]) {
           .getBoundingClientRect();
         return {
           id: element.id,
-          left: (elementRect.left - canvasRect.left) / zoomLevel,
-          right: (canvasRect.right - elementRect.right) / zoomLevel,
-          top: (elementRect.top - canvasRect.top) / zoomLevel,
-          bottom: (canvasRect.bottom - elementRect.bottom) / zoomLevel,
+          left: Math.round((elementRect.left - canvasRect.left) / zoomLevel),
+          right: Math.round((canvasRect.right - elementRect.right) / zoomLevel),
+          top: Math.round((elementRect.top - canvasRect.top) / zoomLevel),
+          bottom: Math.round(
+            (canvasRect.bottom - elementRect.bottom) / zoomLevel,
+          ),
         };
       });
       resizeDirectionRef.current = resizeDirection;
