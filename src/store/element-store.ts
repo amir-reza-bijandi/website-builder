@@ -96,6 +96,12 @@ const useElementStore = create<ElementStore>((set) => ({
                   top: elementRect.top - targetParentElementRect.top,
                   bottom: targetParentElementRect.bottom - elementRect.bottom,
                 }));
+
+                // Prevent elements from getting smaller
+                left -= 1;
+                right -= 1;
+                top -= 1;
+                bottom -= 1;
               } else {
                 // Calculate position based on canvas
                 ({ left, right, top, bottom } = scaleWithZoomLevel({
@@ -118,6 +124,12 @@ const useElementStore = create<ElementStore>((set) => ({
                 top: elementRect.top - targetElementRect.top,
                 bottom: targetElementRect.bottom - elementRect.bottom,
               }));
+
+              // Prevent elements from getting smaller
+              left -= 1;
+              right -= 1;
+              top -= 1;
+              bottom -= 1;
 
               layer = targetElement.layer + 1;
               parentId = targetElement.id;
