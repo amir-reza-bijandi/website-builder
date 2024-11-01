@@ -1,4 +1,4 @@
-# website-builder
+# Website Builder
 
 A versatile, user-friendly platform for crafting stunning static webpages.
 
@@ -21,11 +21,10 @@ Please note that this project is still in its initial development phase. While i
 
 ## 📦 Getting Started
 
-###Clone the Repository:
+### Clone the Repository:
 
 ```bash
-    git clone https://github.com/your-username/website-builder.git
-
+git clone https://github.com/your-username/website-builder.git
 ```
 
 ### Install Dependencies:
